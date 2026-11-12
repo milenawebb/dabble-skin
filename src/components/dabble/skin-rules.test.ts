@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DABBLE_HOTKEYS, getControlSize } from './skin-rules';
+import { DABBLE_HOTKEYS, DABBLE_PLAYBACK_RATES, getCaptionLine, getPlayerSource, getControlSize, showCenterPlay } from './skin-rules';
 
 describe('Dabble keyboard rules', () => {
   it('binds Space and K to playback', () => {
@@ -17,4 +17,14 @@ describe('player-relative controls', () => {
   it('uses large controls at 560px', () => { expect(getControlSize(560)).toBe('large'); });
   it('uses medium controls from 420px to 559px', () => { expect(getControlSize(420)).toBe('medium'); expect(getControlSize(559)).toBe('medium'); });
   it('uses small controls below 420px', () => { expect(getControlSize(419)).toBe('small'); });
+});
+
+describe('step four player rules', () => {
+  it('offers the five requested playback rates in order', () => { expect(DABBLE_PLAYBACK_RATES).toEqual([0.5, 1, 1.25, 1.5, 2]); });
+  it('shows the center invitation before first play', () => { expect(showCenterPlay(false, false)).toBe(true); });
+  it('does not return the invitation on an ordinary pause', () => { expect(showCenterPlay(true, false)).toBe(false); });
+  it('returns the center invitation after ending', () => { expect(showCenterPlay(true, true)).toBe(true); });
+  it('moves captions above a visible 84px overlap', () => { expect(getCaptionLine(84, 200, true)).toBe(54); });
+  it('lowers captions when the controls are hidden', () => { expect(getCaptionLine(84, 200, false)).toBe(98); });
+  it('uses a nonexistent source only for the broken test', () => { expect(getPlayerSource('oceans.mp4', true)).toBe('/dabble-video-does-not-exist.mp4'); expect(getPlayerSource('oceans.mp4', false)).toBe('oceans.mp4'); });
 });

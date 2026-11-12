@@ -15,3 +15,17 @@ export const DABBLE_HOTKEYS: ReadonlyArray<Hotkey.Props> = [
 export function getControlSize(width: number) {
   return width < 420 ? 'small' : width < 560 ? 'medium' : 'large';
 }
+
+export const DABBLE_PLAYBACK_RATES = [0.5, 1, 1.25, 1.5, 2] as const;
+
+export function showCenterPlay(started: boolean, ended: boolean) {
+  return !started || ended;
+}
+
+export function getCaptionLine(overlap: number, videoHeight: number, controlsVisible: boolean) {
+  return controlsVisible ? Math.max(0, Math.min(98, (videoHeight - Math.max(0, overlap) - 8) / Math.max(1, videoHeight) * 100)) : 98;
+}
+
+export function getPlayerSource(src: string, broken: boolean) {
+  return broken ? '/dabble-video-does-not-exist.mp4' : src;
+}

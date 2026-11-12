@@ -35,3 +35,5 @@ use the editor.
 - Keep canvas and paint wrappers outside `VideoPlayer`; `DabbleSkin` registers its inner `Container` as the fullscreen target, so fullscreen excludes the frame.
 - Calculate frame spacing from the canvas wrapper's measured width with `ResizeObserver`, and video shape from native metadata; keep geometry rules in a pure tested helper.
 - Delegate visibility timing and input actions to Video.js; preserve component-provided handlers and ARIA when rendering custom button content.
+- Compose player states with Poster, PlayButton, Gesture, BufferingIndicator, and ErrorDialog, and speed selection with Menu and PlaybackRateRadioGroup; library primitives own actions, focus, and controls locks.
+- Keep native browser caption rendering and position cue bottoms with percentage lines from measured control-bar overlap; resolve semantic CSS tokens for native cue styling without replacing the renderer.

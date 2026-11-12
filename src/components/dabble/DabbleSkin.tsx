@@ -1,8 +1,8 @@
-import { Container, Controls, PlayButton, TimeSlider, Time, MuteButton, VolumeSlider, CaptionsButton, PlaybackRateButton, FullscreenButton, Hotkey, StatusAnnouncer } from '@videojs/react';
+import { Container, Controls, PlayButton, TimeSlider, Time, MuteButton, VolumeSlider, CaptionsButton, Menu, PlaybackRateRadioGroup, FullscreenButton, Hotkey, StatusAnnouncer, Poster, Gesture, BufferingIndicator, ErrorDialog } from '@videojs/react';
 import { usePlayer } from '@videojs/react/video';
-import { useEffect, useRef, useState, type ReactNode, type CSSProperties } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode, type CSSProperties } from 'react';
 import './dabble-skin.css';
-import { DABBLE_HOTKEYS, getControlSize } from './skin-rules';
+import { DABBLE_HOTKEYS, DABBLE_PLAYBACK_RATES, getCaptionLine, getControlSize, showCenterPlay } from './skin-rules';
 
 function Blob() { return <span className="dabble-blob" aria-hidden="true" />; }
 
@@ -23,6 +23,81 @@ export function DabbleSkin({ children }: { children: ReactNode }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<'small' | 'medium' | 'large'>('large');
   const progress = usePlayer((state) => state.duration > 0 ? Math.min(100, Math.max(0, state.currentTime / state.duration * 100)) : 0);
+  const started = usePlayer((state) => state.started);
+  const ended = usePlayer((state) => state.ended);
+  const controlsVisible = usePlayer((state) => state.controlsVisible);
+  const hasError = usePlayer((state) => Boolean(state.error));
+  const requestControlsLock = usePlayer((state) => state.requestControlsLock);
+  const centerVisible = showCenterPlay(started, ended) && !hasError;
+  const centerRef = useRef<HTMLButtonElement>(null);
+  const playRef = useRef<HTMLButtonElement>(null);
+  const centerHadFocus = useRef(false);
+  const captionId = useId().replace(/[^a-zA-Z0-9_-]/g, '');
+
+  useEffect(() => {
+    return ended ? requestControlsLock() : undefined;
+  }, [ended, requestControlsLock]);
+
+  useEffect(() => {
+    if (!centerVisible && centerHadFocus.current) {
+      playRef.current?.focus();
+      centerHadFocus.current = false;
+    }
+  }, [centerVisible]);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    const video = root?.querySelector('video');
+    const bar = root?.querySelector<HTMLElement>('.dabble-bar');
+    if (!root || !video || !bar) return;
+    const originalLines = new Map<VTTCue, { line: number | 'auto'; snap: boolean; align: LineAlignSetting }>();
+    // Native cue boxes do not inherit custom properties from the video in Chromium.
+    // Resolve the existing semantic tokens, leaving rendering entirely to the browser.
+    const cueStyle = document.createElement('style');
+    root.append(cueStyle);
+    const positionCues = () => {
+      const visible = controlsVisible || Boolean(root.querySelector(':focus-visible'));
+      const overlap = Math.max(0, video.getBoundingClientRect().bottom - bar.getBoundingClientRect().top);
+      const lineHeight = Math.min(20, Math.max(14, root.clientWidth * 0.022)) * 1.35;
+      const tokens = getComputedStyle(root);
+      cueStyle.textContent = `[data-caption-id="${captionId}"] video::cue { color: ${tokens.getPropertyValue('--dabble-caption-text')}; background-color: ${tokens.getPropertyValue('--dabble-ink')}; font-family: ${tokens.getPropertyValue('--dabble-ui-font')}; font-weight: 500; font-size: ${lineHeight / 1.35}px; line-height: 1.35; text-shadow: none; }`;
+      for (const track of Array.from(video.textTracks)) {
+        for (const cue of Array.from(track.cues ?? [])) {
+          if (!(cue instanceof VTTCue)) continue;
+          if (!originalLines.has(cue)) originalLines.set(cue, { line: cue.line, snap: cue.snapToLines, align: cue.lineAlign });
+          const line = getCaptionLine(overlap, video.getBoundingClientRect().height, visible);
+          if (cue.snapToLines) cue.snapToLines = false;
+          cue.lineAlign = 'end';
+          if (cue.line !== line) cue.line = line;
+        }
+      }
+    };
+    positionCues();
+    const observer = new ResizeObserver(positionCues);
+    observer.observe(root);
+    observer.observe(bar);
+    const tracks = Array.from(video.textTracks);
+    tracks.forEach((track) => track.addEventListener('cuechange', positionCues));
+    video.textTracks.addEventListener('change', positionCues);
+    video.addEventListener('loadeddata', positionCues);
+    video.addEventListener('timeupdate', positionCues);
+    // Capture track load, which doesn't bubble, including asynchronously loaded cues.
+    video.addEventListener('load', positionCues, true);
+    root.addEventListener('focusin', positionCues);
+    root.addEventListener('focusout', positionCues);
+    return () => {
+      observer.disconnect();
+      cueStyle.remove();
+      tracks.forEach((track) => track.removeEventListener('cuechange', positionCues));
+      video.textTracks.removeEventListener('change', positionCues);
+      video.removeEventListener('loadeddata', positionCues);
+      video.removeEventListener('timeupdate', positionCues);
+      video.removeEventListener('load', positionCues, true);
+      root.removeEventListener('focusin', positionCues);
+      root.removeEventListener('focusout', positionCues);
+      originalLines.forEach((original, cue) => { cue.line = original.line; cue.snapToLines = original.snap; cue.lineAlign = original.align; });
+    };
+  }, [controlsVisible, size, captionId]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -40,18 +115,22 @@ export function DabbleSkin({ children }: { children: ReactNode }) {
     return () => { observer.disconnect(); document.removeEventListener('fullscreenchange', measure); };
   }, []);
 
-  const play = <PlayButton className="dabble-button dabble-play" render={(props, state) => <button {...props}><Blob /><Icon kind={state.ended ? 'replay' : state.paused ? 'play' : 'pause'} /></button>} />;
+  const play = <PlayButton ref={playRef} label={(state) => state.ended ? 'Replay' : state.paused ? 'Play' : 'Pause'} className="dabble-button dabble-play" render={(props, state) => <button {...props} tabIndex={centerVisible ? -1 : props.tabIndex} aria-hidden={centerVisible || undefined}><Blob /><Icon kind={state.ended ? 'replay' : state.paused ? 'play' : 'pause'} /></button>} />;
   const mute = <MuteButton className="dabble-button dabble-mute" render={(props, state) => <button {...props} data-on={state.muted}><Blob /><Icon kind={state.volumeLevel === 'off' ? 'muted' : 'volume'} /></button>} />;
   const captions = <CaptionsButton label="Captions" className="dabble-button dabble-captions" render={(props, state) => <button {...props} data-on={state.subtitlesShowing}><Blob /><span aria-hidden="true">CC</span></button>} />;
-  const speed = <PlaybackRateButton label="Playback speed" className="dabble-button dabble-speed" render={(props, state) => <button {...props}><Blob /><span aria-hidden="true">{state.rate}x</span></button>} />;
+  const speed = <Menu.Root side="top" align="end" boundary="container"><PlaybackRateRadioGroup.Root rates={DABBLE_PLAYBACK_RATES} formatRate={(rate) => `${rate}x`}><Menu.Trigger aria-label="Playback speed" className="dabble-button dabble-speed" render={<button type="button" />}><Blob /><PlaybackRateRadioGroup.Value aria-hidden="true" /></Menu.Trigger><Menu.Popup className="dabble-speed-menu"><Menu.Content><PlaybackRateRadioGroup.Options renderItem={(props, item) => <Menu.RadioItem {...props} key={item.value} className="dabble-speed-item"><Blob />{item.label}</Menu.RadioItem>} /></Menu.Content></Menu.Popup></PlaybackRateRadioGroup.Root></Menu.Root>;
   const fullscreen = <FullscreenButton className="dabble-button dabble-fullscreen" render={(props, state) => <button {...props}><Blob /><Icon kind={state.fullscreen ? 'exit' : 'fullscreen'} /></button>} />;
   const seek = <TimeSlider.Root className="dabble-slider dabble-seek"><TimeSlider.Track className="dabble-track"><TimeSlider.Buffer className="dabble-buffer" /><TimeSlider.Fill className="dabble-fill" /></TimeSlider.Track><TimeSlider.Thumb className="dabble-thumb" /></TimeSlider.Root>;
   const time = <span className="dabble-time"><Time.Value type="current" /><span aria-hidden="true">/</span><Time.Value type="duration" /></span>;
   const volume = <VolumeSlider.Root className="dabble-slider dabble-volume"><VolumeSlider.Track className="dabble-track"><VolumeSlider.Fill className="dabble-fill" /></VolumeSlider.Track><VolumeSlider.Thumb className="dabble-thumb" /></VolumeSlider.Root>;
 
   return (
-    <Container ref={rootRef} className="dabble-skin" data-size={size}>
+    <Container ref={rootRef} className="dabble-skin" data-size={size} data-caption-id={captionId} data-invitation={centerVisible || undefined}>
       {children}
+      <Poster.Root className="dabble-poster"><Poster.Image /></Poster.Root>
+      <Gesture type="tap" action="togglePaused" />
+      <PlayButton ref={centerRef} hidden={!centerVisible} label={ended ? 'Replay' : 'Play'} className="dabble-button dabble-play dabble-center-play" render={(props) => <button {...props} onFocus={(event) => { props.onFocus?.(event); centerHadFocus.current = event.currentTarget.matches(':focus-visible'); }} onBlur={(event) => { props.onBlur?.(event); if (event.relatedTarget) centerHadFocus.current = false; }}><Blob /><Icon kind={ended ? 'replay' : 'play'} /></button>} />
+      <BufferingIndicator className="dabble-loading" render={(props, state) => <div {...props} role="status" aria-live="polite">{state.visible && <><span className="dabble-loading-disc" aria-hidden="true"><span /></span><span className="dabble-loading-label">Loading</span></>}</div>} />
       <Controls.Root>
         <Controls.Content className="dabble-bar">
           {size === 'small' ? <><Controls.Group className="dabble-row" aria-label="Timeline">{seek}{time}</Controls.Group><Controls.Group className="dabble-row dabble-buttons-row" aria-label="Playback controls">{play}{mute}{captions}{speed}{fullscreen}</Controls.Group></> : <Controls.Group className="dabble-row" aria-label="Playback controls">{play}{seek}{time}{mute}{volume}{captions}{speed}{fullscreen}</Controls.Group>}
@@ -60,6 +139,7 @@ export function DabbleSkin({ children }: { children: ReactNode }) {
       <div className="dabble-progress" aria-hidden="true" style={{ '--dabble-progress': `${progress}%` } as CSSProperties}><span className="dabble-progress-fill" /></div>
       {DABBLE_HOTKEYS.map((binding) => <Hotkey key={binding.keys} {...binding} />)}
       <StatusAnnouncer className="dabble-announcer" />
+      <ErrorDialog.Root><ErrorDialog.Backdrop className="dabble-error-backdrop" /><ErrorDialog.Popup className="dabble-error"><ErrorDialog.Title className="dabble-error-title">This video can't be played</ErrorDialog.Title><ErrorDialog.Description className="dabble-error-description" /><ErrorDialog.Close className="dabble-button dabble-error-close">Close</ErrorDialog.Close></ErrorDialog.Popup></ErrorDialog.Root>
     </Container>
   );
 }
