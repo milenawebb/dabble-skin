@@ -18,4 +18,18 @@ describe('Mux palette sampling', () => {
     });
     expect(await sampleThumbnails('test', [9,14,19,23])).toBeNull();
   });
+  it('uses successful scenes when another thumbnail is blocked', async () => {
+    vi.stubGlobal('Image', class {
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      set src(value: string) { queueMicrotask(() => value.includes('time=14&') ? this.onerror?.() : this.onload?.()); }
+    });
+    const pixels = new Uint8ClampedArray(64 * 36 * 4);
+    for (let i=0;i<pixels.length;i+=4) { pixels[i]=30; pixels[i+1]=120; pixels[i+2]=200; pixels[i+3]=255; }
+    const read = vi.fn().mockReturnValue({data:pixels});
+    const spy = vi.spyOn(HTMLCanvasElement.prototype,'getContext').mockReturnValue({drawImage:vi.fn(),getImageData:read} as unknown as CanvasRenderingContext2D);
+    expect(await sampleThumbnails('test',[9,14,19,23])).toHaveLength(6);
+    expect(read).toHaveBeenCalledTimes(3);
+    spy.mockRestore();
+  });
 });

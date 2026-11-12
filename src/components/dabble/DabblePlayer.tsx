@@ -29,10 +29,10 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   const [ready, setReady] = useState(false);
   const source = getPlayerSource(playbackId ? `https://stream.mux.com/${playbackId}.m3u8` : src, broken && ready);
   const muxSource = useMemo(() => ({
-    playbackId: broken && ready ? 'dabble-video-does-not-exist' : playbackId,
+    playbackId,
     // The supplied VTT is authoritative: do not import the asset's generated HLS subtitles.
     ...(captions ? { engine: { hlsJs: { enableWebVTT: false, enableIMSC1: false } } } : {}),
-  }), [playbackId, captions, broken, ready, source]);
+  }), [playbackId, captions]);
   const canvasRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const paintRef = useRef<HTMLCanvasElement>(null);
@@ -111,13 +111,14 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
     <div ref={canvasRef} className="dabble-canvas" data-painting={paint.painting || undefined} data-stroke-count={paint.count} data-portrait={layout.portrait} style={geometry}>
       <canvas ref={paintRef} className="dabble-paint" aria-hidden="true" />
       <div className="dabble-stage">
-        <VideoPlayer poster={poster}>
+        <VideoPlayer key={broken && ready ? 'broken' : 'normal'} poster={poster}>
           <DabbleSkin paintable={paintable} brushSize={paint.size} painting={paint.painting} palette={paint.palette} onControlsState={setControlsState}>
-            {playbackId ? <MuxVideo ref={videoRef} source={muxSource} crossOrigin="anonymous" playsInline>
+            {playbackId && !(broken && ready) ? <MuxVideo ref={videoRef} source={muxSource} crossOrigin="anonymous" playsInline>
               {captions && <track kind="captions" src={captions.src} srcLang={captions.srcLang} label={captions.label} />}
             </MuxVideo> : <Video
               ref={videoRef}
               src={source}
+              preload={broken ? 'none' : 'metadata'}
               crossOrigin="anonymous"
               playsInline
             >

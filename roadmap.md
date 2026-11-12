@@ -1,9 +1,11 @@
 # Dabble
 
 ## Mux demo
-- [ ] Play the exact Mux asset with its scene poster and unchanged supplied captions.
-- [ ] Sample scene thumbnails and live frames with thumbnail fallback; isolate saved paintings and export playbackId.
-- [ ] Verify controls, captions, colors, desktop/phone behavior, and report browser limitations.
+- [x] Play the exact Mux asset with its scene poster and unchanged supplied captions.
+- [x] Sample scene thumbnails and live frames with thumbnail fallback; isolate saved paintings and export playbackId.
+- [x] Verify playback, volume, speed, captions, fullscreen, Keys, painting/export, desktop/phone presentation, and report limitations.
+- [ ] Verify native Safari playback/canvas and single-track behavior: sandbox WebKit crashes; real Safari is unavailable.
+- [x] Verify the existing error card for a delayed HLS manifest failure and the deliberate broken-source test.
 
 ## Continuous painting sounds
 - [x] Port the supplied pink-noise voices and exact envelopes; preserve player sounds.

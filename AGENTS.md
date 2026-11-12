@@ -44,6 +44,7 @@ use the editor.
 - Keep palette math reference-identical; sample Mux scene thumbnails (duration fractions or explicit overrides), retain hidden-video sampling for plain sources, and fall back to current-time thumbnails when live pixel reads fail; preserve each stroke's palette.
 - Use playbackId as painting identity and export it for Mux sources, so paintings never leak between source identities.
 - Disable HLS subtitle formats when an explicit captions file is supplied; do not add Mux analytics, and disclose native-HLS track limitations rather than altering manifests.
+- Remount the player for the deliberate broken-source test so media feature subscriptions attach to the replacement adapter.
 - Use VolumePopover with a MuteButton trigger and vertical VolumeSlider only for hover-capable players at least 420px wide; hold the library controls lock while its popup is open.
 - Keep optional Web Audio and activation feedback in a wrapper-level hook with native state listeners and captured trusted gestures, so Video.js actions and brush rendering stay untouched.
 - Keep continuous brush audio in a dedicated wrapper hook using the shared gesture-created AudioContext; supplied voice math stays in sounds, with explicit stroke, mute, visibility, and unmount teardown.
