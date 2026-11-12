@@ -77,13 +77,13 @@
   --radius: 0.625rem;
   --background: oklch(0.9359011 0.0062908 255.47629);
   --canvas-surface: oklch(0.9934939 0.0026313 106.44717);
-  --canvas-thread-horizontal: oklch(0.3544565 0.0084529 106.82315 / 0.05);
-  --canvas-thread-vertical: oklch(0.3544565 0.0084529 106.82315 / 0.035);
+  --canvas-thread-horizontal: oklch(0.3544565 0.0084529 106.82315 / 0.028);
+  --canvas-thread-vertical: oklch(0.3544565 0.0084529 106.82315 / 0.02);
   --canvas-clear: oklch(0 0 0 / 0);
   --canvas-edge-right: oklch(0.9126711 0.0083561 91.48819);
   --canvas-edge-bottom: oklch(0.8479266 0.0098272 93.58602);
   --canvas-shadow: 0 34px 60px -26px oklch(0.2131692 0.0212771 263.96435 / 0.45), 0 4px 10px oklch(0.2131692 0.0212771 263.96435 / 0.08);
-  --canvas-weave: repeating-linear-gradient(0deg, var(--canvas-thread-horizontal) 0 1px, var(--canvas-clear) 1px 4px), repeating-linear-gradient(90deg, var(--canvas-thread-vertical) 0 1px, var(--canvas-clear) 1px 4px);
+  --canvas-weave: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.25  0 0 0 0 0.24  0 0 0 0 0.22  0 0 0 0.09 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"), repeating-linear-gradient(0deg, var(--canvas-thread-horizontal) 0 1px, var(--canvas-clear) 1px 3px), repeating-linear-gradient(90deg, var(--canvas-thread-vertical) 0 1px, var(--canvas-clear) 1px 3px);
   --foreground: oklch(0.2 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
@@ -122,16 +122,43 @@
   --dabble-aspect: 16 / 9;
   position: relative;
   isolation: isolate;
-  width: 100%;
+  width: calc(100% - 12px);
   max-width: 860px;
   margin-inline: auto;
+  margin-right: 12px;
+  margin-bottom: 12px;
   padding: var(--dabble-m);
-  border-right: 12px solid var(--canvas-edge-right);
-  border-bottom: 12px solid var(--canvas-edge-bottom);
+  overflow: visible;
   border-radius: 0;
   background-color: var(--canvas-surface);
   background-image: var(--canvas-weave);
   box-shadow: var(--canvas-shadow);
+}
+
+.dabble-canvas::before,
+.dabble-canvas::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  transform-origin: top left;
+}
+
+.dabble-canvas::before {
+  left: 100%;
+  top: 0;
+  width: 12px;
+  height: 100%;
+  background: var(--canvas-edge-right);
+  transform: skewY(45deg);
+}
+
+.dabble-canvas::after {
+  top: 100%;
+  left: 0;
+  height: 12px;
+  width: 100%;
+  background: var(--canvas-edge-bottom);
+  transform: skewX(45deg);
 }
 
 .dabble-canvas[data-portrait="true"] {
