@@ -7,6 +7,20 @@ vi.mock('./video-palette', () => ({ sampleSource: () => () => {}, sampleVideo: (
 beforeEach(() => localStorage.clear());
 
 describe('paint hook lifecycle', () => {
+  it('restores saved viewer strokes after a preview remount and keeps reset usable', () => {
+    const supplied = newPainting();
+    const wrapper = {current:null}, canvas = {current:null};
+    const first = renderHook(() => usePaint(wrapper, canvas, true, 'refresh-video', supplied));
+    act(() => first.result.current.automatic());
+    const saved = first.result.current.getPainting();
+    first.unmount();
+    const next = renderHook(() => usePaint(wrapper, canvas, true, 'refresh-video', supplied));
+    expect(next.result.current.getPainting()).toEqual(saved);
+    act(() => next.result.current.setPainting(true));
+    expect(next.result.current.painting).toBe(true);
+    act(() => next.result.current.startOver());
+    expect(next.result.current.getPainting()).toEqual(supplied);
+  });
   it('keeps hook order stable when tools and supplied paintings change', () => {
     const wrapper = {current:null}, canvas = {current:null};
     const initialProps: {enabled:boolean;supplied:Painting|undefined} = {enabled:true,supplied:undefined};

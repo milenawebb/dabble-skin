@@ -1,3 +1,5 @@
+// @refresh reset
+// Hook-layout edits must remount consumers instead of reusing obsolete state queues.
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { renderStroke, type Brush, type Geo, type Point, type Stroke } from './paint-engine';
 import { backingRatio, initialPainting, pointSpacing, strokeSize, undoPainting } from './paint-rules';
