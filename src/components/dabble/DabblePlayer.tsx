@@ -3,19 +3,25 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { getFrameWidth, getVideoLayout } from './canvas-layout';
 import { DabbleSkin } from './DabbleSkin';
 import { getDockSpace, getPlayerSource } from './skin-rules';
+import { paintFrameWidth } from './paint-rules';
+import { usePaint } from './use-paint';
+import { PaintTray } from './PaintTray';
 
 type DabblePlayerProps = {
   src: string;
   poster?: string;
   broken?: boolean;
   captions?: { src: string; srcLang: string; label: string };
+  paintable?: boolean;
 };
 
-export function DabblePlayer({ src, poster, broken = false, captions }: DabblePlayerProps) {
+export function DabblePlayer({ src, poster, broken = false, captions, paintable = false }: DabblePlayerProps) {
   const [ready, setReady] = useState(false);
   const source = getPlayerSource(src, broken && ready);
   const canvasRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const paintRef = useRef<HTMLCanvasElement>(null);
+  const paint = usePaint(canvasRef, paintRef, paintable);
   const [frameWidth, setFrameWidth] = useState(12);
   const [dockSpace, setDockSpace] = useState(0);
   const [metadata, setMetadata] = useState({ src: '', width: 0, height: 0 });
@@ -66,17 +72,18 @@ export function DabblePlayer({ src, poster, broken = false, captions }: DabblePl
   }, []);
 
   const geometry = {
-    '--dabble-m': `${frameWidth}px`,
+    '--dabble-m': `${paintFrameWidth(frameWidth, paint.painting)}px`,
     '--dabble-dock-space': `${dockSpace}px`,
     '--dabble-aspect': layout.aspectRatio,
   } as CSSProperties;
 
   return (
-    <div ref={canvasRef} className="dabble-canvas" data-portrait={layout.portrait} style={geometry}>
-      <canvas className="dabble-paint" aria-hidden="true" />
+    <>
+    <div ref={canvasRef} className="dabble-canvas" data-painting={paint.painting || undefined} data-stroke-count={paint.count} data-portrait={layout.portrait} style={geometry}>
+      <canvas ref={paintRef} className="dabble-paint" aria-hidden="true" />
       <div className="dabble-stage">
         <VideoPlayer poster={poster}>
-          <DabbleSkin>
+          <DabbleSkin painting={paint.painting}>
             <Video
               ref={videoRef}
               src={source}
@@ -89,5 +96,7 @@ export function DabblePlayer({ src, poster, broken = false, captions }: DabblePl
         </VideoPlayer>
       </div>
     </div>
+    {paintable && <PaintTray paint={paint} />}
+    </>
   );
 }

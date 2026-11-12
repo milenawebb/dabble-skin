@@ -19,7 +19,7 @@ function Icon({ kind }: { kind: 'play' | 'pause' | 'replay' | 'volume' | 'muted'
   return <svg className="dabble-icon" viewBox="0 0 24 24" aria-hidden="true">{paths[kind]}</svg>;
 }
 
-export function DabbleSkin({ children }: { children: ReactNode }) {
+export function DabbleSkin({ children, painting = false }: { children: ReactNode; painting?: boolean }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<'small' | 'medium' | 'large'>('large');
   const [playerWidth, setPlayerWidth] = useState(860);
@@ -59,7 +59,7 @@ export function DabbleSkin({ children }: { children: ReactNode }) {
     const cueStyle = document.createElement('style');
     root.append(cueStyle);
     const positionCues = () => {
-      const visible = controlsVisible || Boolean(root.querySelector(':focus-visible'));
+      const visible = !(painting && !docked && !fullscreenActive) && (controlsVisible || Boolean(root.querySelector(':focus-visible')));
       const overlap = Math.max(0, video.getBoundingClientRect().bottom - bar.getBoundingClientRect().top);
       const lineHeight = Math.min(20, Math.max(14, root.clientWidth * 0.022)) * 1.35;
       const tokens = getComputedStyle(root);
@@ -100,7 +100,7 @@ export function DabbleSkin({ children }: { children: ReactNode }) {
       root.removeEventListener('focusout', positionCues);
       originalLines.forEach((original, cue) => { cue.line = original.line; cue.snapToLines = original.snap; cue.lineAlign = original.align; });
     };
-  }, [controlsVisible, size, captionId]);
+  }, [controlsVisible, size, captionId, painting, docked, fullscreenActive]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -129,7 +129,7 @@ export function DabbleSkin({ children }: { children: ReactNode }) {
   const volume = <VolumeSlider.Root className="dabble-slider dabble-volume"><VolumeSlider.Track className="dabble-track"><VolumeSlider.Fill className="dabble-fill" /></VolumeSlider.Track><VolumeSlider.Thumb className="dabble-thumb" /></VolumeSlider.Root>;
 
   return (
-    <Container ref={rootRef} className="dabble-skin" data-size={size} data-docked={docked || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined}>
+    <Container ref={rootRef} className="dabble-skin" data-size={size} data-painting={painting || undefined} data-docked={docked || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined}>
       {children}
       <Poster.Root className="dabble-poster"><Poster.Image /></Poster.Root>
       <Gesture type="tap" action="togglePaused" />

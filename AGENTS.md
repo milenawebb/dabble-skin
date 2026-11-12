@@ -39,3 +39,5 @@ use the editor.
 - Keep native browser caption rendering and position cue bottoms with percentage lines from measured control-bar overlap; resolve semantic CSS tokens for native cue styling without replacing the renderer.
 - Keep phone docking inside the Video.js Container and reserve measured bar height in the outer canvas; use a Video.js controls lock only outside fullscreen so fullscreen retains library auto-hide.
 - Pass native caption tracks through DabblePlayer props and keep sample VTT files in public/captions so the actual player exercises captions without injected test tracks.
+- Keep the supplied brush engine a math-preserving TypeScript port; isolate interaction and tray UI from renderStroke so reference rendering remains reproducible.
+- Store paintings only as seeded normalized strokes in memory, using an offscreen canvas as a disposable rendering cache and replaying after debounced measured geometry changes.

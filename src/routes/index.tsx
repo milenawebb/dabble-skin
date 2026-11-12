@@ -24,9 +24,9 @@ function Index() {
     <main className="min-h-screen bg-background px-4 py-10 sm:px-6">
       <div className="mx-auto w-full max-w-[860px]">
         <h1 className="text-xl font-semibold">Dabble</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Step 2: canvas frame.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Paint the frame around your video.</p>
         <div className="mt-6 w-full">
-          <DabblePlayer src="https://vjs.zencdn.net/v/oceans.mp4" poster="https://vjs.zencdn.net/v/oceans.png" broken={broken === '1'} captions={{ src: '/captions/oceans.en.vtt', srcLang: 'en', label: 'English' }} />
+          <DabblePlayer paintable src="https://vjs.zencdn.net/v/oceans.mp4" poster="https://vjs.zencdn.net/v/oceans.png" broken={broken === '1'} captions={{ src: '/captions/oceans.en.vtt', srcLang: 'en', label: 'English' }} />
         </div>
       </div>
     </main>

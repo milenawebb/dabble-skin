@@ -1,4 +1,12 @@
-# Dabble step 4
+# Dabble
+
+## Step 5
+- [x] Port the reference brushes unchanged to TypeScript and verify output parity.
+- [x] Add normalized stroke storage, offscreen rendering, pointer painting, and resize replay.
+- [x] Add the paint tray, initial Ribbon stroke, and paint-mode frame rules.
+- [x] Test mouse, touch, keyboard actions, resizing, captions, and fullscreen; report measured geometry.
+
+## Step 4
 
 - [x] Add poster, opening/replay invitation, gestures, buffering, and playback errors.
 - [x] Replace cycling speed with the Video.js menu and preserve auto-hide.
