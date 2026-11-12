@@ -48,3 +48,5 @@ use the editor.
 - Subscribe the tray to Video.js visibility through the skin and request the existing controls lock during tray interaction; never introduce a second player auto-hide timer.
 - Keep wall selection in the demo route with validated optional browser storage and scoped wall tokens; page themes must not recolor the player or tray.
 - Render the tray paper backing independently of its tools and keep the wooden ledge visible in every tray state; shelf decoration must not alter tray actions or visibility timing.
+- Register painting and help shortcuts through Video.js hooks, reusing tray button actions and blocking editable fields and open panels; existing player bindings remain unchanged.
+- Keep the Keys popover inside the Video.js Container with a controls lock and a focusable keyboard fallback when its responsive trigger is hidden.

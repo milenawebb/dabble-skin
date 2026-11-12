@@ -17,11 +17,12 @@ const paths = {
   copy: ['M9.1 8 5 12.1 9 16', 'M15 7.9l4.1 4.2L15 16.1'],
   'sounds-on': ['M9.5 17.5V7l8-1.8v10.3'],
   'sounds-off': ['M9.5 17.5V7l8-1.8v10.3', 'M5 4.5 19.5 19.5'],
+  keys: ['M4.2 7.3c5.2-.4 10.4-.2 15.6 0 .5 3.1.4 6.3 0 9.4-5.2.3-10.4.3-15.6 0-.4-3.1-.4-6.3 0-9.4Z', 'M7.5 10.3h.01', 'M10.5 10.3h.01', 'M13.5 10.3h.01', 'M16.5 10.3h.01', 'M8 13.7c2.7.2 5.3.2 8 0'],
 };
 export type HandIconKind = keyof typeof paths;
 export function HandIcon({ kind, className = 'dabble-icon' }: { kind: HandIconKind; className?: string }) {
   return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={kind === 'captions' ? 1.5 : 1.9} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    {paths[kind].map((d, i) => <path key={i} d={d} />)}
+    {paths[kind].map((d, i) => <path key={i} d={d} strokeWidth={kind === 'keys' && i > 0 && i < 5 ? 2.2 : undefined} />)}
     {(kind === 'sounds-on' || kind === 'sounds-off') && <><ellipse cx="7.3" cy="17.6" rx="2.3" ry="1.8" /><ellipse cx="15.3" cy="15.6" rx="2.3" ry="1.8" /></>}
   </svg>;
 }

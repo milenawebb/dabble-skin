@@ -85,7 +85,7 @@
 .dabble-thumb { position: absolute; left: var(--media-slider-fill); width: 10px; height: 16px; transform: translateX(-50%); background: var(--dabble-clear); }
 .dabble-skin :focus-visible { outline: 3px solid var(--dabble-ink); outline-offset: 2px; box-shadow: var(--dabble-focus-ring); }
 .dabble-cc-underline { position: absolute; inset: 0; width: 100%; height: 100%; }
-.dabble-progress { position: absolute; left: 6px; right: 6px; bottom: calc(var(--dabble-m) / -2 - 2px); height: 4px; border-radius: 4px; background: var(--dabble-progress-track); opacity: 0; pointer-events: none; }
+.dabble-progress { position: absolute; left: 6px; right: 6px; bottom: calc(var(--dabble-m) / -2 - 1px); height: 2px; border-radius: 4px; background: var(--dabble-progress-track); opacity: 0; pointer-events: none; }
 .dabble-progress-fill { display: block; height: 100%; width: var(--dabble-progress); border-radius: inherit; background: var(--dabble-seek); }
 .dabble-skin:not([data-controls-visible]):not(:has(:focus-visible)) .dabble-progress { opacity: 1; }
 .dabble-skin[data-size="small"] .dabble-buttons-row { justify-content: space-between; }
@@ -128,6 +128,17 @@
 @keyframes dabble-loading-orbit { to { transform: rotate(360deg); } }
 .dabble-speed-menu, .dabble-error { z-index: 6; background: var(--dabble-paper); border: 1.5px solid var(--dabble-ink); border-radius: 14px 10px 16px 9px / 10px 15px 9px 14px; color: var(--dabble-ink); }
 .dabble-speed-menu { --media-popover-side-offset: 8px; --media-popover-boundary-offset: 6px; width: 98px; max-width: calc(100cqw - 12px); max-height: var(--media-menu-available-height); overflow-y: auto; padding: 5px; }
+.dabble-bar .dabble-keys-button { display: none; --dabble-blob-color: var(--dabble-keys-tint); }
+@media (hover: hover) and (pointer: fine) { .dabble-skin[data-size="large"] .dabble-keys-button { display: inline-flex; } }
+.dabble-keys-panel { --media-popover-side-offset: 8px; --media-popover-boundary-offset: 6px; z-index: 7; width: 300px; max-width: calc(100cqw - 12px); max-height: min(80cqh, var(--media-popover-available-height, 80cqh)); overflow-y: auto; padding: 14px 16px; background: var(--dabble-paper); color: var(--dabble-ink); border: 1.5px solid var(--dabble-ink); border-radius: 14px 10px 16px 9px / 10px 15px 9px 14px; font: 400 13px/1.4 var(--dabble-ui-font); }
+.dabble-keys-title { font: 400 18px var(--dabble-label-font); margin-bottom: 10px; }
+.dabble-keys-group + .dabble-keys-group { margin-top: 14px; }
+.dabble-keys-group h3 { font-weight: 500; margin-bottom: 8px; }
+.dabble-key-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); align-items: center; gap: 8px; margin-top: 7px; }
+.dabble-key-row kbd { display: inline-block; border: 1.5px solid var(--dabble-ink); border-radius: 6px 5px 7px 5px; padding: 1px 6px; font: 500 12px/1.4 var(--dabble-ui-font); }
+.dabble-skin[data-size="small"] .dabble-keys-panel,
+.dabble-skin[data-size="medium"] .dabble-keys-panel,
+.dabble-skin[data-painting] .dabble-keys-panel { position: absolute !important; top: auto !important; left: auto !important; right: 6px !important; bottom: 6px !important; position-anchor: none !important; translate: none !important; max-height: 80%; transform: none !important; }
 .dabble-speed-item { --dabble-blob-color: var(--dabble-b4); position: relative; isolation: isolate; display: block; padding: 6px 14px; font: 400 14px var(--dabble-ui-font); cursor: pointer; }
 .dabble-speed-item .dabble-blob { inset: 3px 7px 3px 5px; }
 .dabble-speed-item[data-highlighted] .dabble-blob { opacity: 0.3; }

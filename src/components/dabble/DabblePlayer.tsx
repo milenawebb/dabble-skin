@@ -104,7 +104,7 @@ export function DabblePlayer({ src, poster, broken = false, captions, paintable 
       <canvas ref={paintRef} className="dabble-paint" aria-hidden="true" />
       <div className="dabble-stage">
         <VideoPlayer poster={poster}>
-          <DabbleSkin painting={paint.painting} palette={paint.palette} onControlsState={setControlsState}>
+          <DabbleSkin paintable={paintable} brushSize={paint.size} painting={paint.painting} palette={paint.palette} onControlsState={setControlsState}>
             <Video
               ref={videoRef}
               src={source}
