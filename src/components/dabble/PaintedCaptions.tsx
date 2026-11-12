@@ -66,8 +66,8 @@ export function PaintedCaptions({ rootRef, captionId, docked, barEnabled }: { ro
       layer.style.visibility = overlap || tooTall ? 'hidden' : 'visible';
       const tokens = getComputedStyle(root);
       const forced = window.matchMedia('(forced-colors: active)').matches;
-      const color = custom ? 'transparent' : forced ? 'CanvasText' : tokens.getPropertyValue('--dabble-caption-text');
-      const background = custom ? 'transparent' : forced ? 'Canvas' : tokens.getPropertyValue('--dabble-ink');
+      const color = custom ? 'transparent' : forced ? 'CanvasText' : tokens.getPropertyValue('--dabble-ink');
+      const background = custom ? 'transparent' : forced ? 'Canvas' : tokens.getPropertyValue('--dabble-paper');
       const css = `[data-caption-id="${captionId}"] video::cue { color: ${color}; background-color: ${background}; font-family: ${tokens.getPropertyValue('--dabble-ui-font')}; font-weight: 500; font-size: ${Math.min(20, Math.max(14, rootBox.width * .024))}px; line-height: 1.35; text-shadow: none; opacity: ${custom ? 0 : 1}; }`;
       if (css !== lastCSS) { style.textContent = css; lastCSS = css; }
       if (!custom) {
@@ -107,5 +107,9 @@ export function PaintedCaptions({ rootRef, captionId, docked, barEnabled }: { ro
     };
   }, [rootRef, captionId, showing, controlsVisible, docked, barEnabled]);
 
-  return <div ref={layerRef} className="dabble-painted-captions" aria-hidden="true">{showing && cues.map((cue, index) => <div className="dabble-caption-swipe" key={`${cue.startTime}-${cue.endTime}-${index}`}>{cue.text}</div>)}</div>;
+  return <div ref={layerRef} className="dabble-painted-captions" aria-hidden="true">{showing && cues.map((cue, index) => <div className="dabble-caption-swipe" key={`${cue.startTime}-${cue.endTime}-${index}`}><span className="dabble-caption-shape" aria-hidden="true">
+    <svg viewBox="0 0 16 100" preserveAspectRatio="none"><path className="dabble-caption-paper" d="M16 0H11.2L2.4 10L8 24L.8 36L9.6 50L1.6 62L8.8 76L0 88L6.4 100H16Z" /><path d="M16 0H11.2L2.4 10L8 24L.8 36L9.6 50L1.6 62L8.8 76L0 88L6.4 100H16" /></svg>
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none"><path className="dabble-caption-paper" d="M0 0H100V100H0Z" /><path d="M0 0H100M0 100H100" /></svg>
+    <svg viewBox="0 0 16 100" preserveAspectRatio="none"><path className="dabble-caption-paper" d="M0 0H4.8L13.6 10L8 24L15.2 36L6.4 50L14.4 62L7.2 76L16 88L9.6 100H0Z" /><path d="M0 0H4.8L13.6 10L8 24L15.2 36L6.4 50L14.4 62L7.2 76L16 88L9.6 100H0" /></svg>
+  </span>{cue.text}</div>)}</div>;
 }

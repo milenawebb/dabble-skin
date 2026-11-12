@@ -79,6 +79,7 @@
   --canvas-surface: oklch(0.9934939 0.0026313 106.44717);
   --dabble-ink: var(--paint-ink);
   --dabble-paper: var(--canvas-surface);
+  --dabble-caption-shadow: drop-shadow(0 2px 6px rgba(0, 0, 0, .18));
   --dabble-ui-font: 'DM Sans', Arial, sans-serif;
   --dabble-focus-ring: 0 0 0 2px var(--dabble-paper), 0 0 0 5px var(--dabble-ink), 0 0 0 7px var(--dabble-paper);
   --paint-highlight: oklch(1 0 0);
