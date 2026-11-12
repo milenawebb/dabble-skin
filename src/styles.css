@@ -85,6 +85,16 @@
   --paint-shade: oklch(0 0 0);
   --paint-metal: oklch(0.7630989 0.0125397 98.01429);
   --paint-blade: oklch(0.8593435 0.0143616 98.21105);
+  --shelf-wood: #C99A5B;
+  --shelf-wood-shade: #A97B40;
+  --shelf-wood-grain: #7A4E22;
+  --shelf-shadow: 0 6px 10px -6px rgba(20,25,35,.35);
+  --wall-gallery: #E7EAEE;
+  --wall-white: #FFFFFF;
+  --wall-charcoal: #1E2227;
+  --wall-blue: #14213D;
+  --wall-coral: #FF6B4A;
+  --canvas-shadow-dark-wall: 0 34px 60px -26px rgba(0,0,0,.7), 0 4px 10px rgba(0,0,0,.35);
   --paint-blue: #0057FF;
   --paint-sky: #00B7FF;
   --paint-turquoise: #00D1B2;
@@ -180,6 +190,31 @@
 .dabble-canvas[data-portrait="true"] {
   max-width: 420px;
 }
+
+.dabble-demo { --wall-surface: var(--wall-gallery); --wall-ink: var(--dabble-ink); background: var(--wall-surface); color: var(--wall-ink); transition: background-color .25s, color .25s; }
+.dabble-demo[data-wall="white"] { --wall-surface: var(--wall-white); }
+.dabble-demo[data-wall="charcoal"] { --wall-surface: var(--wall-charcoal); }
+.dabble-demo[data-wall="blue"] { --wall-surface: var(--wall-blue); }
+.dabble-demo[data-wall="coral"] { --wall-surface: var(--wall-coral); }
+.dabble-demo:is([data-wall="charcoal"], [data-wall="blue"]) { --wall-ink: var(--dabble-paper); --canvas-shadow: var(--canvas-shadow-dark-wall); }
+.demo-heading-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+.wall-switcher { display: flex; align-items: center; gap: 8px; }
+.wall-switcher > span { margin-right: 4px; }
+.wall-switcher .wall-swatch { width: 28px; height: 28px; padding: 0; color: var(--wall-ink); border-radius: 47% 53% 50% 50% / 52% 46% 54% 48%; background: none; box-shadow: none; }
+.wall-swatch[data-wall="gallery"] { --swatch-fill: var(--wall-gallery); }
+.wall-swatch[data-wall="white"] { --swatch-fill: var(--wall-white); }
+.wall-swatch[data-wall="charcoal"] { --swatch-fill: var(--wall-charcoal); }
+.wall-swatch[data-wall="blue"] { --swatch-fill: var(--wall-blue); }
+.wall-swatch[data-wall="coral"] { --swatch-fill: var(--wall-coral); }
+.wall-swatch > span { display: block; width: 28px; height: 28px; border: 1.5px solid var(--wall-ink); border-radius: inherit; background: var(--swatch-fill); }
+.wall-swatch[aria-pressed="true"] > span { outline: 1.5px solid var(--wall-ink); outline-offset: 3px; }
+.wall-switcher .wall-swatch:focus-visible { outline: 2px solid var(--wall-ink); outline-offset: 6px; }
+@media (pointer: coarse) {
+  .wall-switcher { gap: 2px; }
+  .wall-switcher .wall-swatch { width: 44px; height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) { .dabble-demo { transition: none; } }
+@media (forced-colors: active) { .dabble-demo { color: CanvasText; background: Canvas; } .wall-swatch > span { border-color: CanvasText; } .wall-swatch[aria-pressed="true"] > span { outline-color: Highlight; } }
 
 .dabble-paint {
   position: absolute;

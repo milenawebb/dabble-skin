@@ -94,7 +94,17 @@ export function PaintTray({ paint, src, sounds, toggleSounds, automaticSound, co
         <Tool label={sounds ? 'Sounds on' : 'Sounds off'} className="tray-circle tray-reveal" hidden={!open} pressed={sounds} onClick={toggleSounds}><HandIcon kind={sounds ? 'sounds-on' : 'sounds-off'} /></Tool>
       </div>
       </div>
-      <svg className="tray-ledge" viewBox="0 0 1000 8" preserveAspectRatio="none" aria-hidden="true"><path d="M1 3C300 1 700 5 999 2" /></svg>
+      <svg className="tray-ledge" viewBox="0 0 680 18" preserveAspectRatio="none" width="100%" height="18" aria-hidden="true">
+        <path className="tray-wood" d="M2 3C120 1 420 4 678 2L677 15C460 17 160 14 3 16Z" />
+        <path className="tray-wood-shade" d="M4 12.5C160 11 460 14 676 12L677 15C460 17 160 14 3 16Z" />
+        <g className="tray-wood-grain" fill="none" strokeOpacity=".6" strokeWidth="1" strokeLinecap="round" vectorEffect="non-scaling-stroke">
+          <path d="M14 6C90 5 150 8 230 6" vectorEffect="non-scaling-stroke" />
+          <path d="M250 9C330 7 420 10 520 8" vectorEffect="non-scaling-stroke" />
+          <path d="M430 5C500 4 580 7 664 5" vectorEffect="non-scaling-stroke" />
+          <path d="M60 10C110 9 150 11 196 10" vectorEffect="non-scaling-stroke" />
+        </g>
+        <path className="tray-wood-outline" d="M2 3C120 1 420 4 678 2L677 15C460 17 160 14 3 16Z" fill="none" strokeWidth="1.5" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+      </svg>
     </div>
     <span className="tray-copy-status" role="status">{copied ? 'Copied' : ''}</span>
     {snippet && <div className="paint-copy-fallback" inert={!open || undefined} hidden={!open}><label htmlFor={`${id}-code`}>Painting code</label><textarea id={`${id}-code`} readOnly value={snippet} onFocus={event => event.currentTarget.select()} /></div>}

@@ -1,5 +1,10 @@
 # Dabble
 
+## Step 10
+- [x] Add the background-independent paper shelf and supplied wooden ledge without changing tray behavior.
+- [x] Add five accessible, locally remembered demo wall swatches and dark-wall canvas shadows.
+- [x] Verify all walls, open/tucked tray, focus, tooltips, contrast, and phone/tablet layouts.
+
 ## Step 9
 - [x] Replace player and tray icons with the supplied drawings.
 - [x] Build the easel ledge tray with tucked, peek, pinned, and responsive layouts.
