@@ -155,12 +155,19 @@
 .dabble-error-description { margin: 0 0 14px; font: 400 14px/1.4 var(--dabble-ui-font); }
 .dabble-error-close { width: auto; height: auto; padding: 6px 16px; font: 500 14px var(--dabble-ui-font); background: var(--dabble-paper); border-radius: 48% 52% 45% 55% / 40% 55% 45% 60%; }
 .dabble-skin video::cue { color: var(--dabble-caption-text); background-color: var(--dabble-ink); font-family: var(--dabble-ui-font); font-weight: 500; font-size: clamp(14px, 2.2cqw, 20px); line-height: 1.35; text-shadow: none; }
+.dabble-painted-captions { position: absolute; z-index: 2; width: max-content; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 5px; pointer-events: none; font: 500 clamp(14px, 2.4cqw, 20px)/1.35 var(--dabble-ui-font); color: var(--dabble-caption-text); text-align: center; }
+.dabble-caption-swipe { position: relative; max-width: 100%; padding: 5px 14px; border-radius: 3px 5px 4px 6px / 5px 3px 6px 4px; background: var(--dabble-ink); white-space: pre-line; overflow-wrap: anywhere; }
+.dabble-caption-swipe::before, .dabble-caption-swipe::after { content: ''; position: absolute; top: 0; bottom: 0; width: 16px; background: var(--dabble-ink); }
+.dabble-caption-swipe::before { right: calc(100% - 1px); clip-path: polygon(100% 0, 100% 100%, 40% 100%, 0 88%, 55% 76%, 10% 62%, 60% 50%, 5% 36%, 50% 24%, 15% 10%, 70% 0); }
+.dabble-caption-swipe::after { left: calc(100% - 1px); clip-path: polygon(0 0, 0 100%, 60% 100%, 100% 88%, 45% 76%, 90% 62%, 40% 50%, 95% 36%, 50% 24%, 85% 10%, 30% 0); }
 @media (pointer: coarse) {
   .dabble-bar .dabble-button { width: 44px; height: 44px; flex-basis: 44px; }
   .dabble-seek { min-height: 44px; }
   .dabble-speed-item { min-height: 44px; display: flex; align-items: center; }
 }
 @media (forced-colors: active) {
+  .dabble-caption-swipe { color: CanvasText; background: Canvas; forced-color-adjust: none; }
+  .dabble-caption-swipe::before, .dabble-caption-swipe::after { display: none; }
   .dabble-skin { color: CanvasText; }
   .dabble-button, .dabble-bar, .dabble-track, .dabble-volume-track, .dabble-speed-menu, .dabble-volume-popup, .dabble-error, .dabble-loading-disc { border-color: CanvasText; }
   .dabble-blob { visibility: hidden; }

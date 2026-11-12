@@ -1,5 +1,11 @@
 # Dabble
 
+## Hand-painted captions
+- [x] Render active showing cues safely on one ink swipe per cue, preserving Video.js CC state and native fallback.
+- [x] Measure video/control/panel clearance across desktop, phone, hidden controls, and fullscreen; support forced colors.
+- [x] Test caption rules and Chrome playback, CC toggling, panels, phone/fullscreen and forced colors.
+- [ ] Verify Firefox and Safari captions end-to-end: sandbox Firefox lacks H.264 playback support and WebKit crashes; real Safari is unavailable. Safari conservatively retains native captions.
+
 ## Mux demo
 - [x] Play the exact Mux asset with its scene poster and unchanged supplied captions.
 - [x] Sample scene thumbnails and live frames with thumbnail fallback; isolate saved paintings and export playbackId.

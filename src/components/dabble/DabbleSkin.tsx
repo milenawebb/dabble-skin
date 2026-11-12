@@ -2,7 +2,8 @@ import { Container, Controls, PlayButton, TimeSlider, Time, MuteButton, VolumePo
 import { usePlayer } from '@videojs/react/video';
 import { useEffect, useId, useRef, useState, type ReactNode, type CSSProperties } from 'react';
 import './dabble-skin.css';
-import { DABBLE_HOTKEYS, DABBLE_PLAYBACK_RATES, getCaptionLine, getControlSize, shouldDockControls, shouldShowVolumePopover, showCenterPlay } from './skin-rules';
+import { DABBLE_HOTKEYS, DABBLE_PLAYBACK_RATES, getControlSize, shouldDockControls, shouldShowVolumePopover, showCenterPlay } from './skin-rules';
+import { PaintedCaptions } from './PaintedCaptions';
 import { tintForInk } from './palette';
 import { DEFAULT_PALETTE, type Palette } from './painting-data';
 import { HandIcon as Icon } from './HandDrawings';
@@ -99,60 +100,6 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
 
   useEffect(() => {
     const root = rootRef.current;
-    const video = root?.querySelector('video');
-    const bar = root?.querySelector<HTMLElement>('.dabble-bar');
-    if (!root || !video || !bar) return;
-    const originalLines = new Map<VTTCue, { line: number | 'auto'; snap: boolean; align: LineAlignSetting }>();
-    // Native cue boxes do not inherit custom properties from the video in Chromium.
-    // Resolve the existing semantic tokens, leaving rendering entirely to the browser.
-    const cueStyle = document.createElement('style');
-    root.append(cueStyle);
-    const positionCues = () => {
-      const visible = !(painting && !docked && !fullscreenActive) && (controlsVisible || Boolean(root.querySelector(':focus-visible')));
-      const overlap = Math.max(0, video.getBoundingClientRect().bottom - bar.getBoundingClientRect().top);
-      const lineHeight = Math.min(20, Math.max(14, root.clientWidth * 0.022)) * 1.35;
-      const tokens = getComputedStyle(root);
-      cueStyle.textContent = `[data-caption-id="${captionId}"] video::cue { color: ${tokens.getPropertyValue('--dabble-caption-text')}; background-color: ${tokens.getPropertyValue('--dabble-ink')}; font-family: ${tokens.getPropertyValue('--dabble-ui-font')}; font-weight: 500; font-size: ${lineHeight / 1.35}px; line-height: 1.35; text-shadow: none; }`;
-      for (const track of Array.from(video.textTracks)) {
-        for (const cue of Array.from(track.cues ?? [])) {
-          if (!(cue instanceof VTTCue)) continue;
-          if (!originalLines.has(cue)) originalLines.set(cue, { line: cue.line, snap: cue.snapToLines, align: cue.lineAlign });
-          const line = getCaptionLine(overlap, video.getBoundingClientRect().height, visible);
-          if (cue.snapToLines) cue.snapToLines = false;
-          cue.lineAlign = 'end';
-          if (cue.line !== line) cue.line = line;
-        }
-      }
-    };
-    positionCues();
-    const observer = new ResizeObserver(positionCues);
-    observer.observe(root);
-    observer.observe(bar);
-    const tracks = Array.from(video.textTracks);
-    tracks.forEach((track) => track.addEventListener('cuechange', positionCues));
-    video.textTracks.addEventListener('change', positionCues);
-    video.addEventListener('loadeddata', positionCues);
-    video.addEventListener('timeupdate', positionCues);
-    // Capture track load, which doesn't bubble, including asynchronously loaded cues.
-    video.addEventListener('load', positionCues, true);
-    root.addEventListener('focusin', positionCues);
-    root.addEventListener('focusout', positionCues);
-    return () => {
-      observer.disconnect();
-      cueStyle.remove();
-      tracks.forEach((track) => track.removeEventListener('cuechange', positionCues));
-      video.textTracks.removeEventListener('change', positionCues);
-      video.removeEventListener('loadeddata', positionCues);
-      video.removeEventListener('timeupdate', positionCues);
-      video.removeEventListener('load', positionCues, true);
-      root.removeEventListener('focusin', positionCues);
-      root.removeEventListener('focusout', positionCues);
-      originalLines.forEach((original, cue) => { cue.line = original.line; cue.snapToLines = original.snap; cue.lineAlign = original.align; });
-    };
-  }, [controlsVisible, size, captionId, painting, docked, fullscreenActive]);
-
-  useEffect(() => {
-    const root = rootRef.current;
     const canvas = root?.closest('.dabble-canvas');
     if (!root || !canvas) return;
     const measure = () => {
@@ -200,6 +147,7 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
     <Container ref={rootRef} tabIndex={-1} aria-label="Dabble video player" style={colors} className="dabble-skin" data-size={size} data-painting={painting || undefined} data-docked={docked || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined}>
       {children}
       <Poster.Root className="dabble-poster"><Poster.Image /></Poster.Root>
+      <PaintedCaptions rootRef={rootRef} captionId={captionId} docked={docked} barEnabled={!(painting && !docked && !fullscreenActive)} />
       <Gesture type="tap" action="togglePaused" />
       <PlayButton ref={centerRef} hidden={!centerVisible} label={ended ? 'Replay' : 'Play'} className="dabble-button dabble-play dabble-center-play" render={(props) => <button {...props} onFocus={(event) => { props.onFocus?.(event); centerHadFocus.current = event.currentTarget.matches(':focus-visible'); }} onBlur={(event) => { props.onBlur?.(event); if (event.relatedTarget) centerHadFocus.current = false; }}><Blob /><Icon kind={ended ? 'replay' : 'play'} /></button>} />
       <BufferingIndicator className="dabble-loading" render={(props, state) => <div {...props} role="status" aria-live="polite">{state.visible && <><span className="dabble-loading-disc" aria-hidden="true"><span /></span><span className="dabble-loading-label">Loading</span></>}</div>} />
