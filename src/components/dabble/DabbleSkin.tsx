@@ -2,7 +2,7 @@ import { Container, Controls, PlayButton, TimeSlider, Time, MuteButton, VolumePo
 import { usePlayer } from '@videojs/react/video';
 import { useEffect, useId, useRef, useState, type ReactNode, type CSSProperties } from 'react';
 import './dabble-skin.css';
-import { DABBLE_HOTKEYS, DABBLE_PLAYBACK_RATES, getCaptionLine, getControlSize, shouldDockControls, showCenterPlay } from './skin-rules';
+import { DABBLE_HOTKEYS, DABBLE_PLAYBACK_RATES, getCaptionLine, getControlSize, shouldDockControls, shouldShowVolumePopover, showCenterPlay } from './skin-rules';
 import { tintForInk } from './palette';
 import { DEFAULT_PALETTE, type Palette } from './painting-data';
 
@@ -53,7 +53,7 @@ export function DabbleSkin({ children, painting = false, palette = DEFAULT_PALET
     update(); query.addEventListener('change', update);
     return () => query.removeEventListener('change', update);
   }, []);
-  const showVolume = playerWidth >= 420 && hoverCapable;
+  const showVolume = shouldShowVolumePopover(playerWidth, hoverCapable);
   useEffect(() => { if (!showVolume) setVolumeOpen(false); }, [showVolume]);
 
   useEffect(() => {
@@ -136,15 +136,19 @@ export function DabbleSkin({ children, painting = false, palette = DEFAULT_PALET
 
   const play = <PlayButton ref={playRef} label={(state) => state.ended ? 'Replay' : state.paused ? 'Play' : 'Pause'} className="dabble-button dabble-play" render={(props, state) => <button {...props} tabIndex={centerVisible ? -1 : props.tabIndex} aria-hidden={centerVisible || undefined}><Blob /><Icon kind={state.ended ? 'replay' : state.paused ? 'play' : 'pause'} /></button>} />;
   const muteButton = <MuteButton ref={muteRef} className="dabble-button dabble-mute" render={(props, state) => <button {...props} data-on={state.muted}><Blob /><Icon kind={state.volumeLevel === 'off' ? 'muted' : 'volume'} /></button>} />;
-  const mute = showVolume ? <VolumePopover.Root openOnHover side="top" align="center" boundary="container" open={volumeOpen} onOpenChange={(open, details) => {
+  const mute = showVolume ? <VolumePopover.Root openOnHover closeDelay={150} side="top" align="center" boundary="container" open={volumeOpen} onOpenChange={(open, details) => {
     if (!open && details.reason === 'click') return;
     if (open && volumeEscape.current) return;
     setVolumeOpen(open);
   }}>
     <VolumePopover.Trigger render={(triggerProps) => {
       // Hover/focus owns popup visibility; clicks belong only to MuteButton.
-      const { onClick: _togglePopup, ...props } = triggerProps;
-      return <MuteButton {...props} ref={muteRef} className="dabble-button dabble-mute" render={(buttonProps, state) => <button {...buttonProps} data-on={state.muted}><Blob /><Icon kind={state.volumeLevel === 'off' ? 'muted' : 'volume'} /></button>} />;
+      const { onClick: _togglePopup, ref: triggerRef, ...props } = triggerProps;
+      return <MuteButton {...props} ref={(element) => {
+        muteRef.current = element;
+        if (typeof triggerRef === 'function') return triggerRef(element);
+        if (triggerRef) triggerRef.current = element;
+      }} className="dabble-button dabble-mute" render={(buttonProps, state) => <button {...buttonProps} data-on={state.muted}><Blob /><Icon kind={state.volumeLevel === 'off' ? 'muted' : 'volume'} /></button>} />;
     }} onFocus={() => { if (!volumeEscape.current) setVolumeOpen(true); }} onBlur={() => { volumeEscape.current = false; }} onPointerEnter={() => { volumeEscape.current = false; setVolumeOpen(true); }} onKeyDown={event => { if (event.key === 'Escape') { volumeEscape.current = true; setVolumeOpen(false); } }} />
     <VolumePopover.Popup className="dabble-volume-popup" onKeyDown={event => { if (event.key === 'Escape') { volumeEscape.current = true; setVolumeOpen(false); muteRef.current?.focus(); } }}>
       <VolumeSlider.Root orientation="vertical" className="dabble-volume-vertical"><VolumeSlider.Track className="dabble-volume-track"><VolumeSlider.Fill className="dabble-volume-fill" /></VolumeSlider.Track><VolumeSlider.Thumb className="dabble-volume-thumb" /></VolumeSlider.Root>

@@ -1,11 +1,11 @@
 # Dabble
 
 ## Step 6
-- [ ] Port the uploaded palette reference unchanged and test parity and contrast.
-- [ ] Add Video.js vertical volume popover and soften speed-item focus rings.
-- [ ] Sample video palettes without seeking playback; update pots, initial paint, and tinted controls.
-- [ ] Persist per-video painting data, restore/export embedded paintings, and add clipboard fallback.
-- [ ] Verify sampling, mouse/keyboard volume, reload persistence, export size, and player regressions.
+- [x] Port the uploaded palette reference unchanged and test parity and contrast.
+- [x] Add Video.js vertical volume popover and soften speed-item focus rings.
+- [x] Sample video palettes without seeking playback; update pots, initial paint, and tinted controls.
+- [x] Persist per-video painting data, restore/export embedded paintings, and add clipboard fallback.
+- [x] Verify sampling, mouse/keyboard volume, reload persistence, export size, and player regressions.
 
 ## Step 5
 - [x] Port the reference brushes unchanged to TypeScript and verify output parity.

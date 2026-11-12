@@ -14,6 +14,7 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
   const paletteRef = useRef<Palette>(palette);
   const touched = useRef(Boolean(supplied));
   const persist = useRef<() => void>(() => {});
+  const stopSampling = useRef<() => void>(() => {});
   const [sampleMessage, setSampleMessage] = useState('');
   const [count, setCount] = useState(strokes.current.length);
   const geo = useRef<Geo | null>(null);
@@ -33,7 +34,7 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
     setPalette(paletteRef.current); setCount(strokes.current.length); replay.current();
     persist.current = () => savePainting(src, {version:1,palette:paletteRef.current,strokes:strokes.current});
     if (restored) return;
-    return sampleSource(src, next => {
+    const cancel = sampleSource(src, next => {
       paletteRef.current = next; setPalette(next);
       if (!touched.current) {
         strokes.current = strokes.current.map(stroke => ({...stroke,pal:[...next]}));
@@ -41,6 +42,8 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
       }
       persist.current();
     });
+    stopSampling.current = cancel;
+    return cancel;
   }, [src, supplied, enabled]);
 
   useEffect(() => {
@@ -149,6 +152,7 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
       if (!video || video.readyState < 2) { setSampleMessage('Play or scrub to a frame first.'); return; }
       const next = sampleVideo(video);
       if (!next) return;
+      stopSampling.current();
       touched.current = true; paletteRef.current = next; setPalette(next); setSampleMessage(''); persist.current();
     },
     undo: () => replace(undoPainting(strokes.current)),

@@ -20,6 +20,10 @@ export function shouldDockControls(width: number, fullscreen: boolean) {
   return width < 420 && !fullscreen;
 }
 
+export function shouldShowVolumePopover(width: number, hoverCapable: boolean) {
+  return width >= 420 && hoverCapable;
+}
+
 export function getDockSpace(width: number, barHeight: number) {
   return shouldDockControls(width, false) ? barHeight + 8 : 0;
 }
