@@ -5,23 +5,11 @@ import './dabble-skin.css';
 import { DABBLE_HOTKEYS, DABBLE_PLAYBACK_RATES, getCaptionLine, getControlSize, shouldDockControls, shouldShowVolumePopover, showCenterPlay } from './skin-rules';
 import { tintForInk } from './palette';
 import { DEFAULT_PALETTE, type Palette } from './painting-data';
+import { HandIcon as Icon } from './HandDrawings';
 
 function Blob() { return <span className="dabble-blob" aria-hidden="true" />; }
 
-function Icon({ kind }: { kind: 'play' | 'pause' | 'replay' | 'volume' | 'muted' | 'fullscreen' | 'exit' }) {
-  const paths = {
-    play: <path d="m8 5 11 7-11 7Z" />,
-    pause: <><path d="M8 5v14M16 5v14" /></>,
-    replay: <><path d="M4 10a8 8 0 1 1 2 8M4 4v6h6" /></>,
-    volume: <><path d="M11 4 6 8H3v8h3l5 4ZM15 8a6 6 0 0 1 0 8M18 5a10 10 0 0 1 0 14" /></>,
-    muted: <><path d="M11 4 6 8H3v8h3l5 4ZM16 9l5 6m0-6-5 6" /></>,
-    fullscreen: <path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6" />,
-    exit: <path d="M3 9h6V3m6 0v6h6M9 21v-6H3m18 0h-6v6" />,
-  };
-  return <svg className="dabble-icon" viewBox="0 0 24 24" aria-hidden="true">{paths[kind]}</svg>;
-}
-
-export function DabbleSkin({ children, painting = false, palette = DEFAULT_PALETTE }: { children: ReactNode; painting?: boolean; palette?: Palette }) {
+export function DabbleSkin({ children, painting = false, palette = DEFAULT_PALETTE, onControlsState }: { children: ReactNode; painting?: boolean; palette?: Palette; onControlsState?: (state: { visible: boolean; paused: boolean }) => void }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<'small' | 'medium' | 'large'>('large');
   const [playerWidth, setPlayerWidth] = useState(860);
@@ -35,6 +23,7 @@ export function DabbleSkin({ children, painting = false, palette = DEFAULT_PALET
   const started = usePlayer((state) => state.started);
   const ended = usePlayer((state) => state.ended);
   const controlsVisible = usePlayer((state) => state.controlsVisible);
+  const paused = usePlayer((state) => state.paused);
   const hasError = usePlayer((state) => Boolean(state.error));
   const requestControlsLock = usePlayer((state) => state.requestControlsLock);
   const centerVisible = showCenterPlay(started, ended) && !hasError;
@@ -42,6 +31,20 @@ export function DabbleSkin({ children, painting = false, palette = DEFAULT_PALET
   const playRef = useRef<HTMLButtonElement>(null);
   const centerHadFocus = useRef(false);
   const captionId = useId().replace(/[^a-zA-Z0-9_-]/g, '');
+
+  useEffect(() => { onControlsState?.({ visible: controlsVisible, paused }); }, [controlsVisible, paused, onControlsState]);
+  useEffect(() => {
+    const canvas = rootRef.current?.closest('.dabble-canvas');
+    if (!canvas) return;
+    let release: (() => void) | undefined;
+    const activity = (event: Event) => {
+      const active = (event as CustomEvent<boolean>).detail;
+      if (active) release ??= requestControlsLock();
+      else { release?.(); release = undefined; }
+    };
+    canvas.addEventListener('dabble-tray-activity', activity);
+    return () => { canvas.removeEventListener('dabble-tray-activity', activity); release?.(); };
+  }, [requestControlsLock]);
 
   useEffect(() => {
     return ended || docked || volumeOpen ? requestControlsLock() : undefined;
@@ -154,7 +157,7 @@ export function DabbleSkin({ children, painting = false, palette = DEFAULT_PALET
       <VolumeSlider.Root orientation="vertical" className="dabble-volume-vertical"><VolumeSlider.Track className="dabble-volume-track"><VolumeSlider.Fill className="dabble-volume-fill" /></VolumeSlider.Track><VolumeSlider.Thumb className="dabble-volume-thumb" /></VolumeSlider.Root>
     </VolumePopover.Popup>
   </VolumePopover.Root> : muteButton;
-  const captions = <CaptionsButton label="Captions" className="dabble-button dabble-captions" render={(props, state) => <button {...props} aria-pressed={state.subtitlesShowing} data-on={state.subtitlesShowing}><Blob /><span aria-hidden="true">CC</span></button>} />;
+  const captions = <CaptionsButton label="Captions" className="dabble-button dabble-captions" render={(props, state) => <button {...props} aria-pressed={state.subtitlesShowing} data-on={state.subtitlesShowing}><Blob /><span aria-hidden="true">CC</span>{state.subtitlesShowing && <Icon kind="captions" className="dabble-cc-underline" />}</button>} />;
   const speed = <Menu.Root side="top" align="end" boundary="container"><PlaybackRateRadioGroup.Root rates={DABBLE_PLAYBACK_RATES} formatRate={(rate) => `${rate}x`}><Menu.Trigger aria-label="Playback speed" className="dabble-button dabble-speed" render={<button type="button" />}><Blob /><PlaybackRateRadioGroup.Value aria-hidden="true" /></Menu.Trigger><Menu.Popup className="dabble-speed-menu"><Menu.Content><PlaybackRateRadioGroup.Options renderItem={(props, item) => <Menu.RadioItem {...props} key={item.value} className="dabble-speed-item"><Blob />{item.label}</Menu.RadioItem>} /></Menu.Content></Menu.Popup></PlaybackRateRadioGroup.Root></Menu.Root>;
   const fullscreen = <FullscreenButton className="dabble-button dabble-fullscreen" render={(props, state) => <button {...props}><Blob /><Icon kind={state.fullscreen ? 'exit' : 'fullscreen'} /></button>} />;
   const seek = <TimeSlider.Root className="dabble-slider dabble-seek"><TimeSlider.Track className="dabble-track"><TimeSlider.Buffer className="dabble-buffer" /><TimeSlider.Fill className="dabble-fill" /></TimeSlider.Track><TimeSlider.Thumb className="dabble-thumb" /></TimeSlider.Root>;

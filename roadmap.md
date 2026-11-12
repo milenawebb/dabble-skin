@@ -1,5 +1,12 @@
 # Dabble
 
+## Step 9
+- [x] Replace player and tray icons with the supplied drawings.
+- [x] Build the easel ledge tray with tucked, peek, pinned, and responsive layouts.
+- [x] Add the size-aware brush cursor without changing painting logic.
+- [x] Verify keyboard, touch, tray visibility, actions, saved paintings, and desktop stability; report dimensions and drawing issues.
+- [x] Preserve nonoverlapping 44px touch targets with horizontal tool-row scrolling where the requested row cannot physically fit.
+
 ## Step 8
 - [x] Fix two-tone focus, coarse-pointer targets, captions state, hidden focus, and forced colors.
 - [x] Audit keyboard, names, announcements, contrast, motion, zoom-equivalent widths, and automated accessibility.

@@ -1,7 +1,7 @@
 // @refresh reset
 // Remount after edits: nested paint-hook changes must not reuse an older hook queue.
 import { VideoPlayer, Video } from '@videojs/react/video';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { getFrameWidth, getVideoLayout } from './canvas-layout';
 import { DabbleSkin } from './DabbleSkin';
 import { getDockSpace, getPlayerSource } from './skin-rules';
@@ -10,6 +10,7 @@ import { usePaint } from './use-paint';
 import { PaintTray } from './PaintTray';
 import type { Painting } from './painting-data';
 import { useFeedback } from './use-feedback';
+import { useBrushCursor } from './use-brush-cursor';
 
 type DabblePlayerProps = {
   src: string;
@@ -28,6 +29,9 @@ export function DabblePlayer({ src, poster, broken = false, captions, paintable 
   const videoRef = useRef<HTMLVideoElement>(null);
   const paintRef = useRef<HTMLCanvasElement>(null);
   const paint = usePaint(canvasRef, paintRef, paintable, src, painting);
+  useBrushCursor(canvasRef, paintRef, paint.size, paint.palette[paint.color] ?? paint.palette[0], paint.brush);
+  const [controlsState, setControlsState] = useState({ visible: true, paused: true });
+  const trayActivity = useCallback((active: boolean) => { canvasRef.current?.dispatchEvent(new CustomEvent('dabble-tray-activity', { detail: active })); }, []);
   const [soundChoice, setSoundChoice] = useState(sounds);
   const automaticSound = useFeedback(canvasRef, soundChoice, paint.painting, paint.brush);
   useEffect(() => {
@@ -100,7 +104,7 @@ export function DabblePlayer({ src, poster, broken = false, captions, paintable 
       <canvas ref={paintRef} className="dabble-paint" aria-hidden="true" />
       <div className="dabble-stage">
         <VideoPlayer poster={poster}>
-          <DabbleSkin painting={paint.painting} palette={paint.palette}>
+          <DabbleSkin painting={paint.painting} palette={paint.palette} onControlsState={setControlsState}>
             <Video
               ref={videoRef}
               src={source}
@@ -113,7 +117,7 @@ export function DabblePlayer({ src, poster, broken = false, captions, paintable 
         </VideoPlayer>
       </div>
     </div>
-    {paintable && <PaintTray paint={paint} src={src} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} />}
+    {paintable && <PaintTray paint={paint} src={src} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} controlsState={controlsState} onActivity={trayActivity} />}
     </>
   );
 }

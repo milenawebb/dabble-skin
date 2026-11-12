@@ -1,63 +1,102 @@
-import { Paintbrush, Check, Undo2, Sparkles, Trash2, Pipette, Copy, Volume2, VolumeX } from 'lucide-react';
-import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { paintingCode } from './painting-data';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { Brush } from './paint-engine';
 import type { usePaint } from './use-paint';
+import { BLOB_ROTATIONS, BrushDrawing, HandIcon, PaintBlob, type HandIconKind } from './HandDrawings';
+import { BRUSH_SIZES, TRAY_HIDE_DELAY, trayState } from './tray-rules';
+import './paint-tray.css';
 
 const brushes: { label: string; type: Brush }[] = [
-  { label: 'Impressionist', type: 'imp' }, { label: 'Cubist', type: 'cub' },
-  { label: 'Drip', type: 'drip' }, { label: 'Ribbon', type: 'rib' },
+  { label: 'Impressionist brush', type: 'imp' }, { label: 'Cubist brush', type: 'cub' },
+  { label: 'Drip brush', type: 'drip' }, { label: 'Ribbon brush', type: 'rib' },
 ];
-export function PaintTray({ paint, src, sounds, toggleSounds, automaticSound }: { paint: ReturnType<typeof usePaint>; src: string; sounds: boolean; toggleSounds: () => void; automaticSound: () => void }) {
-  const sizeId = useId();
+function Tool({ label, children, className = '', pressed, disabled, onClick, modeRef, hidden = false, style, note }: { label: string; children: ReactNode; className?: string; pressed?: boolean; disabled?: boolean; onClick: () => void; modeRef?: React.Ref<HTMLButtonElement>; hidden?: boolean; style?: CSSProperties; note?: string }) {
+  return <span className={`tray-item ${className}`} inert={hidden || undefined}>
+    <Tooltip><TooltipTrigger asChild><Button ref={modeRef} variant="ghost" size="icon" aria-label={label} aria-pressed={pressed} disabled={disabled} onClick={onClick} style={style}>{children}</Button></TooltipTrigger>
+      {!note && <TooltipContent className="tray-tooltip-label" side="top" collisionPadding={8}>{label}</TooltipContent>}
+    </Tooltip>
+    {note && <span className="tray-note" role="status">{note}</span>}
+  </span>;
+}
+export function PaintTray({ paint, src, sounds, toggleSounds, automaticSound, controlsState, onActivity }: { paint: ReturnType<typeof usePaint>; src: string; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; controlsState: { visible: boolean; paused: boolean }; onActivity: (active: boolean) => void }) {
+  const id = useId();
   const [copied, setCopied] = useState(false);
   const [snippet, setSnippet] = useState('');
-  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  useEffect(() => () => clearTimeout(timer.current), []);
+  const [peeking, setPeeking] = useState(false);
+  const [hoverCapable, setHoverCapable] = useState(false);
+  const root = useRef<HTMLElement>(null);
+  const mode = useRef<HTMLButtonElement>(null);
+  const hovering = useRef(false);
+  const suppressPeek = useRef(false);
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const copyTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const state = trayState(paint.painting, peeking);
+  const open = state !== 'tucked';
+  useEffect(() => {
+    const query = matchMedia('(hover: hover) and (pointer: fine)');
+    const update = () => setHoverCapable(query.matches);
+    update(); query.addEventListener('change', update);
+    return () => { query.removeEventListener('change', update); clearTimeout(hideTimer.current); clearTimeout(copyTimer.current); onActivity(false); };
+  }, [onActivity]);
+  const reveal = () => { clearTimeout(hideTimer.current); if (hoverCapable && !suppressPeek.current) setPeeking(true); };
+  const scheduleTuck = () => {
+    clearTimeout(hideTimer.current);
+    hideTimer.current = setTimeout(() => {
+      if (!hovering.current && !root.current?.contains(document.activeElement)) setPeeking(false);
+    }, TRAY_HIDE_DELAY);
+  };
+  const tuck = () => {
+    suppressPeek.current = true;
+    clearTimeout(hideTimer.current); setPeeking(false); paint.setPainting(false);
+    // Focus returns before the next render makes the other tools inert.
+    mode.current?.focus();
+  };
+  const pin = (action: () => void) => { suppressPeek.current = false; clearTimeout(hideTimer.current); setPeeking(false); paint.setPainting(true); action(); };
   const copy = async () => {
     const code = paintingCode(src, paint.getPainting());
     try {
       await navigator.clipboard.writeText(code); setSnippet(''); setCopied(true);
-      clearTimeout(timer.current); timer.current = setTimeout(() => setCopied(false), 2000);
+      clearTimeout(copyTimer.current); copyTimer.current = setTimeout(() => setCopied(false), 2000);
     } catch { setSnippet(code); }
   };
-  return <section className="paint-tray" aria-label="Paint tools">
-    <div className="paint-mode-row">
-      <Button variant="outline" className="paint-mode-button" aria-pressed={paint.painting} onClick={() => paint.setPainting(!paint.painting)}>
-        {paint.painting ? <Check /> : <Paintbrush />}{paint.painting ? 'Done painting' : 'Start painting'}
-      </Button>
-      <p aria-live="polite">{paint.painting ? 'Painting is on. Drag on the frame with a mouse or a finger.' : 'Painting is off. The player works like a normal player.'}</p>
-    </div>
-    <div className="paint-tool-row" data-dimmed={!paint.painting || undefined}>
-      <span className="paint-row-label">Brush</span>
-      <div className="paint-brushes" role="group" aria-label="Brush">
-        {brushes.map(({ label, type }) => <Button key={type} variant="outline" aria-pressed={paint.brush === type} onClick={() => paint.setBrush(type)}>{label}</Button>)}
+  const color = paint.palette[paint.color] ?? paint.palette[0];
+  const iconTool = (label: string, icon: HandIconKind, action: () => void, disabled = false) => <Tool label={label} className="tray-reveal tray-circle" hidden={!open} disabled={disabled} onClick={action}><HandIcon kind={icon} /></Tool>;
+  return <TooltipProvider delayDuration={0}><section ref={root} className="paint-tray" aria-label="Paint tools" data-state={state} data-visible={controlsState.visible || undefined} data-paused={controlsState.paused || undefined} style={{ '--tray-color': color } as CSSProperties}
+    onPointerEnter={() => { hovering.current = true; suppressPeek.current = false; reveal(); onActivity(true); }}
+    onPointerMove={() => { onActivity(true); }}
+    onPointerLeave={() => { hovering.current = false; suppressPeek.current = false; scheduleTuck(); if (!root.current?.contains(document.activeElement)) onActivity(false); }}
+    onFocusCapture={() => { reveal(); onActivity(true); }}
+    onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) { suppressPeek.current = false; scheduleTuck(); if (!hovering.current) onActivity(false); } }}
+    onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); tuck(); } }}>
+    <div className="tray-shelf">
+      <Tool modeRef={mode} label={paint.painting ? 'Stop painting' : 'Start painting'} className="tray-mode tray-circle" pressed={paint.painting} onClick={() => { if (paint.painting) tuck(); else pin(() => {}); }}><HandIcon kind="brush" /></Tool>
+      <span className="tray-divider tray-divider-one tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
+      <div className="tray-colors tray-reveal" role="group" aria-label="Paint color" inert={!open || undefined}>
+        {paint.palette.map((hex, index) => <Tool key={index} label={`Paint color ${index + 1}`} pressed={paint.color === index} className="tray-color" style={{ '--pot-color': hex } as CSSProperties} onClick={() => pin(() => paint.setColor(index))}><PaintBlob selected={paint.color === index} angle={BLOB_ROTATIONS[index] ?? 0} scale={paint.color === index ? 1.18 : 1} /></Tool>)}
       </div>
-    </div>
-    <div className="paint-tool-row" data-dimmed={!paint.painting || undefined}>
-      <label className="paint-row-label" htmlFor={sizeId}>Size</label>
-      <input id={sizeId} type="range" min={8} max={40} value={paint.size} onChange={(event) => paint.setSize(Number(event.target.value))} />
-      <output htmlFor={sizeId}>{paint.size}</output>
-    </div>
-    <div className="paint-tool-row" data-dimmed={!paint.painting || undefined}>
-      <span className="paint-row-label">Paint</span>
-      <div className="paint-pots" role="group" aria-label="Paint color">
-        {paint.palette.map((hex, index) => <Button key={index} variant="ghost" size="icon" className="paint-pot" style={{'--pot-color':hex} as CSSProperties} aria-label={`Paint color ${index + 1}: ${hex}`} title={hex} aria-pressed={paint.color === index} onClick={() => paint.setColor(index)} />)}
+      <Tool label="Colors from this frame" className="tray-sample tray-circle tray-reveal" hidden={!open} onClick={paint.sampleFrame} note={paint.sampleMessage}><HandIcon kind="eyedropper" /></Tool>
+      <span className="tray-divider tray-divider-two tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
+      <div className="tray-equipment">
+      <div className="tray-brushes tray-reveal" role="group" aria-label="Brush" inert={!open || undefined}>
+        {brushes.map(({ label, type }) => <Tool key={type} label={label} className="tray-brush" pressed={paint.brush === type} onClick={() => pin(() => paint.setBrush(type))}><BrushDrawing brush={type} /></Tool>)}
       </div>
-      <Button variant="outline" onClick={paint.sampleFrame}><Pipette />Colors from this frame</Button>
-      {paint.sampleMessage && <span role="status" className="paint-inline-message">{paint.sampleMessage}</span>}
-    </div>
-    <div className="paint-tool-row">
-      <span className="paint-row-label">Canvas</span>
-      <div className="paint-actions">
-        <Button variant="outline" onClick={paint.undo} disabled={paint.count === 0}><Undo2 />Undo</Button>
-        <Button variant="outline" onClick={() => { paint.automatic(); automaticSound(); }}><Sparkles />Paint it for me</Button>
-        <Button variant="outline" onClick={paint.clear} disabled={paint.count === 0}><Trash2 />Clear</Button>
-        <Button variant="outline" onClick={copy}><Copy />{copied ? 'Copied' : 'Copy painting code'}</Button>
+      <span className="tray-divider tray-divider-three tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
+      <div className="tray-sizes tray-reveal" role="group" aria-label="Brush size" inert={!open || undefined}>
+        {BRUSH_SIZES.map(({ label, value, scale }) => <Tool key={value} label={label} className="tray-size" pressed={paint.size === value} onClick={() => pin(() => paint.setSize(value))}><PaintBlob selected={paint.size === value} scale={scale} /></Tool>)}
       </div>
+      <div className="tray-actions">
+        {iconTool('Undo', 'undo', paint.undo, paint.count === 0)}
+        {iconTool('Paint it for me', 'wand', () => { paint.automatic(); automaticSound(); })}
+        {iconTool('Clear', 'clear', paint.clear, paint.count === 0)}
+        {iconTool('Copy painting code', 'copy', copy)}
+        <Tool label={sounds ? 'Sounds on' : 'Sounds off'} className="tray-circle tray-reveal" hidden={!open} pressed={sounds} onClick={toggleSounds}><HandIcon kind={sounds ? 'sounds-on' : 'sounds-off'} /></Tool>
+      </div>
+      </div>
+      <svg className="tray-ledge" viewBox="0 0 1000 8" preserveAspectRatio="none" aria-hidden="true"><path d="M1 3C300 1 700 5 999 2" /></svg>
     </div>
-    <div className="paint-tool-row"><span className="paint-row-label">Player</span><Button variant="outline" aria-pressed={sounds} onClick={toggleSounds}>{sounds ? <Volume2 /> : <VolumeX />}{sounds ? 'Sounds on' : 'Sounds off'}</Button></div>
-    {snippet && <div className="paint-copy-fallback"><label htmlFor={`${sizeId}-code`}>Painting code</label><textarea id={`${sizeId}-code`} readOnly value={snippet} onFocus={event => event.currentTarget.select()} /></div>}
-  </section>;
+    <span className="tray-copy-status" role="status">{copied ? 'Copied' : ''}</span>
+    {snippet && <div className="paint-copy-fallback" inert={!open || undefined} hidden={!open}><label htmlFor={`${id}-code`}>Painting code</label><textarea id={`${id}-code`} readOnly value={snippet} onFocus={event => event.currentTarget.select()} /></div>}
+  </section></TooltipProvider>;
 }
