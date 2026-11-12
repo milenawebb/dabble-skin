@@ -1,3 +1,5 @@
+// @refresh reset
+// Nested sound-hook edits must remount consumers instead of reusing old hook slots.
 import { useEffect, useRef, type RefObject } from 'react';
 import type { Brush } from './paint-engine';
 import { SOUND, dragDue, followsGesture, swish, unlockSound } from './sounds';
