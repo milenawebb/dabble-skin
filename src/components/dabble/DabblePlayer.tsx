@@ -1,7 +1,7 @@
-import '@videojs/react/video/skin.css';
-import { VideoPlayer, VideoSkin, Video } from '@videojs/react/video';
+import { VideoPlayer, Video } from '@videojs/react/video';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { getFrameWidth, getVideoLayout } from './canvas-layout';
+import { DabbleSkin } from './DabbleSkin';
 
 type DabblePlayerProps = {
   src: string;
@@ -53,14 +53,14 @@ export function DabblePlayer({ src }: DabblePlayerProps) {
       <canvas className="dabble-paint" aria-hidden="true" />
       <div className="dabble-stage">
         <VideoPlayer>
-          <VideoSkin className="dabble-video-skin h-full w-full">
+          <DabbleSkin>
             <Video
               ref={videoRef}
               src={src}
               crossOrigin="anonymous"
               playsInline
             />
-          </VideoSkin>
+          </DabbleSkin>
         </VideoPlayer>
       </div>
     </div>
