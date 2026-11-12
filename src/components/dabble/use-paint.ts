@@ -2,9 +2,9 @@ import { useEffect, useRef, useState, type RefObject } from 'react';
 import { renderStroke, type Brush, type Geo, type Point, type Stroke } from './paint-engine';
 import { backingRatio, initialPainting, pointSpacing, strokeSize, undoPainting } from './paint-rules';
 import { DEFAULT_PALETTE, loadPainting, savePainting, roundStroke, type Painting, type Palette } from './painting-data';
-import { sampleSource, sampleVideo } from './video-palette';
+import { sampleMux, sampleSource, sampleThumbnails, sampleVideo } from './video-palette';
 
-export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef: RefObject<HTMLCanvasElement | null>, enabled: boolean, src: string, supplied?: Painting) {
+export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef: RefObject<HTMLCanvasElement | null>, enabled: boolean, src: string, supplied?: Painting, playbackId?: string, thumbnailSampleTimes?: readonly number[]) {
   const [painting, setPainting] = useState(false);
   const [brush, setBrush] = useState<Brush>('rib');
   const [size, setSize] = useState(20);
@@ -27,24 +27,27 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
   settings.current = { painting: enabled && painting, brush, size, color };
 
   useEffect(() => {
-    const restored = supplied ?? loadPainting(src);
+    const identity = playbackId ?? src;
+    const restored = supplied ?? loadPainting(identity);
     touched.current = Boolean(restored);
     strokes.current = restored?.strokes ?? (enabled ? initialPainting() : []);
     paletteRef.current = restored?.palette ?? [...DEFAULT_PALETTE];
     setPalette(paletteRef.current); setCount(strokes.current.length); replay.current();
-    persist.current = () => savePainting(src, {version:1,palette:paletteRef.current,strokes:strokes.current});
+    persist.current = () => savePainting(identity, {version:1,palette:paletteRef.current,strokes:strokes.current});
     if (restored) return;
-    const cancel = sampleSource(src, next => {
+    const receive = (next: Palette) => {
       paletteRef.current = next; setPalette(next);
       if (!touched.current) {
         strokes.current = strokes.current.map(stroke => ({...stroke,pal:[...next]}));
         replay.current();
       }
       persist.current();
-    });
+    };
+    const video = wrapperRef.current?.querySelector('video');
+    const cancel = playbackId ? (video ? sampleMux(video, playbackId, thumbnailSampleTimes, receive) : () => {}) : sampleSource(src, receive);
     stopSampling.current = cancel;
     return cancel;
-  }, [src, supplied, enabled]);
+  }, [src, supplied, enabled, playbackId, thumbnailSampleTimes]);
 
   useEffect(() => {
     const wrapper = wrapperRef.current, canvas = paintRef.current;
@@ -147,12 +150,12 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
   return {
     painting: enabled && painting, setPainting, brush, setBrush, size, setSize, color, setColor, count, palette, sampleMessage,
     getPainting: (): Painting => ({version:1,palette:[...paletteRef.current],strokes:strokes.current.map(roundStroke)}),
-    sampleFrame: () => {
+    sampleFrame: async () => {
       const video = wrapperRef.current?.querySelector('video');
       if (!video || video.readyState < 2) { setSampleMessage('Play or scrub to a frame first.'); return; }
-      const next = sampleVideo(video);
-      if (!next) return;
       stopSampling.current();
+      const next = sampleVideo(video) ?? (playbackId ? await sampleThumbnails(playbackId, [video.currentTime]) : null);
+      if (!next) return;
       touched.current = true; paletteRef.current = next; setPalette(next); setSampleMessage(''); persist.current();
     },
     undo: () => replace(undoPainting(strokes.current)),

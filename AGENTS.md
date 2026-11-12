@@ -30,7 +30,7 @@ use the editor.
 <!-- LOVABLE:END -->
 
 ## Player architecture
-- Keep player composition inside `DabblePlayer.tsx`, accepting `src`, and UI primitives inside `DabbleSkin.tsx`, so skin changes stay isolated from the page.
+- Keep player composition inside `DabblePlayer.tsx`, using MuxVideo for playbackId and Video for src; keep UI primitives inside DabbleSkin so source changes cannot alter the skin.
 - Use the packaged `@videojs/react/video` player preset with custom Video.js UI primitives and scoped skin CSS; do not import the stock skin stylesheet.
 - Keep canvas and paint wrappers outside `VideoPlayer`; `DabbleSkin` registers its inner `Container` as the fullscreen target, so fullscreen excludes the frame.
 - Calculate frame spacing from the canvas wrapper's measured width with `ResizeObserver`, and video shape from native metadata; keep geometry rules in a pure tested helper.
@@ -41,7 +41,9 @@ use the editor.
 - Pass native caption tracks through DabblePlayer props and keep sample VTT files in public/captions so the actual player exercises captions without injected test tracks.
 - Keep the supplied brush engine a math-preserving TypeScript port; isolate interaction and tray UI from renderStroke so reference rendering remains reproducible.
 - Store paintings as versioned seeded normalized strokes, rounded on completion and persisted per video source in optional browser storage; use offscreen canvases only as disposable rendering caches.
-- Keep palette math reference-identical, sample initial footage with a disposable hidden video, and tint only control blobs for ink contrast; preserve each stroke's original palette.
+- Keep palette math reference-identical; sample Mux scene thumbnails (duration fractions or explicit overrides), retain hidden-video sampling for plain sources, and fall back to current-time thumbnails when live pixel reads fail; preserve each stroke's palette.
+- Use playbackId as painting identity and export it for Mux sources, so paintings never leak between source identities.
+- Disable HLS subtitle formats when an explicit captions file is supplied; do not add Mux analytics, and disclose native-HLS track limitations rather than altering manifests.
 - Use VolumePopover with a MuteButton trigger and vertical VolumeSlider only for hover-capable players at least 420px wide; hold the library controls lock while its popup is open.
 - Keep optional Web Audio and activation feedback in a wrapper-level hook with native state listeners and captured trusted gestures, so Video.js actions and brush rendering stay untouched.
 - Keep continuous brush audio in a dedicated wrapper hook using the shared gesture-created AudioContext; supplied voice math stays in sounds, with explicit stroke, mute, visibility, and unmount teardown.

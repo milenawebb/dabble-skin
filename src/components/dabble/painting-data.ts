@@ -35,6 +35,6 @@ export function loadPainting(src: string): Painting | null {
 export function savePainting(src: string, painting: Painting) {
   try { localStorage.setItem(storageKey(src), JSON.stringify(painting)); } catch { /* Browser storage is optional. */ }
 }
-export function paintingCode(src: string, painting: Painting) {
-  return `<DabblePlayer src={${JSON.stringify(src)}} painting={${JSON.stringify(painting)}} />`;
+export function paintingCode(src: string, painting: Painting, playbackId?: string) {
+  return `<DabblePlayer ${playbackId ? `playbackId={${JSON.stringify(playbackId)}}` : `src={${JSON.stringify(src)}}`} painting={${JSON.stringify(painting)}} />`;
 }

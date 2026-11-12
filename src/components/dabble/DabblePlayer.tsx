@@ -1,7 +1,8 @@
 // @refresh reset
 // Remount after edits: nested paint and sound hooks must not reuse older hook slots.
 import { VideoPlayer, Video } from '@videojs/react/video';
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { MuxVideo } from '@videojs/react/media/mux-video';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { getFrameWidth, getVideoLayout } from './canvas-layout';
 import { DabbleSkin } from './DabbleSkin';
 import { getDockSpace, getPlayerSource } from './skin-rules';
@@ -13,7 +14,9 @@ import { useFeedback } from './use-feedback';
 import { useBrushCursor } from './use-brush-cursor';
 
 type DabblePlayerProps = {
-  src: string;
+  src?: string;
+  playbackId?: string;
+  thumbnailSampleTimes?: readonly number[];
   poster?: string;
   broken?: boolean;
   captions?: { src: string; srcLang: string; label: string };
@@ -22,13 +25,18 @@ type DabblePlayerProps = {
   sounds?: boolean;
 };
 
-export function DabblePlayer({ src, poster, broken = false, captions, paintable = false, painting, sounds = false }: DabblePlayerProps) {
+export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poster, broken = false, captions, paintable = false, painting, sounds = false }: DabblePlayerProps) {
   const [ready, setReady] = useState(false);
-  const source = getPlayerSource(src, broken && ready);
+  const source = getPlayerSource(playbackId ? `https://stream.mux.com/${playbackId}.m3u8` : src, broken && ready);
+  const muxSource = useMemo(() => ({
+    playbackId: broken && ready ? 'dabble-video-does-not-exist' : playbackId,
+    // The supplied VTT is authoritative: do not import the asset's generated HLS subtitles.
+    ...(captions ? { engine: { hlsJs: { enableWebVTT: false, enableIMSC1: false } } } : {}),
+  }), [playbackId, captions, broken, ready, source]);
   const canvasRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const paintRef = useRef<HTMLCanvasElement>(null);
-  const paint = usePaint(canvasRef, paintRef, paintable, src, painting);
+  const paint = usePaint(canvasRef, paintRef, paintable, src, painting, playbackId, thumbnailSampleTimes);
   useBrushCursor(canvasRef, paintRef, paint.size, paint.palette[paint.color] ?? paint.palette[0], paint.brush);
   const [controlsState, setControlsState] = useState({ visible: true, paused: true });
   const trayActivity = useCallback((active: boolean) => { canvasRef.current?.dispatchEvent(new CustomEvent('dabble-tray-activity', { detail: active })); }, []);
@@ -105,19 +113,21 @@ export function DabblePlayer({ src, poster, broken = false, captions, paintable 
       <div className="dabble-stage">
         <VideoPlayer poster={poster}>
           <DabbleSkin paintable={paintable} brushSize={paint.size} painting={paint.painting} palette={paint.palette} onControlsState={setControlsState}>
-            <Video
+            {playbackId ? <MuxVideo ref={videoRef} source={muxSource} crossOrigin="anonymous" playsInline>
+              {captions && <track kind="captions" src={captions.src} srcLang={captions.srcLang} label={captions.label} />}
+            </MuxVideo> : <Video
               ref={videoRef}
               src={source}
               crossOrigin="anonymous"
               playsInline
             >
               {captions && <track kind="captions" src={captions.src} srcLang={captions.srcLang} label={captions.label} />}
-            </Video>
+            </Video>}
           </DabbleSkin>
         </VideoPlayer>
       </div>
     </div>
-    {paintable && <PaintTray paint={paint} src={src} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} controlsState={controlsState} onActivity={trayActivity} />}
+    {paintable && <PaintTray paint={paint} src={src} {...(playbackId ? { playbackId } : {})} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} controlsState={controlsState} onActivity={trayActivity} />}
     </>
   );
 }

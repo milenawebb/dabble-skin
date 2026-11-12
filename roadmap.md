@@ -1,5 +1,10 @@
 # Dabble
 
+## Mux demo
+- [ ] Play the exact Mux asset with its scene poster and unchanged supplied captions.
+- [ ] Sample scene thumbnails and live frames with thumbnail fallback; isolate saved paintings and export playbackId.
+- [ ] Verify controls, captions, colors, desktop/phone behavior, and report browser limitations.
+
 ## Continuous painting sounds
 - [x] Port the supplied pink-noise voices and exact envelopes; preserve player sounds.
 - [x] Follow every stroke movement and stop on all stroke, mute, visibility, and component exits.

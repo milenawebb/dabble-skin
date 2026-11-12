@@ -23,4 +23,13 @@ describe('painting data', () => {
     const p = newPainting(); const code = paintingCode('oceans.mp4',p);
     expect(code).toBe(`<DabblePlayer src={"oceans.mp4"} painting={${JSON.stringify(p)}} />`);expect(code).not.toContain('paintable');
   });
+  it('exports a Mux painting with the exact playback identity instead of src', () => {
+    const id = 'AAprZsIykh7T29gtsNk02YhBrQRHXTj14ZxbWdc498wA';
+    const p = newPainting();
+    expect(paintingCode('', p, id)).toBe(`<DabblePlayer playbackId={"${id}"} painting={${JSON.stringify(p)}} />`);
+  });
+  it('does not restore the Oceans painting for the Mux playback identity', () => {
+    savePainting('https://vjs.zencdn.net/v/oceans.mp4', newPainting());
+    expect(loadPainting('AAprZsIykh7T29gtsNk02YhBrQRHXTj14ZxbWdc498wA')).toBeNull();
+  });
 });

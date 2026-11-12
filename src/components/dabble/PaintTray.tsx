@@ -20,7 +20,7 @@ function Tool({ label, children, className = '', pressed, disabled, onClick, mod
     {note && <span className="tray-note" role="status">{note}</span>}
   </span>;
 }
-export function PaintTray({ paint, src, sounds, toggleSounds, automaticSound, controlsState, onActivity }: { paint: ReturnType<typeof usePaint>; src: string; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; controlsState: { visible: boolean; paused: boolean }; onActivity: (active: boolean) => void }) {
+export function PaintTray({ paint, src, playbackId, sounds, toggleSounds, automaticSound, controlsState, onActivity }: { paint: ReturnType<typeof usePaint>; src: string; playbackId?: string; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; controlsState: { visible: boolean; paused: boolean }; onActivity: (active: boolean) => void }) {
   const id = useId();
   const [copied, setCopied] = useState(false);
   const [snippet, setSnippet] = useState('');
@@ -55,7 +55,7 @@ export function PaintTray({ paint, src, sounds, toggleSounds, automaticSound, co
   };
   const pin = (action: () => void) => { suppressPeek.current = false; clearTimeout(hideTimer.current); setPeeking(false); paint.setPainting(true); action(); };
   const copy = async () => {
-    const code = paintingCode(src, paint.getPainting());
+    const code = paintingCode(src, paint.getPainting(), playbackId);
     try {
       await navigator.clipboard.writeText(code); setSnippet(''); setCopied(true);
       clearTimeout(copyTimer.current); copyTimer.current = setTimeout(() => setCopied(false), 2000);

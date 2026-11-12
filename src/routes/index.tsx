@@ -4,6 +4,11 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { WALLS, WALL_STORAGE_KEY, readWall, type Wall } from '@/components/dabble/wall-rules';
 
+const PLAYBACK_ID = 'AAprZsIykh7T29gtsNk02YhBrQRHXTj14ZxbWdc498wA';
+const POSTER = `https://image.mux.com/${PLAYBACK_ID}/thumbnail.jpg?time=9&width=1280`;
+const SAMPLE_TIMES = [9, 14, 19, 23] as const;
+const CAPTIONS = { src: '/captions/dabble-dab.en.vtt', srcLang: 'en', label: 'English' };
+
 export const Route = createFileRoute("/")({
   validateSearch: (search: Record<string, unknown>): { broken?: string } => String(search['broken'] ?? '') === '1' ? { broken: '1' } : {},
   head: () => ({
@@ -12,8 +17,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Dabble’s canvas-framed video player with hand-drawn controls, playback speeds, and accessible player states." },
       { property: "og:title", content: "Dabble — Hand-drawn video player" },
       { property: "og:description", content: "Dabble’s canvas-framed video player with hand-drawn controls, playback speeds, and accessible player states." },
-      { property: "og:image", content: "https://vjs.zencdn.net/v/oceans.png" },
-      { name: "twitter:image", content: "https://vjs.zencdn.net/v/oceans.png" },
+      { property: "og:image", content: POSTER },
+      { name: "twitter:image", content: POSTER },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -45,7 +50,7 @@ function Index() {
         </div>
         </div>
         <div className="mt-6 w-full">
-          <DabblePlayer sounds paintable src="https://vjs.zencdn.net/v/oceans.mp4" poster="https://vjs.zencdn.net/v/oceans.png" broken={broken === '1'} captions={{ src: '/captions/oceans.en.vtt', srcLang: 'en', label: 'English' }} />
+          <DabblePlayer sounds paintable playbackId={PLAYBACK_ID} thumbnailSampleTimes={SAMPLE_TIMES} poster={POSTER} broken={broken === '1'} captions={CAPTIONS} />
         </div>
       </div>
     </main>
