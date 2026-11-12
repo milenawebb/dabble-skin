@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { paintingCode } from './painting-data';
+import { colorName, paintColorNames } from './palette';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { Brush } from './paint-engine';
@@ -68,6 +69,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, sounds, 
     } catch { setSnippet(code); }
   };
   const color = paint.palette[paint.color] ?? paint.palette[0];
+  const colorNames = paintColorNames(paint.palette);
   const iconTool = (label: string, icon: HandIconKind, action: () => void, disabled = false) => <Tool label={label} className="tray-reveal tray-circle" hidden={!open} disabled={disabled} onClick={action}><HandIcon kind={icon} /></Tool>;
   return <TooltipProvider delayDuration={0}><section ref={root} className="paint-tray" aria-label="Paint tools" data-state={state} data-visible={controlsState.visible || undefined} data-paused={controlsState.paused || undefined} style={{ '--tray-color': color } as CSSProperties}
     onPointerEnter={() => { hovering.current = true; suppressPeek.current = false; reveal(); onActivity(true); }}
@@ -80,7 +82,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, sounds, 
       <Tool modeRef={mode} label={paint.painting ? 'Stop painting' : 'Start painting'} className="tray-mode tray-circle" pressed={paint.painting} onClick={() => { if (paint.painting) tuck(); else pin(() => {}); }}><HandIcon kind="brush" /></Tool>
       <span className="tray-divider tray-divider-one tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
       <div className="tray-colors tray-reveal" role="group" aria-label="Paint color" inert={!open || undefined}>
-        {paint.palette.map((hex, index) => <Tool key={index} label={`Paint color ${index + 1}`} pressed={paint.color === index} className="tray-color" style={{ '--pot-color': hex } as CSSProperties} onClick={() => pin(() => paint.setColor(index))}><PaintBlob selected={paint.color === index} angle={BLOB_ROTATIONS[index] ?? 0} scale={paint.color === index ? 1.18 : 1} /></Tool>)}
+        {paint.palette.map((hex, index) => <Tool key={index} label={colorNames[index] ?? `${colorName(hex)} paint`} pressed={paint.color === index} className="tray-color" style={{ '--pot-color': hex } as CSSProperties} onClick={() => pin(() => paint.setColor(index))}><PaintBlob selected={paint.color === index} angle={BLOB_ROTATIONS[index] ?? 0} scale={paint.color === index ? 1.18 : 1} /></Tool>)}
       </div>
       <Tool label="Colors from this frame" className="tray-sample tray-circle tray-reveal" hidden={!open} onClick={paint.sampleFrame} note={paint.sampleMessage}><HandIcon kind="eyedropper" /></Tool>
       <span className="tray-divider tray-divider-two tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>

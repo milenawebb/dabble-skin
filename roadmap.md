@@ -1,5 +1,10 @@
 # Dabble
 
+## Paint color names
+- [x] Derive English HSL color names and distinguish duplicates by lightness, then number.
+- [x] Use names for paint tooltips and accessible labels, retaining pressed state, sampler and size names.
+- [x] Verify the six Dab names, palette naming rules, and existing tray actions.
+
 ## Viewer painting
 - [x] Default painting tools on; gate copying behind ownerTools and preserve viewer-saved painting precedence.
 - [x] Reuse Clear as confirmed Start over, restore the starting painting, and verify focus/Escape.

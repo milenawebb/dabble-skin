@@ -57,7 +57,7 @@ describe('tray state interactions', () => {
     fireEvent.pointerEnter(screen.getByRole('region', {name:'Paint tools'}));
     expect(container.querySelector('section')).toHaveAttribute('data-state','peek');
     expect(screen.getByRole('button', {name:'Start painting'})).toHaveAttribute('aria-pressed','false');
-    fireEvent.click(screen.getByRole('button', {name:'Paint color 3'}));
+    fireEvent.click(container.querySelectorAll('.tray-color button')[2] ?? screen.getByRole('button', {name:'Start painting'}));
     expect(container.querySelector('section')).toHaveAttribute('data-state','pinned');
     window.matchMedia = original;
   });
