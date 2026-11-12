@@ -6,6 +6,7 @@ import { getDockSpace, getPlayerSource } from './skin-rules';
 import { paintFrameWidth } from './paint-rules';
 import { usePaint } from './use-paint';
 import { PaintTray } from './PaintTray';
+import type { Painting } from './painting-data';
 
 type DabblePlayerProps = {
   src: string;
@@ -13,15 +14,16 @@ type DabblePlayerProps = {
   broken?: boolean;
   captions?: { src: string; srcLang: string; label: string };
   paintable?: boolean;
+  painting?: Painting;
 };
 
-export function DabblePlayer({ src, poster, broken = false, captions, paintable = false }: DabblePlayerProps) {
+export function DabblePlayer({ src, poster, broken = false, captions, paintable = false, painting }: DabblePlayerProps) {
   const [ready, setReady] = useState(false);
   const source = getPlayerSource(src, broken && ready);
   const canvasRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const paintRef = useRef<HTMLCanvasElement>(null);
-  const paint = usePaint(canvasRef, paintRef, paintable);
+  const paint = usePaint(canvasRef, paintRef, paintable, src, painting);
   const [frameWidth, setFrameWidth] = useState(12);
   const [dockSpace, setDockSpace] = useState(0);
   const [metadata, setMetadata] = useState({ src: '', width: 0, height: 0 });
@@ -83,7 +85,7 @@ export function DabblePlayer({ src, poster, broken = false, captions, paintable 
       <canvas ref={paintRef} className="dabble-paint" aria-hidden="true" />
       <div className="dabble-stage">
         <VideoPlayer poster={poster}>
-          <DabbleSkin painting={paint.painting}>
+          <DabbleSkin painting={paint.painting} palette={paint.palette}>
             <Video
               ref={videoRef}
               src={source}
@@ -96,7 +98,7 @@ export function DabblePlayer({ src, poster, broken = false, captions, paintable 
         </VideoPlayer>
       </div>
     </div>
-    {paintable && <PaintTray paint={paint} />}
+    {paintable && <PaintTray paint={paint} src={src} />}
     </>
   );
 }

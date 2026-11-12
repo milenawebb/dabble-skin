@@ -40,4 +40,6 @@ use the editor.
 - Keep phone docking inside the Video.js Container and reserve measured bar height in the outer canvas; use a Video.js controls lock only outside fullscreen so fullscreen retains library auto-hide.
 - Pass native caption tracks through DabblePlayer props and keep sample VTT files in public/captions so the actual player exercises captions without injected test tracks.
 - Keep the supplied brush engine a math-preserving TypeScript port; isolate interaction and tray UI from renderStroke so reference rendering remains reproducible.
-- Store paintings only as seeded normalized strokes in memory, using an offscreen canvas as a disposable rendering cache and replaying after debounced measured geometry changes.
+- Store paintings as versioned seeded normalized strokes, rounded on completion and persisted per video source in optional browser storage; use offscreen canvases only as disposable rendering caches.
+- Keep palette math reference-identical, sample initial footage with a disposable hidden video, and tint only control blobs for ink contrast; preserve each stroke's original palette.
+- Use VolumePopover with a MuteButton trigger and vertical VolumeSlider only for hover-capable players at least 420px wide; hold the library controls lock while its popup is open.

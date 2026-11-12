@@ -1,8 +1,10 @@
-import { Container, Controls, PlayButton, TimeSlider, Time, MuteButton, VolumeSlider, CaptionsButton, Menu, PlaybackRateRadioGroup, FullscreenButton, Hotkey, StatusAnnouncer, Poster, Gesture, BufferingIndicator, ErrorDialog } from '@videojs/react';
+import { Container, Controls, PlayButton, TimeSlider, Time, MuteButton, VolumePopover, VolumeSlider, CaptionsButton, Menu, PlaybackRateRadioGroup, FullscreenButton, Hotkey, StatusAnnouncer, Poster, Gesture, BufferingIndicator, ErrorDialog } from '@videojs/react';
 import { usePlayer } from '@videojs/react/video';
 import { useEffect, useId, useRef, useState, type ReactNode, type CSSProperties } from 'react';
 import './dabble-skin.css';
 import { DABBLE_HOTKEYS, DABBLE_PLAYBACK_RATES, getCaptionLine, getControlSize, shouldDockControls, showCenterPlay } from './skin-rules';
+import { tintForInk } from './palette';
+import { DEFAULT_PALETTE, type Palette } from './painting-data';
 
 function Blob() { return <span className="dabble-blob" aria-hidden="true" />; }
 
@@ -19,10 +21,14 @@ function Icon({ kind }: { kind: 'play' | 'pause' | 'replay' | 'volume' | 'muted'
   return <svg className="dabble-icon" viewBox="0 0 24 24" aria-hidden="true">{paths[kind]}</svg>;
 }
 
-export function DabbleSkin({ children, painting = false }: { children: ReactNode; painting?: boolean }) {
+export function DabbleSkin({ children, painting = false, palette = DEFAULT_PALETTE }: { children: ReactNode; painting?: boolean; palette?: Palette }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<'small' | 'medium' | 'large'>('large');
   const [playerWidth, setPlayerWidth] = useState(860);
+  const [hoverCapable, setHoverCapable] = useState(false);
+  const [volumeOpen, setVolumeOpen] = useState(false);
+  const muteRef = useRef<HTMLButtonElement>(null);
+  const volumeEscape = useRef(false);
   const fullscreenActive = usePlayer((state) => state.isFullscreen);
   const docked = shouldDockControls(playerWidth, fullscreenActive);
   const progress = usePlayer((state) => state.duration > 0 ? Math.min(100, Math.max(0, state.currentTime / state.duration * 100)) : 0);
@@ -38,8 +44,17 @@ export function DabbleSkin({ children, painting = false }: { children: ReactNode
   const captionId = useId().replace(/[^a-zA-Z0-9_-]/g, '');
 
   useEffect(() => {
-    return ended || docked ? requestControlsLock() : undefined;
-  }, [ended, docked, requestControlsLock]);
+    return ended || docked || volumeOpen ? requestControlsLock() : undefined;
+  }, [ended, docked, volumeOpen, requestControlsLock]);
+
+  useEffect(() => {
+    const query = window.matchMedia('(any-hover: hover) and (any-pointer: fine)');
+    const update = () => setHoverCapable(query.matches);
+    update(); query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+  const showVolume = playerWidth >= 420 && hoverCapable;
+  useEffect(() => { if (!showVolume) setVolumeOpen(false); }, [showVolume]);
 
   useEffect(() => {
     if (!centerVisible && centerHadFocus.current) {
@@ -120,16 +135,30 @@ export function DabbleSkin({ children, painting = false }: { children: ReactNode
   }, []);
 
   const play = <PlayButton ref={playRef} label={(state) => state.ended ? 'Replay' : state.paused ? 'Play' : 'Pause'} className="dabble-button dabble-play" render={(props, state) => <button {...props} tabIndex={centerVisible ? -1 : props.tabIndex} aria-hidden={centerVisible || undefined}><Blob /><Icon kind={state.ended ? 'replay' : state.paused ? 'play' : 'pause'} /></button>} />;
-  const mute = <MuteButton className="dabble-button dabble-mute" render={(props, state) => <button {...props} data-on={state.muted}><Blob /><Icon kind={state.volumeLevel === 'off' ? 'muted' : 'volume'} /></button>} />;
+  const muteButton = <MuteButton ref={muteRef} className="dabble-button dabble-mute" render={(props, state) => <button {...props} data-on={state.muted}><Blob /><Icon kind={state.volumeLevel === 'off' ? 'muted' : 'volume'} /></button>} />;
+  const mute = showVolume ? <VolumePopover.Root openOnHover side="top" align="center" boundary="container" open={volumeOpen} onOpenChange={(open, details) => {
+    if (!open && details.reason === 'click') return;
+    if (open && volumeEscape.current) return;
+    setVolumeOpen(open);
+  }}>
+    <VolumePopover.Trigger render={(triggerProps) => {
+      // Hover/focus owns popup visibility; clicks belong only to MuteButton.
+      const { onClick: _togglePopup, ...props } = triggerProps;
+      return <MuteButton {...props} ref={muteRef} className="dabble-button dabble-mute" render={(buttonProps, state) => <button {...buttonProps} data-on={state.muted}><Blob /><Icon kind={state.volumeLevel === 'off' ? 'muted' : 'volume'} /></button>} />;
+    }} onFocus={() => { if (!volumeEscape.current) setVolumeOpen(true); }} onBlur={() => { volumeEscape.current = false; }} onPointerEnter={() => { volumeEscape.current = false; setVolumeOpen(true); }} onKeyDown={event => { if (event.key === 'Escape') { volumeEscape.current = true; setVolumeOpen(false); } }} />
+    <VolumePopover.Popup className="dabble-volume-popup" onKeyDown={event => { if (event.key === 'Escape') { volumeEscape.current = true; setVolumeOpen(false); muteRef.current?.focus(); } }}>
+      <VolumeSlider.Root orientation="vertical" className="dabble-volume-vertical"><VolumeSlider.Track className="dabble-volume-track"><VolumeSlider.Fill className="dabble-volume-fill" /></VolumeSlider.Track><VolumeSlider.Thumb className="dabble-volume-thumb" /></VolumeSlider.Root>
+    </VolumePopover.Popup>
+  </VolumePopover.Root> : muteButton;
   const captions = <CaptionsButton label="Captions" className="dabble-button dabble-captions" render={(props, state) => <button {...props} data-on={state.subtitlesShowing}><Blob /><span aria-hidden="true">CC</span></button>} />;
   const speed = <Menu.Root side="top" align="end" boundary="container"><PlaybackRateRadioGroup.Root rates={DABBLE_PLAYBACK_RATES} formatRate={(rate) => `${rate}x`}><Menu.Trigger aria-label="Playback speed" className="dabble-button dabble-speed" render={<button type="button" />}><Blob /><PlaybackRateRadioGroup.Value aria-hidden="true" /></Menu.Trigger><Menu.Popup className="dabble-speed-menu"><Menu.Content><PlaybackRateRadioGroup.Options renderItem={(props, item) => <Menu.RadioItem {...props} key={item.value} className="dabble-speed-item"><Blob />{item.label}</Menu.RadioItem>} /></Menu.Content></Menu.Popup></PlaybackRateRadioGroup.Root></Menu.Root>;
   const fullscreen = <FullscreenButton className="dabble-button dabble-fullscreen" render={(props, state) => <button {...props}><Blob /><Icon kind={state.fullscreen ? 'exit' : 'fullscreen'} /></button>} />;
   const seek = <TimeSlider.Root className="dabble-slider dabble-seek"><TimeSlider.Track className="dabble-track"><TimeSlider.Buffer className="dabble-buffer" /><TimeSlider.Fill className="dabble-fill" /></TimeSlider.Track><TimeSlider.Thumb className="dabble-thumb" /></TimeSlider.Root>;
   const time = <span className="dabble-time"><Time.Value type="current" /><span aria-hidden="true">/</span><Time.Value type="duration" /></span>;
-  const volume = <VolumeSlider.Root className="dabble-slider dabble-volume"><VolumeSlider.Track className="dabble-track"><VolumeSlider.Fill className="dabble-fill" /></VolumeSlider.Track><VolumeSlider.Thumb className="dabble-thumb" /></VolumeSlider.Root>;
+  const colors = { '--dabble-seek':palette[0], '--dabble-b1':tintForInk(palette[4]), '--dabble-b2':tintForInk(palette[3]), '--dabble-b3':tintForInk(palette[2]), '--dabble-b4':tintForInk(palette[5]), '--dabble-b5':tintForInk(palette[1]) } as CSSProperties;
 
   return (
-    <Container ref={rootRef} className="dabble-skin" data-size={size} data-painting={painting || undefined} data-docked={docked || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined}>
+    <Container ref={rootRef} style={colors} className="dabble-skin" data-size={size} data-painting={painting || undefined} data-docked={docked || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined}>
       {children}
       <Poster.Root className="dabble-poster"><Poster.Image /></Poster.Root>
       <Gesture type="tap" action="togglePaused" />
@@ -137,7 +166,7 @@ export function DabbleSkin({ children, painting = false }: { children: ReactNode
       <BufferingIndicator className="dabble-loading" render={(props, state) => <div {...props} role="status" aria-live="polite">{state.visible && <><span className="dabble-loading-disc" aria-hidden="true"><span /></span><span className="dabble-loading-label">Loading</span></>}</div>} />
       <Controls.Root>
         <Controls.Content className="dabble-bar">
-          {size === 'small' ? <><Controls.Group className="dabble-row" aria-label="Timeline">{seek}{time}</Controls.Group><Controls.Group className="dabble-row dabble-buttons-row" aria-label="Playback controls">{play}{mute}{captions}{speed}{fullscreen}</Controls.Group></> : <Controls.Group className="dabble-row" aria-label="Playback controls">{play}{seek}{time}{mute}{volume}{captions}{speed}{fullscreen}</Controls.Group>}
+          {size === 'small' ? <><Controls.Group className="dabble-row" aria-label="Timeline">{seek}{time}</Controls.Group><Controls.Group className="dabble-row dabble-buttons-row" aria-label="Playback controls">{play}{mute}{captions}{speed}{fullscreen}</Controls.Group></> : <Controls.Group className="dabble-row" aria-label="Playback controls">{play}{seek}{time}{mute}{captions}{speed}{fullscreen}</Controls.Group>}
         </Controls.Content>
       </Controls.Root>
       <div className="dabble-progress" aria-hidden="true" style={{ '--dabble-progress': `${progress}%` } as CSSProperties}><span className="dabble-progress-fill" /></div>

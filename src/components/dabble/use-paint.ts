@@ -1,13 +1,20 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { renderStroke, type Brush, type Geo, type Point, type Stroke } from './paint-engine';
-import { backingRatio, initialPainting, PAINT_PALETTE, pointSpacing, strokeSize, undoPainting } from './paint-rules';
+import { backingRatio, initialPainting, pointSpacing, strokeSize, undoPainting } from './paint-rules';
+import { DEFAULT_PALETTE, loadPainting, savePainting, roundStroke, type Painting, type Palette } from './painting-data';
+import { sampleSource, sampleVideo } from './video-palette';
 
-export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef: RefObject<HTMLCanvasElement | null>, enabled: boolean) {
+export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef: RefObject<HTMLCanvasElement | null>, enabled: boolean, src: string, supplied?: Painting) {
   const [painting, setPainting] = useState(false);
   const [brush, setBrush] = useState<Brush>('rib');
   const [size, setSize] = useState(20);
   const [color, setColor] = useState(0);
-  const strokes = useRef<Stroke[]>(enabled ? initialPainting() : []);
+  const strokes = useRef<Stroke[]>(supplied?.strokes ?? (enabled ? initialPainting() : []));
+  const [palette, setPalette] = useState<Palette>(supplied?.palette ?? DEFAULT_PALETTE);
+  const paletteRef = useRef<Palette>(palette);
+  const touched = useRef(Boolean(supplied));
+  const persist = useRef<() => void>(() => {});
+  const [sampleMessage, setSampleMessage] = useState('');
   const [count, setCount] = useState(strokes.current.length);
   const geo = useRef<Geo | null>(null);
   const finished = useRef<HTMLCanvasElement | null>(null);
@@ -17,6 +24,24 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
   const replay = useRef<() => void>(() => {});
   const settings = useRef({ painting, brush, size, color });
   settings.current = { painting: enabled && painting, brush, size, color };
+
+  useEffect(() => {
+    const restored = supplied ?? loadPainting(src);
+    touched.current = Boolean(restored);
+    strokes.current = restored?.strokes ?? (enabled ? initialPainting() : []);
+    paletteRef.current = restored?.palette ?? [...DEFAULT_PALETTE];
+    setPalette(paletteRef.current); setCount(strokes.current.length); replay.current();
+    persist.current = () => savePainting(src, {version:1,palette:paletteRef.current,strokes:strokes.current});
+    if (restored) return;
+    return sampleSource(src, next => {
+      paletteRef.current = next; setPalette(next);
+      if (!touched.current) {
+        strokes.current = strokes.current.map(stroke => ({...stroke,pal:[...next]}));
+        replay.current();
+      }
+      persist.current();
+    });
+  }, [src, supplied, enabled]);
 
   useEffect(() => {
     const wrapper = wrapperRef.current, canvas = paintRef.current;
@@ -68,12 +93,13 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
     const start = (event: PointerEvent) => {
       const g = geo.current, options = settings.current;
       if (!options.painting || !g || pointer.current !== null || event.button !== 0) return;
-      const selected = PAINT_PALETTE[options.color];
+      const selected = paletteRef.current[options.color];
       if (!selected) return;
       event.preventDefault();
+      touched.current = true;
       pointer.current = event.pointerId;
       canvas.setPointerCapture(event.pointerId);
-      active.current = { type: options.brush, seed: Math.floor(Math.random() * 2147483647), pal: [...PAINT_PALETTE], color: selected, size: strokeSize(options.size, event.pointerType, event.pressure), pts: [point(event, g)] };
+      active.current = { type: options.brush, seed: Math.floor(Math.random() * 2147483647), pal: [...paletteRef.current], color: selected, size: strokeSize(options.size, event.pointerType, event.pressure), pts: [point(event, g)] };
       display();
     };
     const move = (event: PointerEvent) => {
@@ -89,8 +115,10 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
       if (pointer.current !== event.pointerId) return;
       const stroke = active.current, g = geo.current;
       if (stroke && g) {
-        renderStroke(cacheCtx, stroke, g);
-        strokes.current = [...strokes.current, stroke]; setCount(strokes.current.length);
+        const rounded = roundStroke(stroke);
+        renderStroke(cacheCtx, rounded, g);
+        strokes.current = [...strokes.current, rounded]; setCount(strokes.current.length);
+        persist.current();
       }
       active.current = null; pointer.current = null;
       if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
@@ -110,12 +138,21 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
   }, [wrapperRef, paintRef]);
 
   const replace = (next: Stroke[]) => {
-    strokes.current = next; setCount(next.length); replay.current();
+    touched.current = true;
+    strokes.current = next; setCount(next.length); replay.current(); persist.current();
   };
   return {
-    painting: enabled && painting, setPainting, brush, setBrush, size, setSize, color, setColor, count,
+    painting: enabled && painting, setPainting, brush, setBrush, size, setSize, color, setColor, count, palette, sampleMessage,
+    getPainting: (): Painting => ({version:1,palette:[...paletteRef.current],strokes:strokes.current.map(roundStroke)}),
+    sampleFrame: () => {
+      const video = wrapperRef.current?.querySelector('video');
+      if (!video || video.readyState < 2) { setSampleMessage('Play or scrub to a frame first.'); return; }
+      const next = sampleVideo(video);
+      if (!next) return;
+      touched.current = true; paletteRef.current = next; setPalette(next); setSampleMessage(''); persist.current();
+    },
     undo: () => replace(undoPainting(strokes.current)),
     clear: () => replace([]),
-    automatic: () => replace([...strokes.current, { type: `auto-${brush}`, seed: Math.floor(Math.random() * 2147483647), pal: [...PAINT_PALETTE] }]),
+    automatic: () => replace([...strokes.current, { type: `auto-${brush}`, seed: Math.floor(Math.random() * 2147483647), pal: [...paletteRef.current] }]),
   };
 }

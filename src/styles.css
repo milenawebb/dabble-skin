@@ -219,6 +219,9 @@
 .paint-pot[data-pot="4"] { --pot-color: var(--paint-orange); }
 .paint-pot[data-pot="5"] { --pot-color: var(--paint-pink); }
 .paint-pot[aria-pressed="true"] { outline: 2px solid var(--paint-ink); outline-offset: 3px; }
+.paint-inline-message { font-size: 13px; color: var(--muted-foreground); }
+.paint-copy-fallback { margin-top: 16px; display: grid; gap: 8px; font-size: 13px; }
+.paint-copy-fallback textarea { min-height: 140px; width: 100%; padding: 12px; border: 1px solid var(--paint-ink); border-radius: 6px; background: var(--canvas-surface); color: var(--paint-ink); font-family: monospace; }
 @media (max-width: 419px) {
   .paint-tool-row { align-items: flex-start; }
   .paint-brushes, .paint-actions { flex: 1 1 210px; }
