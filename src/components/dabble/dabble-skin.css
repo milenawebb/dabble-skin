@@ -11,7 +11,6 @@
   --dabble-black: oklch(0 0 0);
   --dabble-clear: oklch(0 0 0 / 0);
   --dabble-buffer: oklch(0.2217300 0.0019108 106.55434 / 0.12);
-  --dabble-progress-track: oklch(0.2217300 0.0019108 106.55434 / 0.18);
   --dabble-label-font: 'Instrument Serif', Georgia, serif;
   --dabble-ui-font: 'DM Sans', Arial, sans-serif;
   --dabble-caption-text: oklch(1 0 0);
@@ -19,11 +18,11 @@
   width: 100%;
   height: 100%;
   overflow: visible;
-  background: var(--dabble-black);
+  background: var(--dabble-paper);
   color: var(--dabble-ink);
   container-type: inline-size;
 }
-.dabble-skin > video { display: block; width: 100%; height: 100%; object-fit: contain; }
+.dabble-skin > video { display: block; width: 100%; height: 100%; object-fit: contain; background: var(--dabble-paper); }
 .dabble-bar {
   position: absolute;
   z-index: 3;
@@ -85,16 +84,13 @@
 .dabble-thumb { position: absolute; left: var(--media-slider-fill); width: 10px; height: 16px; transform: translateX(-50%); background: var(--dabble-clear); }
 .dabble-skin :focus-visible { outline: 3px solid var(--dabble-ink); outline-offset: 2px; box-shadow: var(--dabble-focus-ring); }
 .dabble-cc-underline { position: absolute; inset: 0; width: 100%; height: 100%; }
-.dabble-progress { position: absolute; left: 6px; right: 6px; bottom: calc(var(--dabble-m) / -2 - 1px); height: 2px; border-radius: 4px; background: var(--dabble-progress-track); opacity: 0; pointer-events: none; }
-.dabble-progress-fill { display: block; height: 100%; width: var(--dabble-progress); border-radius: inherit; background: var(--dabble-seek); }
-.dabble-skin:not([data-controls-visible]):not(:has(:focus-visible)) .dabble-progress { opacity: 1; }
 .dabble-skin[data-size="small"] .dabble-buttons-row { justify-content: space-between; }
 .dabble-skin[data-size="small"] .dabble-button { flex-basis: 44px; width: 44px; height: 44px; }
 .dabble-skin[data-size="small"] .dabble-icon { width: 21px; height: 21px; }
 .dabble-skin[data-size="small"] .dabble-seek { height: 44px; }
-.dabble-skin:fullscreen { width: 100%; height: 100%; overflow: hidden; }
+.dabble-skin:fullscreen { width: 100%; height: 100%; overflow: hidden; background: var(--dabble-black); }
+.dabble-skin:fullscreen > video { background: var(--dabble-black); }
 .dabble-skin:fullscreen .dabble-bar { left: 4%; right: 4%; bottom: 14px; }
-.dabble-skin:fullscreen .dabble-progress { display: none; }
 .dabble-skin[data-docked]:not(:fullscreen) .dabble-bar {
   top: calc(100% + 8px);
   bottom: auto;
@@ -104,10 +100,8 @@
   pointer-events: auto;
 }
 .dabble-skin[data-docked]:not(:fullscreen) { cursor: auto; }
-.dabble-skin[data-docked]:not(:fullscreen) .dabble-progress { display: none; }
 .dabble-skin[data-docked]:not(:fullscreen) .dabble-buttons-row { gap: 0; }
-.dabble-skin[data-painting]:not([data-docked]):not(:fullscreen) .dabble-bar,
-.dabble-skin[data-painting]:not([data-docked]):not(:fullscreen) .dabble-progress { visibility: hidden; pointer-events: none; }
+.dabble-skin[data-painting]:not([data-docked]):not(:fullscreen) .dabble-bar { visibility: hidden; pointer-events: none; }
 .dabble-announcer { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .dabble-speed, .dabble-captions { font: 500 13px var(--dabble-ui-font); }
 .dabble-poster { position: absolute; inset: 0; pointer-events: none; }
@@ -171,7 +165,7 @@
   .dabble-skin { color: CanvasText; }
   .dabble-button, .dabble-bar, .dabble-track, .dabble-volume-track, .dabble-speed-menu, .dabble-volume-popup, .dabble-error, .dabble-loading-disc { border-color: CanvasText; }
   .dabble-blob { visibility: hidden; }
-  .dabble-fill, .dabble-volume-fill, .dabble-progress-fill { background: Highlight; }
+  .dabble-fill, .dabble-volume-fill { background: Highlight; }
   .dabble-skin :focus-visible, .dabble-skin .dabble-speed-item:focus-visible { outline: 3px solid CanvasText; outline-offset: 2px; }
 }
 @media (prefers-reduced-motion: reduce) {

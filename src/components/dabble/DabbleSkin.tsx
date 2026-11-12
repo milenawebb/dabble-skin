@@ -35,7 +35,6 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
   const volumeEscape = useRef(false);
   const fullscreenActive = usePlayer((state) => state.isFullscreen);
   const docked = shouldDockControls(playerWidth, fullscreenActive);
-  const progress = usePlayer((state) => state.duration > 0 ? Math.min(100, Math.max(0, state.currentTime / state.duration * 100)) : 0);
   const started = usePlayer((state) => state.started);
   const ended = usePlayer((state) => state.ended);
   const controlsVisible = usePlayer((state) => state.controlsVisible);
@@ -161,7 +160,6 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
         <KeysContent paintable={paintable} titleId={keysTitleId} popup={keysPopup} />
       </Popover.Popup>
       </Popover.Root>
-      <div className="dabble-progress" aria-hidden="true" style={{ '--dabble-progress': `${progress}%` } as CSSProperties}><span className="dabble-progress-fill" /></div>
       {DABBLE_HOTKEYS.map((binding) => <Hotkey key={binding.keys} {...binding} />)}
       <KeysHotkey root={rootRef} open={keysOpen} toggle={() => { if (keysOpen) closeKeys(); else setKeysOpen(true); }} />
       {paintable && <PaintingHotkeys root={rootRef} painting={painting} size={brushSize} blocked={keysOpen} />}

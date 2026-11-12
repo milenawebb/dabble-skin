@@ -52,11 +52,13 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
     try { localStorage.setItem('dabble-sounds', next ? 'on' : 'off'); } catch { /* Storage is optional. */ }
   };
   const [frameWidth, setFrameWidth] = useState(12);
+  const [canvasBox, setCanvasBox] = useState({ width: 0, left: 0, top: 0 });
   const [dockSpace, setDockSpace] = useState(0);
   const [metadata, setMetadata] = useState({ src: '', width: 0, height: 0 });
+  const stageInput = canvasBox.width > 0 ? { canvasWidth: canvasBox.width, canvasLeft: canvasBox.left, canvasTop: canvasBox.top, frame: paintFrameWidth(frameWidth, paint.painting) } : undefined;
   const layout = metadata.src === source
-    ? getVideoLayout(metadata.width, metadata.height)
-    : getVideoLayout(0, 0);
+    ? getVideoLayout(metadata.width, metadata.height, stageInput)
+    : getVideoLayout(0, 0, stageInput);
 
   useEffect(() => {
     // Apply the broken source after the media adapter has attached its listeners.
@@ -85,7 +87,9 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
     if (!canvas) return;
     const bar = canvas.querySelector<HTMLElement>('.dabble-bar');
     const updateFrame = () => {
-      const width = canvas.getBoundingClientRect().width;
+      const rect = canvas.getBoundingClientRect();
+      const width = rect.width;
+      setCanvasBox(previous => previous.width === width && previous.left === rect.left && previous.top === rect.top ? previous : { width, left: rect.left, top: rect.top });
       setFrameWidth(getFrameWidth(width));
       // Preserve the page's reserved space while its inner Container is fullscreen.
       if (!canvas.querySelector('.dabble-skin:fullscreen')) {
@@ -97,13 +101,15 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
     observer.observe(canvas);
     if (bar) observer.observe(bar);
     document.addEventListener('fullscreenchange', updateFrame);
-    return () => { observer.disconnect(); document.removeEventListener('fullscreenchange', updateFrame); };
+    window.addEventListener('resize', updateFrame);
+    return () => { observer.disconnect(); document.removeEventListener('fullscreenchange', updateFrame); window.removeEventListener('resize', updateFrame); };
   }, []);
 
   const geometry = {
     '--dabble-m': `${paintFrameWidth(frameWidth, paint.painting)}px`,
     '--dabble-dock-space': `${dockSpace}px`,
     '--dabble-aspect': layout.aspectRatio,
+    ...(layout.stage ? { '--dabble-stage-width': `${layout.stage.width}px`, '--dabble-stage-height': `${layout.stage.height}px`, '--dabble-stage-left': `${layout.stage.left}px`, '--dabble-stage-top': `${layout.stage.top}px` } : {}),
   } as CSSProperties;
 
   return (

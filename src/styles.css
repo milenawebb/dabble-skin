@@ -229,7 +229,10 @@
 .dabble-stage {
   position: relative;
   z-index: 1;
-  width: 100%;
+  left: var(--dabble-stage-left, 0px);
+  top: var(--dabble-stage-top, 0px);
+  width: var(--dabble-stage-width, 100%);
+  height: var(--dabble-stage-height, auto);
   aspect-ratio: var(--dabble-aspect);
 }
 

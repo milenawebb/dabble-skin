@@ -34,6 +34,7 @@ use the editor.
 - Use the packaged `@videojs/react/video` player preset with custom Video.js UI primitives and scoped skin CSS; do not import the stock skin stylesheet.
 - Keep canvas and paint wrappers outside `VideoPlayer`; `DabbleSkin` registers its inner `Container` as the fullscreen target, so fullscreen excludes the frame.
 - Calculate frame spacing from the canvas wrapper's measured width with `ResizeObserver`, and video shape from native metadata; keep geometry rules in a pure tested helper.
+- Round video-stage size and screen position in the layout helper; use paper behind non-fullscreen media and black in fullscreen to prevent dark subpixel seams.
 - Delegate visibility timing and input actions to Video.js; preserve component-provided handlers and ARIA when rendering custom button content.
 - Compose player states with Poster, PlayButton, Gesture, BufferingIndicator, and ErrorDialog, and speed selection with Menu and PlaybackRateRadioGroup; library primitives own actions, focus, and controls locks.
 - Read showing caption tracks through native activeCues/cuechange without changing track modes; render safe visual-only ink captions inside Container, with measured video/control/panel clearance and opaque native fallback for WebKit or unreadable cues, because CC state and system fullscreen must remain library-owned.

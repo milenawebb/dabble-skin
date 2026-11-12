@@ -1,5 +1,10 @@
 # Dabble
 
+## Frame cleanup
+- [x] Remove the frame progress indicator and its dedicated code; retain the controls seek bar.
+- [x] Round video-stage geometry and prevent dark subpixel gaps, retaining black fullscreen backgrounds.
+- [x] Verify matching poster/video boxes and clean edges at 390, 559, 834, 1001, 1277, and 1439px in Chrome, plus black fullscreen and no hidden-frame indicator.
+
 ## Hand-painted captions
 - [x] Render active showing cues safely on one ink swipe per cue, preserving Video.js CC state and native fallback.
 - [x] Measure video/control/panel clearance across desktop, phone, hidden controls, and fullscreen; support forced colors.
