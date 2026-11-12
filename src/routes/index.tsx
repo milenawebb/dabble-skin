@@ -26,7 +26,7 @@ function Index() {
         <h1 className="text-xl font-semibold">Dabble</h1>
         <p className="mt-2 text-sm text-muted-foreground">Step 2: canvas frame.</p>
         <div className="mt-6 w-full">
-          <DabblePlayer src="https://vjs.zencdn.net/v/oceans.mp4" poster="https://vjs.zencdn.net/v/oceans.png" broken={broken === '1'} />
+          <DabblePlayer src="https://vjs.zencdn.net/v/oceans.mp4" poster="https://vjs.zencdn.net/v/oceans.png" broken={broken === '1'} captions={{ src: '/captions/oceans.en.vtt', srcLang: 'en', label: 'English' }} />
         </div>
       </div>
     </main>

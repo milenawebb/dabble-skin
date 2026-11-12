@@ -128,6 +128,7 @@
   margin-right: 12px;
   margin-bottom: 12px;
   padding: var(--dabble-m);
+  padding-bottom: calc(var(--dabble-m) + var(--dabble-dock-space, 0px));
   overflow: visible;
   border-radius: 0;
   background-color: var(--canvas-surface);

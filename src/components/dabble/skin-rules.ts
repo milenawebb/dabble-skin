@@ -16,6 +16,14 @@ export function getControlSize(width: number) {
   return width < 420 ? 'small' : width < 560 ? 'medium' : 'large';
 }
 
+export function shouldDockControls(width: number, fullscreen: boolean) {
+  return width < 420 && !fullscreen;
+}
+
+export function getDockSpace(width: number, barHeight: number) {
+  return shouldDockControls(width, false) ? barHeight + 8 : 0;
+}
+
 export const DABBLE_PLAYBACK_RATES = [0.5, 1, 1.25, 1.5, 2] as const;
 
 export function showCenterPlay(started: boolean, ended: boolean) {

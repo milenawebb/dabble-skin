@@ -2,7 +2,7 @@ import { Container, Controls, PlayButton, TimeSlider, Time, MuteButton, VolumeSl
 import { usePlayer } from '@videojs/react/video';
 import { useEffect, useId, useRef, useState, type ReactNode, type CSSProperties } from 'react';
 import './dabble-skin.css';
-import { DABBLE_HOTKEYS, DABBLE_PLAYBACK_RATES, getCaptionLine, getControlSize, showCenterPlay } from './skin-rules';
+import { DABBLE_HOTKEYS, DABBLE_PLAYBACK_RATES, getCaptionLine, getControlSize, shouldDockControls, showCenterPlay } from './skin-rules';
 
 function Blob() { return <span className="dabble-blob" aria-hidden="true" />; }
 
@@ -22,6 +22,9 @@ function Icon({ kind }: { kind: 'play' | 'pause' | 'replay' | 'volume' | 'muted'
 export function DabbleSkin({ children }: { children: ReactNode }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<'small' | 'medium' | 'large'>('large');
+  const [playerWidth, setPlayerWidth] = useState(860);
+  const fullscreenActive = usePlayer((state) => state.isFullscreen);
+  const docked = shouldDockControls(playerWidth, fullscreenActive);
   const progress = usePlayer((state) => state.duration > 0 ? Math.min(100, Math.max(0, state.currentTime / state.duration * 100)) : 0);
   const started = usePlayer((state) => state.started);
   const ended = usePlayer((state) => state.ended);
@@ -35,8 +38,8 @@ export function DabbleSkin({ children }: { children: ReactNode }) {
   const captionId = useId().replace(/[^a-zA-Z0-9_-]/g, '');
 
   useEffect(() => {
-    return ended ? requestControlsLock() : undefined;
-  }, [ended, requestControlsLock]);
+    return ended || docked ? requestControlsLock() : undefined;
+  }, [ended, docked, requestControlsLock]);
 
   useEffect(() => {
     if (!centerVisible && centerHadFocus.current) {
@@ -106,6 +109,7 @@ export function DabbleSkin({ children }: { children: ReactNode }) {
     const measure = () => {
       const width = (document.fullscreenElement === root ? root : canvas).getBoundingClientRect().width;
       setSize(getControlSize(width));
+      setPlayerWidth(width);
     };
     measure();
     const observer = new ResizeObserver(measure);
@@ -125,7 +129,7 @@ export function DabbleSkin({ children }: { children: ReactNode }) {
   const volume = <VolumeSlider.Root className="dabble-slider dabble-volume"><VolumeSlider.Track className="dabble-track"><VolumeSlider.Fill className="dabble-fill" /></VolumeSlider.Track><VolumeSlider.Thumb className="dabble-thumb" /></VolumeSlider.Root>;
 
   return (
-    <Container ref={rootRef} className="dabble-skin" data-size={size} data-caption-id={captionId} data-invitation={centerVisible || undefined}>
+    <Container ref={rootRef} className="dabble-skin" data-size={size} data-docked={docked || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined}>
       {children}
       <Poster.Root className="dabble-poster"><Poster.Image /></Poster.Root>
       <Gesture type="tap" action="togglePaused" />

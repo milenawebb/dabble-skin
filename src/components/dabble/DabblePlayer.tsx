@@ -2,20 +2,22 @@ import { VideoPlayer, Video } from '@videojs/react/video';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { getFrameWidth, getVideoLayout } from './canvas-layout';
 import { DabbleSkin } from './DabbleSkin';
-import { getPlayerSource } from './skin-rules';
+import { getDockSpace, getPlayerSource } from './skin-rules';
 
 type DabblePlayerProps = {
   src: string;
   poster?: string;
   broken?: boolean;
+  captions?: { src: string; srcLang: string; label: string };
 };
 
-export function DabblePlayer({ src, poster, broken = false }: DabblePlayerProps) {
+export function DabblePlayer({ src, poster, broken = false, captions }: DabblePlayerProps) {
   const [ready, setReady] = useState(false);
   const source = getPlayerSource(src, broken && ready);
   const canvasRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [frameWidth, setFrameWidth] = useState(12);
+  const [dockSpace, setDockSpace] = useState(0);
   const [metadata, setMetadata] = useState({ src: '', width: 0, height: 0 });
   const layout = metadata.src === source
     ? getVideoLayout(metadata.width, metadata.height)
@@ -46,15 +48,26 @@ export function DabblePlayer({ src, poster, broken = false }: DabblePlayerProps)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const updateFrame = () => setFrameWidth(getFrameWidth(canvas.getBoundingClientRect().width));
+    const bar = canvas.querySelector<HTMLElement>('.dabble-bar');
+    const updateFrame = () => {
+      const width = canvas.getBoundingClientRect().width;
+      setFrameWidth(getFrameWidth(width));
+      // Preserve the page's reserved space while its inner Container is fullscreen.
+      if (!canvas.querySelector('.dabble-skin:fullscreen')) {
+        setDockSpace(getDockSpace(width, bar?.getBoundingClientRect().height ?? 0));
+      }
+    };
     updateFrame();
     const observer = new ResizeObserver(updateFrame);
     observer.observe(canvas);
-    return () => observer.disconnect();
+    if (bar) observer.observe(bar);
+    document.addEventListener('fullscreenchange', updateFrame);
+    return () => { observer.disconnect(); document.removeEventListener('fullscreenchange', updateFrame); };
   }, []);
 
   const geometry = {
     '--dabble-m': `${frameWidth}px`,
+    '--dabble-dock-space': `${dockSpace}px`,
     '--dabble-aspect': layout.aspectRatio,
   } as CSSProperties;
 
@@ -69,7 +82,9 @@ export function DabblePlayer({ src, poster, broken = false }: DabblePlayerProps)
               src={source}
               crossOrigin="anonymous"
               playsInline
-            />
+            >
+              {captions && <track kind="captions" src={captions.src} srcLang={captions.srcLang} label={captions.label} />}
+            </Video>
           </DabbleSkin>
         </VideoPlayer>
       </div>

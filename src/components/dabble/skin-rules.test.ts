@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DABBLE_HOTKEYS, DABBLE_PLAYBACK_RATES, getCaptionLine, getPlayerSource, getControlSize, showCenterPlay } from './skin-rules';
+import { DABBLE_HOTKEYS, DABBLE_PLAYBACK_RATES, getCaptionLine, getPlayerSource, getControlSize, showCenterPlay, shouldDockControls, getDockSpace } from './skin-rules';
 
 describe('Dabble keyboard rules', () => {
   it('binds Space and K to playback', () => {
@@ -14,6 +14,18 @@ describe('Dabble keyboard rules', () => {
 });
 
 describe('player-relative controls', () => {
+  it('docks only below 420px outside fullscreen', () => {
+    expect(shouldDockControls(419, false)).toBe(true);
+    expect(shouldDockControls(420, false)).toBe(false);
+    expect(shouldDockControls(419, true)).toBe(false);
+  });
+  it('reserves the bar height plus an 8px video gap only on phones', () => {
+    expect(getDockSpace(419, 115)).toBe(123);
+    expect(getDockSpace(420, 115)).toBe(0);
+  });
+  it('keeps caption bottoms inside the video when the docked bar has no overlap', () => {
+    expect(getCaptionLine(0, 200, true)).toBe(96);
+  });
   it('uses large controls at 560px', () => { expect(getControlSize(560)).toBe('large'); });
   it('uses medium controls from 420px to 559px', () => { expect(getControlSize(420)).toBe('medium'); expect(getControlSize(559)).toBe('medium'); });
   it('uses small controls below 420px', () => { expect(getControlSize(419)).toBe('small'); });

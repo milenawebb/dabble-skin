@@ -5,4 +5,6 @@
 - [x] Apply DM Sans labels and native caption styling with measured control-bar clearance.
 - [x] Test real playback, menu keyboard controls, states, captions, and phone layout.
 - [x] Report poster, focus approach, components, captions, and documentation differences.
-- [ ] Fully clear two-line native captions on short phone video: requires permission to move the unchanged two-row bar or change caption rendering.
+- [x] Add the sample English VTT track and confirm the CC button appears.
+- [x] Dock controls below the video under 420px, grow the painted canvas, and retain fullscreen overlay behavior.
+- [x] Verify two-line captions with the phone bar visible, desktop behavior, and fullscreen auto-hide.

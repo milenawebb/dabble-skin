@@ -89,6 +89,17 @@
 .dabble-skin:fullscreen { width: 100%; height: 100%; overflow: hidden; }
 .dabble-skin:fullscreen .dabble-bar { left: 4%; right: 4%; bottom: 14px; }
 .dabble-skin:fullscreen .dabble-progress { display: none; }
+.dabble-skin[data-docked]:not(:fullscreen) .dabble-bar {
+  top: calc(100% + 8px);
+  bottom: auto;
+  padding-inline: min(12px, 3cqw);
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+.dabble-skin[data-docked]:not(:fullscreen) { cursor: auto; }
+.dabble-skin[data-docked]:not(:fullscreen) .dabble-progress { display: none; }
+.dabble-skin[data-docked]:not(:fullscreen) .dabble-buttons-row { gap: 0; }
 .dabble-announcer { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .dabble-speed, .dabble-captions { font: 500 13px var(--dabble-ui-font); }
 .dabble-poster { position: absolute; inset: 0; pointer-events: none; }

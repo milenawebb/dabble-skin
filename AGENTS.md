@@ -37,3 +37,5 @@ use the editor.
 - Delegate visibility timing and input actions to Video.js; preserve component-provided handlers and ARIA when rendering custom button content.
 - Compose player states with Poster, PlayButton, Gesture, BufferingIndicator, and ErrorDialog, and speed selection with Menu and PlaybackRateRadioGroup; library primitives own actions, focus, and controls locks.
 - Keep native browser caption rendering and position cue bottoms with percentage lines from measured control-bar overlap; resolve semantic CSS tokens for native cue styling without replacing the renderer.
+- Keep phone docking inside the Video.js Container and reserve measured bar height in the outer canvas; use a Video.js controls lock only outside fullscreen so fullscreen retains library auto-hide.
+- Pass native caption tracks through DabblePlayer props and keep sample VTT files in public/captions so the actual player exercises captions without injected test tracks.
