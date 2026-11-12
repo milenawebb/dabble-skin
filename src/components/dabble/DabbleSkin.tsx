@@ -20,6 +20,7 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
   const [hoverCapable, setHoverCapable] = useState(false);
   const [volumeOpen, setVolumeOpen] = useState(false);
   const [keysOpen, setKeysOpen] = useState(false);
+  const [keysBounds, setKeysBounds] = useState({ left: 0, top: 0, width: 0, height: 0 });
   const keysRef = useRef<HTMLButtonElement>(null);
   const keysPopup = useRef<HTMLDivElement>(null);
   const keysTitleId = useId();
@@ -45,6 +46,22 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
   const playRef = useRef<HTMLButtonElement>(null);
   const centerHadFocus = useRef(false);
   const captionId = useId().replace(/[^a-zA-Z0-9_-]/g, '');
+
+  useEffect(() => {
+    if (!keysOpen) return;
+    const root = rootRef.current;
+    if (!root) return;
+    const measure = () => {
+      const rect = root.getBoundingClientRect();
+      setKeysBounds({ left: rect.left, top: rect.top, width: rect.width, height: rect.height });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(root);
+    window.addEventListener('scroll', measure, true);
+    window.addEventListener('resize', measure);
+    return () => { observer.disconnect(); window.removeEventListener('scroll', measure, true); window.removeEventListener('resize', measure); };
+  }, [keysOpen]);
 
   useEffect(() => { onControlsState?.({ visible: controlsVisible, paused }); }, [controlsVisible, paused, onControlsState]);
   useEffect(() => {
@@ -177,7 +194,7 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
   const keys = <TooltipProvider delayDuration={0}><Tooltip><TooltipTrigger asChild><Popover.Trigger ref={keysRef} aria-label="Keyboard shortcuts" className="dabble-button dabble-keys-button" render={<Button variant="ghost" size="icon" />}><Blob /><Icon kind="keys" /></Popover.Trigger></TooltipTrigger><TooltipContent className="tray-tooltip-label">Keys</TooltipContent></Tooltip></TooltipProvider>;
   const seek = <TimeSlider.Root className="dabble-slider dabble-seek"><TimeSlider.Track className="dabble-track"><TimeSlider.Buffer className="dabble-buffer" /><TimeSlider.Fill className="dabble-fill" /></TimeSlider.Track><TimeSlider.Thumb className="dabble-thumb" /></TimeSlider.Root>;
   const time = <span className="dabble-time"><Time.Value type="current" /><span aria-hidden="true">/</span><Time.Value type="duration" /></span>;
-  const colors = { '--dabble-seek':palette[0], '--dabble-b1':tintForInk(palette[4]), '--dabble-b2':tintForInk(palette[3]), '--dabble-b3':tintForInk(palette[2]), '--dabble-b4':tintForInk(palette[5]), '--dabble-b5':tintForInk(palette[1]), '--dabble-keys-tint':tintForInk(palette[0]) } as CSSProperties;
+  const colors = { '--dabble-seek':palette[0], '--dabble-b1':tintForInk(palette[4]), '--dabble-b2':tintForInk(palette[3]), '--dabble-b3':tintForInk(palette[2]), '--dabble-b4':tintForInk(palette[5]), '--dabble-b5':tintForInk(palette[1]), '--dabble-keys-tint':tintForInk(palette[0]), '--keys-left': `${keysBounds.left + Math.max(6, keysBounds.width - 306)}px`, '--keys-top': `${keysBounds.top + 6}px`, '--keys-width': `${Math.max(0, Math.min(300, keysBounds.width - 12))}px`, '--keys-height': `${keysBounds.height * .8}px` } as CSSProperties;
 
   return (
     <Container ref={rootRef} tabIndex={-1} aria-label="Dabble video player" style={colors} className="dabble-skin" data-size={size} data-painting={painting || undefined} data-docked={docked || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined}>
@@ -192,7 +209,7 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
           {size === 'small' ? <><Controls.Group className="dabble-row" aria-label="Timeline">{seek}{time}</Controls.Group><Controls.Group className="dabble-row dabble-buttons-row" aria-label="Playback controls">{play}{mute}{captions}{speed}{keys}{fullscreen}</Controls.Group></> : <Controls.Group className="dabble-row" aria-label="Playback controls">{play}{seek}{time}{mute}{captions}{speed}{keys}{fullscreen}</Controls.Group>}
         </Controls.Content>
       </Controls.Root>
-      <Popover.Popup ref={keysPopup} tabIndex={-1} role="dialog" aria-labelledby={keysTitleId} className="dabble-keys-panel" onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeKeys(); } else if (event.key === '?') { event.preventDefault(); event.stopPropagation(); closeKeys(); } }}>
+      <Popover.Popup ref={keysPopup} tabIndex={-1} role="dialog" aria-labelledby={keysTitleId} className="dabble-keys-panel" render={props => <div {...props} style={{ ...props.style, ...(size !== 'large' || painting ? { translate: 'none', left: `${keysBounds.left + Math.max(6, keysBounds.width - 306)}px`, top: `${keysBounds.top + 6}px`, positionAnchor: 'none' } : {}) }} />} onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeKeys(); } else if (event.key === '?') { event.preventDefault(); event.stopPropagation(); closeKeys(); } }}>
         <KeysContent paintable={paintable} titleId={keysTitleId} popup={keysPopup} />
       </Popover.Popup>
       </Popover.Root>

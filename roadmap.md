@@ -1,11 +1,11 @@
 # Dabble
 
 ## Step 11
-- [ ] Thin and recenter the hidden-bar progress line.
-- [ ] Add Video.js-registered painting shortcuts with text-field and popup isolation.
-- [ ] Add the accessible Keys popover, responsive button, and question-mark toggle.
-- [ ] Verify shortcut actions, focus return, popup locks, and desktop/phone layouts.
-- [ ] Signature: blocked; the brief names a signature but supplies no signature requirements.
+- [x] Thin and recenter the hidden-bar progress line.
+- [x] Add Video.js-registered painting shortcuts with text-field and popup isolation.
+- [x] Add the accessible Keys popover, responsive button, and question-mark toggle.
+- [x] Verify shortcut actions, focus return, popup locks, and desktop/phone layouts.
+- [x] Omit the signature as requested.
 
 ## Step 10
 - [x] Add the background-independent paper shelf and supplied wooden ledge without changing tray behavior.
