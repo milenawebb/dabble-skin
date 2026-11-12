@@ -1,3 +1,5 @@
+// @refresh reset
+// Remount after edits: nested paint-hook changes must not reuse an older hook queue.
 import { VideoPlayer, Video } from '@videojs/react/video';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { getFrameWidth, getVideoLayout } from './canvas-layout';
