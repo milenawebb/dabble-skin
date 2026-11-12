@@ -45,6 +45,7 @@ use the editor.
 - Use playbackId as painting identity and export it for Mux sources, so paintings never leak between source identities.
 - Disable HLS subtitle formats when an explicit captions file is supplied; do not add Mux analytics, and disclose native-HLS track limitations rather than altering manifests.
 - Remount the player for the deliberate broken-source test so media feature subscriptions attach to the replacement adapter.
+- Pre-optimize the Mux React media entry in Vite to avoid late dependency discovery replacing shared React chunks during a preview session.
 - Use VolumePopover with a MuteButton trigger and vertical VolumeSlider only for hover-capable players at least 420px wide; hold the library controls lock while its popup is open.
 - Keep optional Web Audio and activation feedback in a wrapper-level hook with native state listeners and captured trusted gestures, so Video.js actions and brush rendering stay untouched.
 - Keep continuous brush audio in a dedicated wrapper hook using the shared gesture-created AudioContext; supplied voice math stays in sounds, with explicit stroke, mute, visibility, and unmount teardown.
