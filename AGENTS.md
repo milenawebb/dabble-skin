@@ -44,6 +44,7 @@ use the editor.
 - Keep palette math reference-identical, sample initial footage with a disposable hidden video, and tint only control blobs for ink contrast; preserve each stroke's original palette.
 - Use VolumePopover with a MuteButton trigger and vertical VolumeSlider only for hover-capable players at least 420px wide; hold the library controls lock while its popup is open.
 - Keep optional Web Audio and activation feedback in a wrapper-level hook with native state listeners and captured trusted gestures, so Video.js actions and brush rendering stay untouched.
+- Keep continuous brush audio in a dedicated wrapper hook using the shared gesture-created AudioContext; supplied voice math stays in sounds, with explicit stroke, mute, visibility, and unmount teardown.
 - Share supplied icon and brush SVGs in a browser-safe drawing module; keep tray state and cursor geometry separate from the painting engine so visual changes cannot alter saved strokes.
 - Subscribe the tray to Video.js visibility through the skin and request the existing controls lock during tray interaction; never introduce a second player auto-hide timer.
 - Keep wall selection in the demo route with validated optional browser storage and scoped wall tokens; page themes must not recolor the player or tray.

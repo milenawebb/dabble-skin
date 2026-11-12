@@ -1,8 +1,10 @@
 import { useEffect, useRef, type RefObject } from 'react';
 import type { Brush } from './paint-engine';
-import { SOUND, brushSound, dragDue, followsGesture, swish, unlockSound } from './sounds';
+import { SOUND, dragDue, followsGesture, swish, unlockSound } from './sounds';
+import { useBrushFeedback } from './use-brush-feedback';
 
 export function useFeedback(ref: RefObject<HTMLDivElement | null>, enabled: boolean, painting: boolean, brush: Brush) {
+  useBrushFeedback(ref, enabled, painting, brush);
   const options = useRef({enabled, painting, brush});
   options.current = {enabled, painting, brush};
   useEffect(() => {
@@ -46,11 +48,9 @@ export function useFeedback(ref: RefObject<HTMLDivElement | null>, enabled: bool
         if (item) { sweep(item); if (item.getAttribute('aria-checked') === 'true') scratches(); }
       }
       if (!(event instanceof PointerEvent) || event.button !== 0) return;
-      const paint = Boolean(target?.closest('.dabble-paint')) && options.current.painting;
       const seek = Boolean(target?.closest('.dabble-seek'));
-      if (paint || seek) {
-        dragging = {id:event.pointerId,paint}; lastDrag = -Infinity;
-        if (paint && options.current.brush === 'drip') sound('dripDown');
+      if (seek) {
+        dragging = {id:event.pointerId,paint:false}; lastDrag = -Infinity;
       }
       if (event.pointerType === 'touch' && target?.closest('.dabble-bar .dabble-button') && options.current.enabled && !video.muted) {
         try { if (typeof navigator.vibrate === 'function') navigator.vibrate(8); } catch { /* Optional touch feedback. */ }
@@ -67,9 +67,9 @@ export function useFeedback(ref: RefObject<HTMLDivElement | null>, enabled: bool
     const move = (event: PointerEvent) => {
       if (!event.isTrusted || !dragging || event.pointerId !== dragging.id) return;
       lastGesture = performance.now();
-      if (!allowed() || !dragDue(lastGesture, lastDrag, dragging.paint)) return;
+      if (!allowed() || !dragDue(lastGesture, lastDrag)) return;
       lastDrag = lastGesture;
-      swish(...(dragging.paint ? brushSound(options.current.brush) : [0.06, 1400 + Math.random() * 900, 2600, 0.07] as [number,number,number,number]));
+      swish(0.06, 1400 + Math.random() * 900, 2600, 0.07);
     };
     const end = (event: PointerEvent) => { if (event.pointerId === dragging?.id) dragging = undefined; };
     const stateSweep = (selector: string) => {

@@ -1,5 +1,10 @@
 # Dabble
 
+## Continuous painting sounds
+- [x] Port the supplied pink-noise voices and exact envelopes; preserve player sounds.
+- [x] Follow every stroke movement and stop on all stroke, mute, visibility, and component exits.
+- [x] Verify lifecycle, sound-off/muted silence, real painting, and regression tests.
+
 ## Step 11
 - [x] Thin and recenter the hidden-bar progress line.
 - [x] Add Video.js-registered painting shortcuts with text-field and popup isolation.

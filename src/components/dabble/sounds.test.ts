@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, afterEach } from 'vitest';
-import { SOUND, brushSound, dragDue, followsGesture, swish } from './sounds';
+import { SOUND, VOICES, dragDue, followsGesture, swish } from './sounds';
 
 afterEach(() => vi.restoreAllMocks());
 describe('optional feedback rules', () => {
@@ -14,20 +14,18 @@ describe('optional feedback rules', () => {
   });
   it('is silent when sounds are disabled', () => expect(followsGesture(false,false,1000,999)).toBe(false));
   it('limits seeking to once every 60ms', () => {
-    expect(dragDue(59,0,false)).toBe(false); expect(dragDue(60,0,false)).toBe(true);
-  });
-  it('limits brush dragging to once every 70ms', () => {
-    expect(dragDue(69,0,true)).toBe(false); expect(dragDue(70,0,true)).toBe(true);
+    expect(dragDue(59,0)).toBe(false); expect(dragDue(60,0)).toBe(true);
   });
   it('uses the exact requested control sound envelopes and volumes', () => {
     expect(SOUND).toEqual({play:[.32,700,2600,.25],pause:[.14,1800,600,.20],mute:[.07,320,140,.40,'lowpass'],scratch:[.07,3500,5000,.14,'highpass'],scratchSecond:[.07,3800,5200,.12,'highpass'],fullscreen:[.42,400,3200,.20],automatic:[.40,500,2800,.20],dripDown:[.09,500,180,.40,'lowpass']});
   });
-  it('uses the requested brush envelopes without changing paint math', () => {
-    vi.spyOn(Math,'random').mockReturnValue(.5);
-    expect(brushSound('imp')).toEqual([.07,1650,2400,.09]);
-    expect(brushSound('rib')).toEqual([.07,1650,2400,.09]);
-    expect(brushSound('cub')).toEqual([.04,3000,4200,.10,'highpass']);
-    expect(brushSound('drip')).toEqual([.07,600,200,.30,'lowpass']);
+  it.each([
+    ['imp', 'bandpass', 1300, 1700, .7, .55, .38, 31],
+    ['rib', 'lowpass', 520, 1100, .4, .50, .07, 9],
+    ['cub', 'bandpass', 2400, 2200, 2.4, .30, .18, 47],
+    ['drip', 'lowpass', 300, 260, .6, .22, 0, 5],
+  ] as const)('preserves the exact %s voice', (kind, type, f, fs, q, g, fl, hz) => {
+    expect(VOICES[kind]).toEqual({ type, f, fs, q, g, fl, hz });
   });
   it('never throws when browser audio is unavailable', () => expect(() => swish(...SOUND.play)).not.toThrow());
 });
