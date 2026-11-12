@@ -1,6 +1,7 @@
-# Dabble step 1
+# Dabble step 2
 
-- [x] Read official React installation and skin documentation.
-- [x] Install Video.js v10 and build the single-page stock-skin player.
-- [x] Verify playback, CORS frame access, and desktop/mobile layout.
-- [x] Report the exact version, imports, source, and documentation differences.
+- [x] Add the canvas, empty paint layer, and inset stock player without changing the library setup.
+- [x] Apply the gallery wall, canvas texture, depth, square corners, and player-relative frame widths.
+- [x] Read the video dimensions for aspect ratio and landscape/portrait width limits.
+- [x] Verify playback, frame sizing, CORS, and fullscreen without the canvas frame.
+- [x] Report version, imports, fullscreen target, aspect ratio, and source.

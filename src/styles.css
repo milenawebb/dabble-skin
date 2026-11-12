@@ -75,7 +75,15 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --background: oklch(0.9359011 0.0062908 255.47629);
+  --canvas-surface: oklch(0.9934939 0.0026313 106.44717);
+  --canvas-thread-horizontal: oklch(0.3544565 0.0084529 106.82315 / 0.05);
+  --canvas-thread-vertical: oklch(0.3544565 0.0084529 106.82315 / 0.035);
+  --canvas-clear: oklch(0 0 0 / 0);
+  --canvas-edge-right: oklch(0.9126711 0.0083561 91.48819);
+  --canvas-edge-bottom: oklch(0.8479266 0.0098272 93.58602);
+  --canvas-shadow: 0 34px 60px -26px oklch(0.2131692 0.0212771 263.96435 / 0.45), 0 4px 10px oklch(0.2131692 0.0212771 263.96435 / 0.08);
+  --canvas-weave: repeating-linear-gradient(0deg, var(--canvas-thread-horizontal) 0 1px, var(--canvas-clear) 1px 4px), repeating-linear-gradient(90deg, var(--canvas-thread-vertical) 0 1px, var(--canvas-clear) 1px 4px);
   --foreground: oklch(0.2 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
@@ -107,6 +115,53 @@
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
+}
+
+.dabble-canvas {
+  --dabble-m: 12px;
+  --dabble-aspect: 16 / 9;
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  max-width: 860px;
+  margin-inline: auto;
+  padding: var(--dabble-m);
+  border-right: 12px solid var(--canvas-edge-right);
+  border-bottom: 12px solid var(--canvas-edge-bottom);
+  border-radius: 0;
+  background-color: var(--canvas-surface);
+  background-image: var(--canvas-weave);
+  box-shadow: var(--canvas-shadow);
+}
+
+.dabble-canvas[data-portrait="true"] {
+  max-width: 420px;
+}
+
+.dabble-paint {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+.dabble-stage {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  aspect-ratio: var(--dabble-aspect);
+}
+
+.dabble-video-skin {
+  --media-border-radius: 0;
+}
+
+.dabble-video-skin:fullscreen {
+  --media-object-fit: contain;
+  --media-object-position: center;
 }
 
 .dark {

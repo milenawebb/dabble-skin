@@ -32,3 +32,5 @@ use the editor.
 ## Player architecture
 - Keep video-library imports and player composition inside `src/components/dabble/DabblePlayer.tsx`, accepting a `src` prop, so future skin changes stay isolated from the page.
 - Use the packaged `@videojs/react/video` preset and its stock stylesheet; page layout may size the outer frame but must not target the skin's internal elements.
+- Keep canvas and paint wrappers outside `VideoPlayer`; the stock `VideoSkin` registers the fullscreen container, so fullscreen excludes the frame.
+- Calculate frame spacing from the canvas wrapper's measured width with `ResizeObserver`, and video shape from native metadata; keep geometry rules in a pure tested helper.
