@@ -9,6 +9,7 @@ import { paintFrameWidth } from './paint-rules';
 import { usePaint } from './use-paint';
 import { PaintTray } from './PaintTray';
 import type { Painting } from './painting-data';
+import { useFeedback } from './use-feedback';
 
 type DabblePlayerProps = {
   src: string;
@@ -17,15 +18,27 @@ type DabblePlayerProps = {
   captions?: { src: string; srcLang: string; label: string };
   paintable?: boolean;
   painting?: Painting;
+  sounds?: boolean;
 };
 
-export function DabblePlayer({ src, poster, broken = false, captions, paintable = false, painting }: DabblePlayerProps) {
+export function DabblePlayer({ src, poster, broken = false, captions, paintable = false, painting, sounds = false }: DabblePlayerProps) {
   const [ready, setReady] = useState(false);
   const source = getPlayerSource(src, broken && ready);
   const canvasRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const paintRef = useRef<HTMLCanvasElement>(null);
   const paint = usePaint(canvasRef, paintRef, paintable, src, painting);
+  const [soundChoice, setSoundChoice] = useState(sounds);
+  const automaticSound = useFeedback(canvasRef, soundChoice, paint.painting, paint.brush);
+  useEffect(() => {
+    if (!sounds) return;
+    try { setSoundChoice(localStorage.getItem('dabble-sounds') !== 'off'); } catch { /* Storage is optional. */ }
+  }, [sounds]);
+  const toggleSounds = () => {
+    const next = !soundChoice;
+    setSoundChoice(next);
+    try { localStorage.setItem('dabble-sounds', next ? 'on' : 'off'); } catch { /* Storage is optional. */ }
+  };
   const [frameWidth, setFrameWidth] = useState(12);
   const [dockSpace, setDockSpace] = useState(0);
   const [metadata, setMetadata] = useState({ src: '', width: 0, height: 0 });
@@ -100,7 +113,7 @@ export function DabblePlayer({ src, poster, broken = false, captions, paintable 
         </VideoPlayer>
       </div>
     </div>
-    {paintable && <PaintTray paint={paint} src={src} />}
+    {paintable && <PaintTray paint={paint} src={src} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} />}
     </>
   );
 }

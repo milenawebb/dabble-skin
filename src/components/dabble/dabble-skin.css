@@ -66,6 +66,13 @@
 .dabble-speed { --dabble-blob-color: var(--dabble-b4); }
 .dabble-fullscreen { --dabble-blob-color: var(--dabble-b5); }
 .dabble-button:hover .dabble-blob, .dabble-button:focus-visible .dabble-blob, .dabble-button:active .dabble-blob, .dabble-button[data-on="true"] .dabble-blob { opacity: 1; }
+.dabble-button:active, .dabble-speed-item:active { translate: 1px 2px; rotate: -2deg; }
+@keyframes dabble-stroke {
+  0% { transform: scaleX(0) rotate(-14deg) skewX(-20deg); }
+  60% { transform: scaleX(1.25) rotate(3deg); }
+  100% { transform: scaleX(1) rotate(0); }
+}
+.dabble-skin [data-stroking] .dabble-blob { opacity: 1; transition: none; transform-origin: 0 60%; animation: dabble-stroke 0.34s cubic-bezier(.2,.8,.3,1); }
 .dabble-icon { width: 17px; height: 17px; fill: none; stroke: var(--dabble-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .dabble-time { flex: 0 0 auto; display: flex; align-items: center; gap: 4px; white-space: nowrap; font: 15px var(--dabble-label-font); font-variant-numeric: tabular-nums; }
 .dabble-slider { position: relative; display: flex; align-items: center; min-width: 0; height: 22px; cursor: pointer; touch-action: none; }
@@ -106,6 +113,7 @@
 .dabble-poster img { width: 100%; height: 100%; object-fit: contain; }
 .dabble-skin .dabble-center-play { position: absolute; z-index: 2; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 76px; height: 76px; background: var(--dabble-paper); }
 .dabble-center-play[hidden] { display: none; }
+.dabble-center-play[hidden][data-stroking] { display: inline-flex; pointer-events: none; }
 .dabble-skin .dabble-center-play .dabble-icon { width: 34px; height: 34px; }
 .dabble-center-play .dabble-blob { opacity: 1; inset: -5px 6px 6px -5px; }
 .dabble-skin[data-size="small"] .dabble-center-play { z-index: 4; }
@@ -136,6 +144,9 @@
 .dabble-skin video::cue { color: var(--dabble-caption-text); background-color: var(--dabble-ink); font-family: var(--dabble-ui-font); font-weight: 500; font-size: clamp(14px, 2.2cqw, 20px); line-height: 1.35; text-shadow: none; }
 @media (prefers-reduced-motion: reduce) {
   .dabble-bar, .dabble-blob { transition: none; }
+  .dabble-skin [data-stroking] .dabble-blob { animation: none; }
+  .dabble-button:active, .dabble-speed-item:active { translate: none; rotate: none; }
+  .dabble-center-play[hidden][data-stroking] { display: none; }
   .dabble-bar:not([data-visible]):not(:has(:focus-visible)) { transform: none; }
   .dabble-loading-disc > span { animation: none; }
   .dabble-loading-label { position: static; width: auto; height: auto; clip-path: none; overflow: visible; color: var(--dabble-ink); background: var(--dabble-paper); padding: 2px 6px; }

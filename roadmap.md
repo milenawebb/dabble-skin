@@ -1,5 +1,10 @@
 # Dabble
 
+## Step 7
+- [x] Add restartable brush sweeps, pressed states, and reduced-motion behavior.
+- [x] Add gesture-gated Web Audio, muted suppression, painting throttles, touch feedback, and the saved sounds switch.
+- [x] Verify real controls, keyboard shortcuts, painting, silence rules, persistence, and regressions.
+
 ## Step 6
 - [x] Port the uploaded palette reference unchanged and test parity and contrast.
 - [x] Add Video.js vertical volume popover and soften speed-item focus rings.

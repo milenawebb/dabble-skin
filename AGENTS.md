@@ -43,3 +43,4 @@ use the editor.
 - Store paintings as versioned seeded normalized strokes, rounded on completion and persisted per video source in optional browser storage; use offscreen canvases only as disposable rendering caches.
 - Keep palette math reference-identical, sample initial footage with a disposable hidden video, and tint only control blobs for ink contrast; preserve each stroke's original palette.
 - Use VolumePopover with a MuteButton trigger and vertical VolumeSlider only for hover-capable players at least 420px wide; hold the library controls lock while its popup is open.
+- Keep optional Web Audio and activation feedback in a wrapper-level hook with native state listeners and captured trusted gestures, so Video.js actions and brush rendering stay untouched.

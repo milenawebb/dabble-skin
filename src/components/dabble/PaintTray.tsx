@@ -1,4 +1,4 @@
-import { Paintbrush, Check, Undo2, Sparkles, Trash2, Pipette, Copy } from 'lucide-react';
+import { Paintbrush, Check, Undo2, Sparkles, Trash2, Pipette, Copy, Volume2, VolumeX } from 'lucide-react';
 import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import { paintingCode } from './painting-data';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ const brushes: { label: string; type: Brush }[] = [
   { label: 'Impressionist', type: 'imp' }, { label: 'Cubist', type: 'cub' },
   { label: 'Drip', type: 'drip' }, { label: 'Ribbon', type: 'rib' },
 ];
-export function PaintTray({ paint, src }: { paint: ReturnType<typeof usePaint>; src: string }) {
+export function PaintTray({ paint, src, sounds, toggleSounds, automaticSound }: { paint: ReturnType<typeof usePaint>; src: string; sounds: boolean; toggleSounds: () => void; automaticSound: () => void }) {
   const sizeId = useId();
   const [copied, setCopied] = useState(false);
   const [snippet, setSnippet] = useState('');
@@ -52,11 +52,12 @@ export function PaintTray({ paint, src }: { paint: ReturnType<typeof usePaint>; 
       <span className="paint-row-label">Canvas</span>
       <div className="paint-actions">
         <Button variant="outline" onClick={paint.undo} disabled={paint.count === 0}><Undo2 />Undo</Button>
-        <Button variant="outline" onClick={paint.automatic}><Sparkles />Paint it for me</Button>
+        <Button variant="outline" onClick={() => { paint.automatic(); automaticSound(); }}><Sparkles />Paint it for me</Button>
         <Button variant="outline" onClick={paint.clear} disabled={paint.count === 0}><Trash2 />Clear</Button>
         <Button variant="outline" onClick={copy}><Copy />{copied ? 'Copied' : 'Copy painting code'}</Button>
       </div>
     </div>
+    <div className="paint-tool-row"><span className="paint-row-label">Player</span><Button variant="outline" aria-pressed={sounds} onClick={toggleSounds}>{sounds ? <Volume2 /> : <VolumeX />}{sounds ? 'Sounds on' : 'Sounds off'}</Button></div>
     {snippet && <div className="paint-copy-fallback"><label htmlFor={`${sizeId}-code`}>Painting code</label><textarea id={`${sizeId}-code`} readOnly value={snippet} onFocus={event => event.currentTarget.select()} /></div>}
   </section>;
 }

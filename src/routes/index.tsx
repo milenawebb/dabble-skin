@@ -26,7 +26,7 @@ function Index() {
         <h1 className="text-xl font-semibold">Dabble</h1>
         <p className="mt-2 text-sm text-muted-foreground">Paint the frame around your video.</p>
         <div className="mt-6 w-full">
-          <DabblePlayer paintable src="https://vjs.zencdn.net/v/oceans.mp4" poster="https://vjs.zencdn.net/v/oceans.png" broken={broken === '1'} captions={{ src: '/captions/oceans.en.vtt', srcLang: 'en', label: 'English' }} />
+          <DabblePlayer sounds paintable src="https://vjs.zencdn.net/v/oceans.mp4" poster="https://vjs.zencdn.net/v/oceans.png" broken={broken === '1'} captions={{ src: '/captions/oceans.en.vtt', srcLang: 'en', label: 'English' }} />
         </div>
       </div>
     </main>
