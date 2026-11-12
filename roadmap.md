@@ -1,5 +1,10 @@
 # Dabble
 
+## Step 8
+- [x] Fix two-tone focus, coarse-pointer targets, captions state, hidden focus, and forced colors.
+- [x] Audit keyboard, names, announcements, contrast, motion, zoom-equivalent widths, and automated accessibility.
+- [x] Report fixes, failures, automated results, and checks requiring real assistive technology.
+
 ## Step 7
 - [x] Add restartable brush sweeps, pressed states, and reduced-motion behavior.
 - [x] Add gesture-gated Web Audio, muted suppression, painting throttles, touch feedback, and the saved sounds switch.

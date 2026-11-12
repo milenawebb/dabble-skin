@@ -154,7 +154,7 @@ export function DabbleSkin({ children, painting = false, palette = DEFAULT_PALET
       <VolumeSlider.Root orientation="vertical" className="dabble-volume-vertical"><VolumeSlider.Track className="dabble-volume-track"><VolumeSlider.Fill className="dabble-volume-fill" /></VolumeSlider.Track><VolumeSlider.Thumb className="dabble-volume-thumb" /></VolumeSlider.Root>
     </VolumePopover.Popup>
   </VolumePopover.Root> : muteButton;
-  const captions = <CaptionsButton label="Captions" className="dabble-button dabble-captions" render={(props, state) => <button {...props} data-on={state.subtitlesShowing}><Blob /><span aria-hidden="true">CC</span></button>} />;
+  const captions = <CaptionsButton label="Captions" className="dabble-button dabble-captions" render={(props, state) => <button {...props} aria-pressed={state.subtitlesShowing} data-on={state.subtitlesShowing}><Blob /><span aria-hidden="true">CC</span></button>} />;
   const speed = <Menu.Root side="top" align="end" boundary="container"><PlaybackRateRadioGroup.Root rates={DABBLE_PLAYBACK_RATES} formatRate={(rate) => `${rate}x`}><Menu.Trigger aria-label="Playback speed" className="dabble-button dabble-speed" render={<button type="button" />}><Blob /><PlaybackRateRadioGroup.Value aria-hidden="true" /></Menu.Trigger><Menu.Popup className="dabble-speed-menu"><Menu.Content><PlaybackRateRadioGroup.Options renderItem={(props, item) => <Menu.RadioItem {...props} key={item.value} className="dabble-speed-item"><Blob />{item.label}</Menu.RadioItem>} /></Menu.Content></Menu.Popup></PlaybackRateRadioGroup.Root></Menu.Root>;
   const fullscreen = <FullscreenButton className="dabble-button dabble-fullscreen" render={(props, state) => <button {...props}><Blob /><Icon kind={state.fullscreen ? 'exit' : 'fullscreen'} /></button>} />;
   const seek = <TimeSlider.Root className="dabble-slider dabble-seek"><TimeSlider.Track className="dabble-track"><TimeSlider.Buffer className="dabble-buffer" /><TimeSlider.Fill className="dabble-fill" /></TimeSlider.Track><TimeSlider.Thumb className="dabble-thumb" /></TimeSlider.Root>;
@@ -162,14 +162,14 @@ export function DabbleSkin({ children, painting = false, palette = DEFAULT_PALET
   const colors = { '--dabble-seek':palette[0], '--dabble-b1':tintForInk(palette[4]), '--dabble-b2':tintForInk(palette[3]), '--dabble-b3':tintForInk(palette[2]), '--dabble-b4':tintForInk(palette[5]), '--dabble-b5':tintForInk(palette[1]) } as CSSProperties;
 
   return (
-    <Container ref={rootRef} style={colors} className="dabble-skin" data-size={size} data-painting={painting || undefined} data-docked={docked || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined}>
+    <Container ref={rootRef} aria-label="Dabble video player" style={colors} className="dabble-skin" data-size={size} data-painting={painting || undefined} data-docked={docked || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined}>
       {children}
       <Poster.Root className="dabble-poster"><Poster.Image /></Poster.Root>
       <Gesture type="tap" action="togglePaused" />
       <PlayButton ref={centerRef} hidden={!centerVisible} label={ended ? 'Replay' : 'Play'} className="dabble-button dabble-play dabble-center-play" render={(props) => <button {...props} onFocus={(event) => { props.onFocus?.(event); centerHadFocus.current = event.currentTarget.matches(':focus-visible'); }} onBlur={(event) => { props.onBlur?.(event); if (event.relatedTarget) centerHadFocus.current = false; }}><Blob /><Icon kind={ended ? 'replay' : 'play'} /></button>} />
       <BufferingIndicator className="dabble-loading" render={(props, state) => <div {...props} role="status" aria-live="polite">{state.visible && <><span className="dabble-loading-disc" aria-hidden="true"><span /></span><span className="dabble-loading-label">Loading</span></>}</div>} />
       <Controls.Root>
-        <Controls.Content className="dabble-bar">
+        <Controls.Content className="dabble-bar" inert={painting && !docked && !fullscreenActive}>
           {size === 'small' ? <><Controls.Group className="dabble-row" aria-label="Timeline">{seek}{time}</Controls.Group><Controls.Group className="dabble-row dabble-buttons-row" aria-label="Playback controls">{play}{mute}{captions}{speed}{fullscreen}</Controls.Group></> : <Controls.Group className="dabble-row" aria-label="Playback controls">{play}{seek}{time}{mute}{captions}{speed}{fullscreen}</Controls.Group>}
         </Controls.Content>
       </Controls.Root>

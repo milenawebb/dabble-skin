@@ -207,7 +207,7 @@
 .paint-tool-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; }
 .paint-row-label { flex: 0 0 64px; font-size: 13px; font-weight: 600; }
 .paint-brushes, .paint-actions, .paint-pots { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.paint-tool-row[data-dimmed] { opacity: 0.55; }
+.paint-tool-row[data-dimmed] { opacity: 1; }
 .paint-tool-row[data-dimmed]:focus-within { opacity: 1; }
 .paint-tool-row input[type="range"] { width: 200px; max-width: calc(100% - 115px); accent-color: var(--paint-ink); }
 .paint-tool-row output { font-size: 13px; font-variant-numeric: tabular-nums; }
@@ -227,6 +227,14 @@
   .paint-brushes, .paint-actions { flex: 1 1 210px; }
   .paint-pots { gap: 7px; }
   .paint-row-label { flex-basis: 100%; }
+}
+@media (pointer: coarse) {
+  .paint-tray .paint-pot { width: 44px; height: 44px; min-height: 44px; }
+}
+@media (forced-colors: active) {
+  .paint-tray button { border-color: CanvasText; }
+  .paint-tray button[aria-pressed="true"] { outline: 2px solid Highlight; outline-offset: 2px; }
+  .paint-tray :focus-visible { outline: 3px solid CanvasText; outline-offset: 2px; }
 }
 
 .dark {
