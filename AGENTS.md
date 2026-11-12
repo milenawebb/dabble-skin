@@ -28,3 +28,7 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Player architecture
+- Keep video-library imports and player composition inside `src/components/dabble/DabblePlayer.tsx`, accepting a `src` prop, so future skin changes stay isolated from the page.
+- Use the packaged `@videojs/react/video` preset and its stock stylesheet; page layout may size the outer frame but must not target the skin's internal elements.
