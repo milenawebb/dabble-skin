@@ -1,4 +1,7 @@
-.paint-tray { width: calc(100% - 12px); max-width: 860px; margin: 26px 12px 18px auto; color: var(--dabble-ink); font-family: var(--dabble-ui-font); container-type: inline-size; }
+.paint-tray { position: relative; width: calc(100% - 12px); max-width: 860px; margin: 26px 12px 18px auto; color: var(--dabble-ink); font-family: var(--dabble-ui-font); container-type: inline-size; }
+.tray-reset-label { position: absolute; z-index: 9; right: 8px; bottom: 12px; width: max-content; max-width: calc(100% - 16px); padding: 10px 12px; border: 1.5px solid var(--dabble-ink); border-radius: 3px 5px 4px 6px; background: var(--dabble-paper); color: var(--dabble-ink); font: 500 13px/1.35 var(--dabble-ui-font); }
+.tray-reset-label > div { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.tray-reset-label button { min-height: 44px; background: var(--dabble-paper); color: var(--dabble-ink); border-color: var(--dabble-ink); font: inherit; }
 .tray-shelf { position: relative; display: grid; grid-template-columns: 32px 4px minmax(0, 6fr) 32px 4px minmax(0, 4fr) 4px minmax(0, 3fr) minmax(0, 5fr); align-items: end; gap: 4px; height: 122px; padding: 10px 14px 0; }
 .tray-shelf::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--dabble-paper); border: 1.5px solid var(--dabble-ink); border-bottom: 0; border-radius: 14px 10px 0 0 / 10px 15px 0 0; }
 .tray-shelf { isolation: isolate; }

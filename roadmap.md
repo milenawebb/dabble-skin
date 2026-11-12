@@ -1,5 +1,10 @@
 # Dabble
 
+## Viewer painting
+- [x] Default painting tools on; gate copying behind ownerTools and preserve viewer-saved painting precedence.
+- [x] Reuse Clear as confirmed Start over, restore the starting painting, and verify focus/Escape.
+- [x] Audit viewer wording; 145 tests pass and real desktop/phone painting, reload, cancellation, and reset are verified. No signature feature exists in the current player.
+
 ## Frame cleanup
 - [x] Remove the frame progress indicator and its dedicated code; retain the controls seek bar.
 - [x] Round video-stage geometry and prevent dark subpixel gaps, retaining black fullscreen backgrounds.

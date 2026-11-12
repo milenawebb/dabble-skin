@@ -50,7 +50,7 @@ function Index() {
         </div>
         </div>
         <div className="mt-6 w-full">
-          <DabblePlayer sounds paintable playbackId={PLAYBACK_ID} thumbnailSampleTimes={SAMPLE_TIMES} poster={POSTER} broken={broken === '1'} captions={CAPTIONS} />
+          <DabblePlayer sounds playbackId={PLAYBACK_ID} thumbnailSampleTimes={SAMPLE_TIMES} poster={POSTER} broken={broken === '1'} captions={CAPTIONS} />
         </div>
       </div>
     </main>

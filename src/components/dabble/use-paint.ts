@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { renderStroke, type Brush, type Geo, type Point, type Stroke } from './paint-engine';
 import { backingRatio, initialPainting, pointSpacing, strokeSize, undoPainting } from './paint-rules';
-import { DEFAULT_PALETTE, loadPainting, savePainting, roundStroke, type Painting, type Palette } from './painting-data';
+import { DEFAULT_PALETTE, loadPainting, savePainting, roundStroke, newPainting, type Painting, type Palette } from './painting-data';
 import { sampleMux, sampleSource, sampleThumbnails, sampleVideo } from './video-palette';
 
 export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef: RefObject<HTMLCanvasElement | null>, enabled: boolean, src: string, supplied?: Painting, playbackId?: string, thumbnailSampleTimes?: readonly number[]) {
@@ -13,6 +13,7 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
   const [palette, setPalette] = useState<Palette>(supplied?.palette ?? DEFAULT_PALETTE);
   const paletteRef = useRef<Palette>(palette);
   const touched = useRef(Boolean(supplied));
+  const starting = useRef<Painting>(supplied ?? newPainting());
   const persist = useRef<() => void>(() => {});
   const stopSampling = useRef<() => void>(() => {});
   const [sampleMessage, setSampleMessage] = useState('');
@@ -28,7 +29,13 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
 
   useEffect(() => {
     const identity = playbackId ?? src;
-    const restored = supplied ?? loadPainting(identity);
+    const restored = loadPainting(identity) ?? supplied;
+    const baseline = supplied ?? newPainting();
+    if (!supplied && restored) {
+      baseline.palette = [...restored.palette];
+      baseline.strokes = baseline.strokes.map(stroke => ({ ...stroke, pal: [...restored.palette] }));
+    }
+    starting.current = { ...baseline, palette: [...baseline.palette], strokes: baseline.strokes.map(roundStroke) };
     touched.current = Boolean(restored);
     strokes.current = restored?.strokes ?? (enabled ? initialPainting() : []);
     paletteRef.current = restored?.palette ?? [...DEFAULT_PALETTE];
@@ -36,6 +43,7 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
     persist.current = () => savePainting(identity, {version:1,palette:paletteRef.current,strokes:strokes.current});
     if (restored) return;
     const receive = (next: Palette) => {
+      starting.current = { version: 1, palette: [...next], strokes: starting.current.strokes.map(stroke => ({ ...stroke, pal: [...next] })) };
       paletteRef.current = next; setPalette(next);
       if (!touched.current) {
         strokes.current = strokes.current.map(stroke => ({...stroke,pal:[...next]}));
@@ -159,7 +167,15 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
       touched.current = true; paletteRef.current = next; setPalette(next); setSampleMessage(''); persist.current();
     },
     undo: () => replace(undoPainting(strokes.current)),
-    clear: () => replace([]),
+    startOver: () => {
+      stopSampling.current();
+      active.current = null;
+      if (pointer.current !== null && paintRef.current?.hasPointerCapture(pointer.current)) paintRef.current.releasePointerCapture(pointer.current);
+      pointer.current = null;
+      paletteRef.current = [...starting.current.palette];
+      setPalette(paletteRef.current);
+      replace(starting.current.strokes.map(roundStroke));
+    },
     automatic: () => replace([...strokes.current, { type: `auto-${brush}`, seed: Math.floor(Math.random() * 2147483647), pal: [...paletteRef.current] }]),
   };
 }

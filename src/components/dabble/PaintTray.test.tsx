@@ -1,13 +1,45 @@
 import { fireEvent, render, screen, act } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { usePaint } from './use-paint';
 import { PaintTray } from './PaintTray';
 vi.mock('./video-palette', () => ({ sampleSource: () => () => {}, sampleVideo: () => null }));
-function Tray() {
+beforeEach(() => localStorage.clear());
+function Tray({ ownerTools = false }: { ownerTools?: boolean }) {
   const paint = usePaint({ current: null }, { current: null }, true, 'tray-test');
-  return <PaintTray paint={paint} src="tray-test" sounds={false} toggleSounds={() => {}} automaticSound={() => {}} controlsState={{visible:true,paused:true}} onActivity={() => {}} />;
+  return <PaintTray paint={paint} src="tray-test" ownerTools={ownerTools} sounds={false} toggleSounds={() => {}} automaticSound={() => {}} controlsState={{visible:true,paused:true}} onActivity={() => {}} />;
 }
 describe('tray state interactions', () => {
+  it('reserves copying for ownerTools', () => {
+    const { rerender } = render(<Tray />);
+    fireEvent.click(screen.getByRole('button', {name:'Start painting'}));
+    expect(screen.queryByRole('button', {name:'Copy painting code'})).toBeNull();
+    rerender(<Tray ownerTools />);
+    expect(screen.getByRole('button', {name:'Copy painting code'})).toBeEnabled();
+  });
+  it('requires confirmation, focuses Keep painting, and Escape preserves strokes', () => {
+    const { container } = render(<Tray />);
+    fireEvent.click(screen.getByRole('button', {name:'Start painting'}));
+    fireEvent.click(screen.getByRole('button', {name:'Paint it for me'}));
+    fireEvent.click(screen.getByRole('button', {name:'Start over'}));
+    expect(screen.getByRole('button', {name:'Keep painting'})).toHaveFocus();
+    fireEvent.keyDown(screen.getByRole('button', {name:'Keep painting'}), {key:'Escape'});
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByRole('button', {name:'Start over'})).toHaveFocus();
+    expect(container.querySelector('section')).toHaveAttribute('data-state','pinned');
+    expect(JSON.parse(localStorage.getItem('dabble-painting:v1:tray-test') ?? '{}').strokes).toHaveLength(2);
+  });
+  it('Keep painting cancels and Yes restores the starting painting', () => {
+    render(<Tray />);
+    fireEvent.click(screen.getByRole('button', {name:'Start painting'}));
+    fireEvent.click(screen.getByRole('button', {name:'Paint it for me'}));
+    fireEvent.click(screen.getByRole('button', {name:'Start over'}));
+    fireEvent.click(screen.getByRole('button', {name:'Keep painting'}));
+    expect(JSON.parse(localStorage.getItem('dabble-painting:v1:tray-test') ?? '{}').strokes).toHaveLength(2);
+    fireEvent.click(screen.getByRole('button', {name:'Start over'}));
+    fireEvent.click(screen.getByRole('button', {name:'Yes, start over'}));
+    expect(JSON.parse(localStorage.getItem('dabble-painting:v1:tray-test') ?? '{}').strokes).toHaveLength(1);
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
   it('opens on activation and Escape stops painting, tucks tools, and returns focus', () => {
     const {container} = render(<Tray />);
     expect(container.querySelector('section')).toHaveAttribute('data-state', 'tucked');

@@ -21,11 +21,12 @@ type DabblePlayerProps = {
   broken?: boolean;
   captions?: { src: string; srcLang: string; label: string };
   paintable?: boolean;
+  ownerTools?: boolean;
   painting?: Painting;
   sounds?: boolean;
 };
 
-export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poster, broken = false, captions, paintable = false, painting, sounds = false }: DabblePlayerProps) {
+export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poster, broken = false, captions, paintable = true, ownerTools = false, painting, sounds = false }: DabblePlayerProps) {
   const [ready, setReady] = useState(false);
   const source = getPlayerSource(playbackId ? `https://stream.mux.com/${playbackId}.m3u8` : src, broken && ready);
   const muxSource = useMemo(() => ({
@@ -134,7 +135,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
         </VideoPlayer>
       </div>
     </div>
-    {paintable && <PaintTray paint={paint} src={src} {...(playbackId ? { playbackId } : {})} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} controlsState={controlsState} onActivity={trayActivity} />}
+    {paintable && <PaintTray paint={paint} src={src} ownerTools={ownerTools} {...(playbackId ? { playbackId } : {})} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} controlsState={controlsState} onActivity={trayActivity} />}
     </>
   );
 }

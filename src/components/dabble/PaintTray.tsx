@@ -20,10 +20,16 @@ function Tool({ label, children, className = '', pressed, disabled, onClick, mod
     {note && <span className="tray-note" role="status">{note}</span>}
   </span>;
 }
-export function PaintTray({ paint, src, playbackId, sounds, toggleSounds, automaticSound, controlsState, onActivity }: { paint: ReturnType<typeof usePaint>; src: string; playbackId?: string; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; controlsState: { visible: boolean; paused: boolean }; onActivity: (active: boolean) => void }) {
+export function PaintTray({ paint, src, playbackId, ownerTools = false, sounds, toggleSounds, automaticSound, controlsState, onActivity }: { paint: ReturnType<typeof usePaint>; src: string; playbackId?: string; ownerTools?: boolean; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; controlsState: { visible: boolean; paused: boolean }; onActivity: (active: boolean) => void }) {
   const id = useId();
   const [copied, setCopied] = useState(false);
   const [snippet, setSnippet] = useState('');
+  const [confirmReset, setConfirmReset] = useState(false);
+  const keepPainting = useRef<HTMLButtonElement>(null);
+  const resetButton = useRef<HTMLButtonElement>(null);
+  const resetTitle = useId();
+  const closeReset = () => { setConfirmReset(false); resetButton.current?.focus(); };
+  useEffect(() => { if (confirmReset) keepPainting.current?.focus(); }, [confirmReset]);
   const [peeking, setPeeking] = useState(false);
   const [hoverCapable, setHoverCapable] = useState(false);
   const root = useRef<HTMLElement>(null);
@@ -69,7 +75,7 @@ export function PaintTray({ paint, src, playbackId, sounds, toggleSounds, automa
     onPointerLeave={() => { hovering.current = false; suppressPeek.current = false; scheduleTuck(); if (!root.current?.contains(document.activeElement)) onActivity(false); }}
     onFocusCapture={() => { reveal(); onActivity(true); }}
     onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) { suppressPeek.current = false; scheduleTuck(); if (!hovering.current) onActivity(false); } }}
-    onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); tuck(); } }}>
+    onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); if (confirmReset) closeReset(); else tuck(); } }}>
     <div className="tray-shelf">
       <Tool modeRef={mode} label={paint.painting ? 'Stop painting' : 'Start painting'} className="tray-mode tray-circle" pressed={paint.painting} onClick={() => { if (paint.painting) tuck(); else pin(() => {}); }}><HandIcon kind="brush" /></Tool>
       <span className="tray-divider tray-divider-one tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
@@ -89,8 +95,8 @@ export function PaintTray({ paint, src, playbackId, sounds, toggleSounds, automa
       <div className="tray-actions">
         {iconTool('Undo', 'undo', paint.undo, paint.count === 0)}
         {iconTool('Paint it for me', 'wand', () => { paint.automatic(); automaticSound(); })}
-        {iconTool('Clear', 'clear', paint.clear, paint.count === 0)}
-        {iconTool('Copy painting code', 'copy', copy)}
+        <Tool modeRef={resetButton} label="Start over" className="tray-reveal tray-circle" hidden={!open} onClick={() => setConfirmReset(true)}><HandIcon kind="clear" /></Tool>
+        {ownerTools && iconTool('Copy painting code', 'copy', copy)}
         <Tool label={sounds ? 'Sounds on' : 'Sounds off'} className="tray-circle tray-reveal" hidden={!open} pressed={sounds} onClick={toggleSounds}><HandIcon kind={sounds ? 'sounds-on' : 'sounds-off'} /></Tool>
       </div>
       </div>
@@ -106,7 +112,14 @@ export function PaintTray({ paint, src, playbackId, sounds, toggleSounds, automa
         <path className="tray-wood-outline" d="M2 3C120 1 420 4 678 2L677 15C460 17 160 14 3 16Z" fill="none" strokeWidth="1.5" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
       </svg>
     </div>
-    <span className="tray-copy-status" role="status">{copied ? 'Copied' : ''}</span>
-    {snippet && <div className="paint-copy-fallback" inert={!open || undefined} hidden={!open}><label htmlFor={`${id}-code`}>Painting code</label><textarea id={`${id}-code`} readOnly value={snippet} onFocus={event => event.currentTarget.select()} /></div>}
+    {confirmReset && <div className="tray-reset-label" role="dialog" aria-labelledby={resetTitle} onKeyDown={event => {
+      if (event.key !== 'Tab') return;
+      const buttons = Array.from(event.currentTarget.querySelectorAll('button'));
+      const first = buttons[0], last = buttons.at(-1);
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    }}><span id={resetTitle}>Start over?</span><div><Button variant="outline" onClick={() => { paint.startOver(); closeReset(); }}>Yes, start over</Button><Button ref={keepPainting} variant="outline" onClick={closeReset}>Keep painting</Button></div></div>}
+    {ownerTools && <span className="tray-copy-status" role="status">{copied ? 'Copied' : ''}</span>}
+    {ownerTools && snippet && <div className="paint-copy-fallback" inert={!open || undefined} hidden={!open}><label htmlFor={`${id}-code`}>Painting code</label><textarea id={`${id}-code`} readOnly value={snippet} onFocus={event => event.currentTarget.select()} /></div>}
   </section></TooltipProvider>;
 }
