@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { BrushSample } from '@/components/BrushSample';
 import { DEFAULT_PALETTE, type Palette } from '@/dabble';
 import { WhoItsFor } from '@/components/WhoItsFor';
+import { PaintInvitations } from '@/components/PaintInvitations';
 
 const PLAYBACK_ID = 'AAprZsIykh7T29gtsNk02YhBrQRHXTj14ZxbWdc498wA';
 const POSTER = `https://image.mux.com/${PLAYBACK_ID}/thumbnail.jpg?time=9&width=1280`;
@@ -156,6 +157,7 @@ function Index() {
             {sizes.length > 0 && <DeviceSwitch sizes={sizes} activeSize={activeSize} onChoose={setPreviewSize} />}
             <div ref={playerRef} className="preview-column" id="player" tabIndex={-1} style={{ maxWidth: columnWidth }}>
               <DabblePlayer defaultTrayOpen onPaletteChange={setPalette} onSoundPreferenceChange={setSoundOptIn} playbackId={PLAYBACK_ID} thumbnailSampleTimes={SAMPLE_TIMES} poster={POSTER} captions={CAPTIONS} />
+              <PaintInvitations player={playerRef} />
             </div>
             <p className="film-credit">Dab is an original short made for this demo. Video hosted on Mux.</p>
           </section>
