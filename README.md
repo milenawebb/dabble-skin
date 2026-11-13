@@ -54,6 +54,14 @@ The import above assumes your example is at the repository root. Inside this dem
 
 Paintings use normalized points, fixed seeds and per-stroke palettes, so they redraw at any size. The tray's scene colors button takes a new palette from the current video frame. Browser storage is optional. Fresh visitors start silent; explicit sound consent is remembered. No private Mux credentials or Mux analytics are used.
 
+## Controls and painting
+
+On phones (player width under 420px), controls sit inside the video. Play and pause sit in the center, or in the bottom strip when the video is less than 180px tall. Speed, CC and mute sit in the top-right corner; time, seek and fullscreen sit in a slim bottom strip. Speed choices replace the top buttons with one row inside the video. Controls show on tap and hide after 2 seconds of idle while playing. They stay visible before first play, while paused or ended, during seeking, and while speed choices are open.
+
+On desktop and tablet, the control bar sits fully inside the video and hides after 2 seconds of idle while playing. The paint tray stays a compact centered group at every width, with 12px between items and 28px between groups. It uses three rows below 670px, two zones from 670px until the complete row fits at 1192px, and one row above that. The content group is capped at 1170px; extra tray width stays on its sides.
+
+On phones, paint is clipped to the canvas rectangle. A captured stroke continues outside the canvas invisibly and reappears when the finger returns. Page scrolling is blocked during a stroke and restored when the finger lifts. Desktop and tablet painting behavior is unchanged.
+
 ## Customize
 
 Defaults live in `canvas.css` and `dabble-skin.css`. Colors below are their equivalent hex values. Keep readable contrast when changing them.
@@ -84,8 +92,8 @@ Override variables on the elements that use them. `--dabble-paper`, `--dabble-in
 - Opaque paper controls remain readable over video and paint.
 - On desktop and tablet the control bar sits inside the video, along its bottom edge, and hides after 2 seconds of idle while playing. It never covers the painted frame.
 - Captions have an outlined paper label, with native fullscreen handover on iOS.
-- Touch controls have targets at least 44 pixels across.
-- Phone controls dock under the canvas and stay visible outside fullscreen.
+- Phone controls have touch targets at least 44 pixels tall. Speed choices share the available width and may be narrower on small videos.
+- Phone speed choices have radio semantics; Escape, Close speed, or a tap elsewhere on the video closes the row.
 - Reduced motion disables fades and slides. Forced colors use system colors.
 
 ## Run it locally
