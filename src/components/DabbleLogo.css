@@ -1,4 +1,5 @@
 .dabble-logo { display: inline-block; max-width: 100%; vertical-align: middle; }
+.dabble-logo .dabble-letters[stroke] { stroke: var(--dabble-logo-background, var(--landing-wall)); }
 .dabble-logo--animate { pointer-events: all; }
 .dabble-logo .dabble-blob { position: static; opacity: 1; transition: none; transform-box: fill-box; transform-origin: 50% 90%; }
 .dabble-logo--animate .dabble-blob { animation: dabble-logo-plop .55s cubic-bezier(.3, .7, .3, 1) both; }
@@ -17,4 +18,5 @@
 @media (forced-colors: active) {
   .dabble-logo .dabble-blob { display: none; }
   .dabble-logo .dabble-letters { fill: CanvasText; }
+  .dabble-logo .dabble-letters[stroke] { stroke: Canvas; }
 }
