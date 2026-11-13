@@ -1,6 +1,6 @@
 import { useId } from 'react';
 import type { Palette } from './painting-data';
-import { Button } from '@/components/ui/button';
+import { Button } from './Button';
 import './MixPaintInput.css';
 
 export function MixPaintInput({ palette, onRefresh }: { palette: Palette; onRefresh: () => void }) {

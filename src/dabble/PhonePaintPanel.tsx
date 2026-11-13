@@ -1,5 +1,5 @@
 import { useRef, type CSSProperties } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from './Button';
 import { BrushDrawing, HandIcon, PaintBlob, type HandIconKind } from './HandDrawings';
 import { paintColorNames } from './palette';
 import { phonePanelPadding } from './phone-panel-rules';

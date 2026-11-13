@@ -1,7 +1,6 @@
 // @refresh reset
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
-import { SHORTCUT_EVENT, keycapFor, keycapSoundAllowed } from './page-feedback';
-import { SOUND, swish, unlockSound } from './sounds';
+import { SHORTCUT_EVENT, keycapFor, keycapSoundAllowed, SOUND, swish, unlockSound } from '@/dabble';
 
 // Hook-only modules cannot safely preserve consumer state when their hook layout changes.
 // Reload like the painting hook, preserving browser-saved paintings and sound preferences.

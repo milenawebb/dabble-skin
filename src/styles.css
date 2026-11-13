@@ -8,6 +8,7 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@import "./dabble/canvas.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -76,22 +77,6 @@
 :root {
   --radius: 0.625rem;
   --background: oklch(0.9359011 0.0062908 255.47629);
-  --canvas-surface: oklch(0.9934939 0.0026313 106.44717);
-  --dabble-ink: var(--paint-ink);
-  --dabble-paper: var(--canvas-surface);
-  --dabble-caption-shadow: drop-shadow(0 2px 6px rgba(0, 0, 0, .18));
-  --dabble-video-pencil: color-mix(in srgb, var(--dabble-ink) 30%, transparent);
-  --dabble-video-shadow: 0 1px 3px oklch(0 0 0 / .12);
-  --dabble-ui-font: 'DM Sans', Arial, sans-serif;
-  --dabble-focus-ring: 0 0 0 2px var(--dabble-paper), 0 0 0 5px var(--dabble-ink), 0 0 0 7px var(--dabble-paper);
-  --paint-highlight: oklch(1 0 0);
-  --paint-shade: oklch(0 0 0);
-  --paint-metal: oklch(0.7630989 0.0125397 98.01429);
-  --paint-blade: oklch(0.8593435 0.0143616 98.21105);
-  --shelf-wood: #C99A5B;
-  --shelf-wood-shade: #A97B40;
-  --shelf-wood-grain: #7A4E22;
-  --shelf-shadow: 0 6px 10px -6px rgba(20,25,35,.35);
   --landing-wall: #1F1D1B;
   --landing-wall-line: #4A4640;
   --landing-wall-dim: #C9C5BD;
@@ -103,21 +88,6 @@
   --logo-blue: #2B5FC2;
   --logo-cyan: #5CE1E6;
   --logo-yellow: #F4CC04;
-  --canvas-shadow-dark-wall: 0 34px 60px -26px rgba(0,0,0,.7), 0 4px 10px rgba(0,0,0,.35);
-  --paint-blue: #0057FF;
-  --paint-sky: #00B7FF;
-  --paint-turquoise: #00D1B2;
-  --paint-gold: #FFB800;
-  --paint-orange: #FF5A1F;
-  --paint-pink: #FF2E93;
-  --paint-ink: oklch(0.2217300 0.0019108 106.55434);
-  --canvas-thread-horizontal: oklch(0.3544565 0.0084529 106.82315 / 0.028);
-  --canvas-thread-vertical: oklch(0.3544565 0.0084529 106.82315 / 0.02);
-  --canvas-clear: oklch(0 0 0 / 0);
-  --canvas-edge-right: oklch(0.9126711 0.0083561 91.48819);
-  --canvas-edge-bottom: oklch(0.8479266 0.0098272 93.58602);
-  --canvas-shadow: 0 34px 60px -26px oklch(0.2131692 0.0212771 263.96435 / 0.45), 0 4px 10px oklch(0.2131692 0.0212771 263.96435 / 0.08);
-  --canvas-weave: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.25  0 0 0 0 0.24  0 0 0 0 0.22  0 0 0 0.05 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"), repeating-linear-gradient(0deg, var(--canvas-thread-horizontal) 0 1px, var(--canvas-clear) 1px 3px), repeating-linear-gradient(90deg, var(--canvas-thread-vertical) 0 1px, var(--canvas-clear) 1px 3px);
   --foreground: oklch(0.2 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
@@ -149,54 +119,6 @@
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
-}
-
-.dabble-canvas {
-  --dabble-m: 12px;
-  --dabble-aspect: 16 / 9;
-  position: relative;
-  isolation: isolate;
-  width: calc(100% - 12px);
-  max-width: 860px;
-  margin-inline: auto;
-  margin-right: 12px;
-  margin-bottom: 12px;
-  padding: var(--dabble-m);
-  overflow: visible;
-  border-radius: 0;
-  background-color: var(--canvas-surface);
-  background-image: var(--canvas-weave);
-  box-shadow: var(--canvas-shadow);
-}
-
-.dabble-canvas::before,
-.dabble-canvas::after {
-  content: "";
-  position: absolute;
-  pointer-events: none;
-  transform-origin: top left;
-}
-
-.dabble-canvas::before {
-  left: 100%;
-  top: 0;
-  width: 12px;
-  height: 100%;
-  background: var(--canvas-edge-right);
-  transform: skewY(45deg);
-}
-
-.dabble-canvas::after {
-  top: 100%;
-  left: 0;
-  height: 12px;
-  width: 100%;
-  background: var(--canvas-edge-bottom);
-  transform: skewX(45deg);
-}
-
-.dabble-canvas[data-portrait="true"] {
-  max-width: 420px;
 }
 
 /* Landing page: gallery wall; player and tray keep their own tokens. */
@@ -373,34 +295,6 @@
   .keys-divider { stroke: CanvasText; }
 }
 
-.dabble-paint {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  pointer-events: none;
-  mix-blend-mode: multiply;
-}
-
-.dabble-stage {
-  position: relative;
-  z-index: 1;
-  left: var(--dabble-stage-left, 0px);
-  top: var(--dabble-stage-top, 0px);
-  width: var(--dabble-stage-width, 100%);
-  height: var(--dabble-stage-height, auto);
-  aspect-ratio: var(--dabble-aspect);
-}
-
-.dabble-canvas[data-painting] .dabble-paint { pointer-events: auto; cursor: crosshair; touch-action: none; }
-.dabble-canvas[data-painting] .dabble-stage,
-.dabble-canvas[data-painting] .dabble-skin:not(:fullscreen) { pointer-events: auto; cursor: auto; }
-.dabble-canvas[data-phone][data-painting] .dabble-bar,
-.dabble-canvas[data-phone][data-painting] .dabble-bar * { pointer-events: none; }
-.dabble-canvas[data-painting] .dabble-skin:fullscreen,
-.dabble-canvas[data-painting] .dabble-skin:fullscreen * { pointer-events: auto; }
-
 .dark {
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
@@ -451,5 +345,3 @@
 
 @media (forced-colors: active) { .github-icon, .github-text { color: CanvasText; } .github-blob { display: none; } }
 
-.dabble-canvas[data-phone] .dabble-stage { left: 0; top: 0; width: 100%; height: auto; }
-.dabble-plaque-space { flex: none; pointer-events: none; }

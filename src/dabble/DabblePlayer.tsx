@@ -18,7 +18,7 @@ import { PhonePaintPanel } from './PhonePaintPanel';
 import { phonePanelWidth } from './phone-panel-rules';
 import { PlayerLabels } from './PlayerLabels';
 
-type DabblePlayerProps = {
+export type DabblePlayerProps = {
   src?: string;
   playbackId?: string;
   thumbnailSampleTimes?: readonly number[];

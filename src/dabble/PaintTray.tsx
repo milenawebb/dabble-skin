@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { paintingCode } from './painting-data';
 import { colorName, paintColorNames } from './palette';
-import { Button } from '@/components/ui/button';
+import { Button } from './Button';
 import type { Brush } from './paint-engine';
 import type { usePaint } from './use-paint';
 import { BLOB_ROTATIONS, BrushDrawing, HandIcon, PaintBlob, type HandIconKind } from './HandDrawings';

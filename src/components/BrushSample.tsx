@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { renderStroke, type Brush, type Point } from '@/components/dabble/paint-engine';
-import type { Palette } from '@/components/dabble/painting-data';
+import { renderStroke, type Brush, type Point } from '@/dabble';
+import type { Palette } from '@/dabble';
 
 export function BrushSample({ brush, name, palette, index }: { brush: Brush; name: string; palette: Palette; index: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);

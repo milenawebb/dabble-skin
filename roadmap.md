@@ -1,5 +1,10 @@
 # Dabble
 
+## Repository organization
+- [x] Separate the self-contained skin and its tests into src/dabble, with one public entry and no landing imports.
+- [x] Replace README with real usage/defaults, add Apache 2.0 license, and activate all three supplied GitHub links.
+- [x] Scan tracked source for private information; verify tests, preview build, and unchanged desktop/tablet/phone presentation.
+
 ## Tablet two-zone tray
 - [x] Replace compact tablet rows with upright brushes on the left and two left-aligned tool rows on the right; preserve desktop and phone.
 - [x] Use phone-style three rows for tablet widths below 670px without the phone slot swap; use two side-by-side zones from 670px through 1000px.
@@ -72,7 +77,7 @@
 
 ## Real-phone fixes
 - [x] Restrict preview switch to 900px+, simplify header and museum label, prepare three shared GitHub controls.
-- [ ] Activate and verify the three GitHub destinations: waiting for the user's repository URL.
+- [x] Activate and verify the three GitHub destinations using the supplied repository URL.
 - [x] Draw title strokes on scroll; add decorative touch keycap feedback and a working custom paint picker.
 - [x] Close shelf and tools as one clipped piece; verify 390px touch, tablet/desktop, slow transitions, custom-color saved strokes and reduced motion; regression tests pass.
 

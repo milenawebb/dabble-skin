@@ -9,7 +9,7 @@ import { DEFAULT_PALETTE, type Palette } from './painting-data';
 import { HandIcon as Icon } from './HandDrawings';
 import { PaintingHotkeys } from './PaintingHotkeys';
 import { KeysContent, KeysHotkey } from './KeysPanel';
-import { Button } from '@/components/ui/button';
+import { Button } from './Button';
 import { getHotkeyCoordinator } from '@videojs/core/dom';
 import { announceShortcut } from './page-feedback';
 import { updateFullscreenOrientation } from './fullscreen-orientation';

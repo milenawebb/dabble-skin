@@ -34,7 +34,7 @@
 .tray-reveal { transition: opacity .3s ease; }
 .paint-tray[data-state="closed"] .tray-reveal { opacity: 0; pointer-events: none; }
 .tray-mode { transition: opacity .45s, transform .45s; }
-.paint-tray .tray-ledge-mode { position: absolute; bottom: 2px; left: 12px; z-index: 9; width: max-content; height: 44px; padding: 0 4px; gap: 8px; background: none; color: var(--landing-wall-dim); font: 20px/1 'Caveat', cursive; }
+.paint-tray .tray-ledge-mode { position: absolute; bottom: 2px; left: 12px; z-index: 9; width: max-content; height: 44px; padding: 0 4px; gap: 8px; background: none; color: var(--dabble-ledge-text); font: 20px/1 'Caveat', cursive; }
 .tray-ledge-mode .dabble-icon { width: 32px; height: 32px; padding: 5px; border: 1.5px solid var(--dabble-ink); border-radius: 47% 53% 50% 50%; background: var(--dabble-paper); color: var(--dabble-ink); }
 .paint-tray:not([data-state="closed"]) { padding-bottom: 44px; }
 .tray-mode-space { width: 36px; }

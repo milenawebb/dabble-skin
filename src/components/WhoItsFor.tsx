@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { PaintedTitle } from './PaintedTitle';
-import { renderStroke, type Brush, type Point } from './dabble/paint-engine';
-import type { Palette } from './dabble/painting-data';
+import { renderStroke, type Brush, type Point } from '@/dabble';
+import type { Palette } from '@/dabble';
 import still1 from '@/assets/use-cases/dab-1.asset.json';
 import still17 from '@/assets/use-cases/dab-17.asset.json';
 import still21 from '@/assets/use-cases/dab-21.asset.json';

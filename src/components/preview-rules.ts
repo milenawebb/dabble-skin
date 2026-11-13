@@ -1,4 +1,4 @@
-import type { HandIconKind } from './HandDrawings';
+import type { HandIconKind } from '@/dabble';
 
 export const PREVIEW_SIZES = [
   { id: 'desktop', label: 'Desktop', icon: 'monitor', width: 1100 },

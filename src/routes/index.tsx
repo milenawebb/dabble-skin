@@ -1,16 +1,16 @@
 import { Github } from 'lucide-react';
 import { createFileRoute } from "@tanstack/react-router";
-import { DabblePlayer } from "@/components/dabble/DabblePlayer";
+import { DabblePlayer } from "@/dabble";
 import { useEffect, useId, useRef, useState } from 'react';
-import { PREVIEW_SIZES, effectivePreviewSize, visiblePreviewSizes, type PreviewSize } from '@/components/dabble/preview-rules';
-import { HandIcon } from '@/components/dabble/HandDrawings';
-import { PLAYER_KEYS, PAINT_KEYS } from '@/components/dabble/KeysPanel';
+import { PREVIEW_SIZES, effectivePreviewSize, visiblePreviewSizes, type PreviewSize } from '@/components/preview-rules';
+import { HandIcon } from '@/dabble';
+import { PLAYER_KEYS, PAINT_KEYS } from '@/dabble';
 import { DabbleLogo, BLOB_PATH } from '@/components/DabbleLogo';
 import { PaintedTitle } from '@/components/PaintedTitle';
-import { useKeycapFeedback } from '@/components/dabble/use-keycap-feedback';
+import { useKeycapFeedback } from '@/components/use-keycap-feedback';
 import { Button } from '@/components/ui/button';
 import { BrushSample } from '@/components/BrushSample';
-import { DEFAULT_PALETTE, type Palette } from '@/components/dabble/painting-data';
+import { DEFAULT_PALETTE, type Palette } from '@/dabble';
 import { WhoItsFor } from '@/components/WhoItsFor';
 
 const PLAYBACK_ID = 'AAprZsIykh7T29gtsNk02YhBrQRHXTj14ZxbWdc498wA';
@@ -18,8 +18,7 @@ const POSTER = `https://image.mux.com/${PLAYBACK_ID}/thumbnail.jpg?time=9&width=
 const SAMPLE_TIMES = [9, 14, 19, 23] as const;
 const CAPTIONS = { src: '/captions/dabble-dab.en.vtt', srcLang: 'en', label: 'English' };
 
-// Add the repository URL here when it is available. Never send visitors to a guessed repo.
-const REPO_URL: string = '';
+const REPO_URL = 'https://github.com/milenawebb/dabble-skin';
 function GitHubLink({ text = false, museum = false }: { text?: boolean; museum?: boolean }) {
   const content = text || museum ? <>{museum && <Github aria-hidden="true" size={20} />}<span>View the code on GitHub</span></> : <><svg className="github-blob" aria-hidden="true" viewBox="-17 -17 34 34"><path d={BLOB_PATH} /></svg><Github aria-hidden="true" size={24} /></>;
   const className = museum ? 'github-text github-museum' : text ? 'github-text' : 'github-icon';
