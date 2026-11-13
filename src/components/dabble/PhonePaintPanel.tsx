@@ -9,18 +9,18 @@ import './phone-panel.css';
 import { MixPaintInput } from './MixPaintInput';
 
 const brushes = [{ type: 'imp', name: 'Impressionist' }, { type: 'cub', name: 'Cubist' }, { type: 'drip', name: 'Drip' }, { type: 'rib', name: 'Ribbon' }] as const;
-export function PhonePaintPanel({ paint, width, setHost, sounds, toggleSounds, automaticSound, onActivity, picking = false, togglePick = () => {} }: { paint: ReturnType<typeof usePaint>; width: number; setHost: (host: HTMLDivElement | null) => void; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; onActivity: (active: boolean) => void; picking?: boolean; togglePick?: () => void }) {
+export function PhonePaintPanel({ paint, width, setHost, sounds, toggleSounds, automaticSound, onActivity }: { paint: ReturnType<typeof usePaint>; width: number; setHost: (host: HTMLDivElement | null) => void; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; onActivity: (active: boolean) => void }) {
   const mode = useRef<HTMLButtonElement>(null);
   const done = () => { paint.setPainting(false); mode.current?.focus(); };
   const names = paintColorNames(paint.palette);
   const action = (name: string, icon: HandIconKind, onClick: () => void, disabled = false, pressed?: boolean) => <Button className="phone-circle" variant="ghost" size="icon" aria-label={name} onClick={onClick} disabled={disabled} aria-pressed={pressed}><HandIcon kind={icon} /></Button>;
-  return <section className="phone-panel" data-painting={paint.painting || undefined} style={{ '--phone-panel-width': `${width}px`, '--phone-panel-padding': `${phonePanelPadding(width)}px`, '--tray-color': paint.color === -1 ? paint.customColor ?? paint.palette[0] : paint.palette[paint.color] ?? paint.palette[0] } as CSSProperties} aria-label="Player and painting tools" onPointerEnter={() => onActivity(true)} onPointerLeave={() => onActivity(false)} onFocusCapture={() => onActivity(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) onActivity(false); }} onKeyDown={event => { if (event.key === 'Escape' && paint.painting) { event.preventDefault(); event.stopPropagation(); done(); } }}>
+  return <section className="phone-panel" data-painting={paint.painting || undefined} style={{ '--phone-panel-width': `${width}px`, '--phone-panel-padding': `${phonePanelPadding(width)}px`, '--tray-color': paint.palette[paint.color] ?? paint.palette[0] } as CSSProperties} aria-label="Player and painting tools" onPointerEnter={() => onActivity(true)} onPointerLeave={() => onActivity(false)} onFocusCapture={() => onActivity(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) onActivity(false); }} onKeyDown={event => { if (event.key === 'Escape' && paint.painting) { event.preventDefault(); event.stopPropagation(); done(); } }}>
     <div className="phone-panel-slot">
       <div ref={setHost} className="phone-watch-panel" inert={paint.painting || undefined} />
       <div className="phone-paint-panel" inert={!paint.painting || undefined}>
         <div className="phone-tool-row phone-colors" role="group" aria-label="Paint color">
-          {paint.palette.map((color, i) => <Button key={i} variant="ghost" size="icon" aria-label={names[i]} aria-pressed={paint.color === i} onClick={() => paint.setColor(i)} style={{ '--pot-color': color } as CSSProperties}><PaintBlob selected={paint.color === i} /></Button>)}
-          <MixPaintInput palette={paint.palette} customColor={paint.customColor} selected={paint.color === -1} picking={picking} onToggle={togglePick} />
+          {paint.palette.map((color, i) => <Button key={`${i}-${paint.paletteRevision}`} className={paint.paletteRevision ? "scene-refill" : undefined} variant="ghost" size="icon" aria-label={names[i]} aria-pressed={paint.color === i} onClick={() => paint.setColor(i)} style={{ '--scene-delay': `${i * 50}ms`, '--pot-color': color } as CSSProperties}><PaintBlob selected={paint.color === i} /></Button>)}
+          <MixPaintInput palette={paint.palette} onRefresh={paint.sampleFrame} />
         </div>
         <div className="phone-tool-row phone-brushes" role="group" aria-label="Brush and size">
           {brushes.map(({ type, name }) => <Button className="phone-upright-brush" key={type} variant="ghost" size="icon" aria-label={`${name} brush`} aria-pressed={paint.brush === type} onClick={() => paint.setBrush(type)}><BrushDrawing brush={type} /></Button>)}
@@ -38,5 +38,6 @@ export function PhonePaintPanel({ paint, width, setHost, sounds, toggleSounds, a
       <Button ref={mode} variant="ghost" aria-label={paint.painting ? 'Done painting' : 'Start painting'} aria-expanded={paint.painting} onClick={() => { if (paint.painting) done(); else paint.setPainting(true); }}><HandIcon kind={paint.painting ? 'check' : 'brush'} /><span>{paint.painting ? 'Done' : 'Paint the frame'}</span></Button>
       <svg className="tray-ledge" viewBox="0 0 680 18" preserveAspectRatio="none" aria-hidden="true"><path className="tray-wood" d="M2 3C120 1 420 4 678 2L677 15C460 17 160 14 3 16Z" /><path className="tray-wood-shade" d="M4 12.5C160 11 460 14 676 12L677 15C460 17 160 14 3 16Z" /><path className="tray-wood-outline" d="M2 3C120 1 420 4 678 2L677 15C460 17 160 14 3 16Z" fill="none" strokeWidth="1.5" /></svg>
     </div>
+    <span className="sr-only" role="status" aria-live="polite">{paint.sampleMessage}</span>
   </section>;
 }

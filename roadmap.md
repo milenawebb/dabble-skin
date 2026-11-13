@@ -1,5 +1,9 @@
 # Dabble
 
+## Restore scene colors
+- [x] Remove pick mode and custom paint; share one-press palette sampling and staggered refill feedback across trays.
+- [x] Verify selected slot, stroke colors and persistence in regression tests; 232 tests pass. Chromium produced three distinct live wave/flower/sunset palettes, continued playing on refresh, and exercised current-time CORS fallback on desktop and 390px. Physical iPhone sampling remains unverified.
+
 ## Who it's for
 - [x] Add five distinct, lazily drawn engine-painted mini frames after Four brushes and before Open to all.
 - [x] Verify lazy thumbnails, deferred drawings, 3/2/1 columns and no 360px overflow; 17 owner/player tests pass. Omit the footer line: paintable=false preserves the canvas and painting sets the starting frame, but saved viewer paintings override it, so it is not necessarily the one painting every visitor sees.

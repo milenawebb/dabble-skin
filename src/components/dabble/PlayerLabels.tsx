@@ -4,8 +4,7 @@ import { brushLabelPosition } from './brush-label';
 import './player-labels.css';
 
 export function shortPlayerLabel(name: string) {
-  if (name.startsWith('Your color')) return 'Your color';
-  if (name === 'Pick a color from the video') return 'Pick from video';
+  if (name === 'Take new paint colors from the current video scene') return 'Colors from this scene';
   if (name === 'Turn sounds on') return 'Sounds off';
   if (name === 'Turn sounds off') return 'Sounds on';
   if (name === 'Start painting') return 'Paint the frame';

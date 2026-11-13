@@ -18,9 +18,8 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
   const [brush, setBrush] = useState<Brush>('rib');
   const [size, setSize] = useState(20);
   const [color, setColor] = useState(0);
-  const [customColor, setCustomColor] = useState<string | null>(null);
-  const customRef = useRef(customColor);
-  customRef.current = customColor;
+  const [paletteRevision, setPaletteRevision] = useState(0);
+  const sampleRequest = useRef(0);
   const strokes = useRef<Stroke[]>(supplied?.strokes ?? (enabled ? initialPainting() : []));
   const [palette, setPalette] = useState<Palette>(supplied?.palette ?? DEFAULT_PALETTE);
   const paletteRef = useRef<Palette>(palette);
@@ -41,7 +40,7 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
   settings.current = { painting: enabled && painting, brush, size, color };
 
   useEffect(() => {
-    history.current = []; setUndoCount(0); setCustomColor(null); setColor(0);
+    history.current = []; setUndoCount(0); setColor(0); sampleRequest.current++;
     const identity = playbackId ?? src;
     const restored = loadPainting(identity) ?? supplied;
     touched.current = Boolean(restored);
@@ -117,7 +116,7 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
     const start = (event: PointerEvent) => {
       const g = geo.current, options = settings.current;
       if (!options.painting || !g || pointer.current !== null || event.button !== 0) return;
-      const selected = options.color === -1 ? customRef.current : paletteRef.current[options.color];
+      const selected = paletteRef.current[options.color];
       if (!selected) return;
       event.preventDefault();
       strokeAnnounced = false;
@@ -170,19 +169,20 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
     strokes.current = next; setCount(next.length); replay.current(); persist.current();
   };
   return {
-    painting: enabled && painting, setPainting, brush, setBrush, size, setSize, color, setColor, count, canUndo: undoCount > 0 || count > 0, palette, sampleMessage, customColor,
-    chooseCustomColor: (hex: string) => {
-      if (!/^#[0-9a-f]{6}$/i.test(hex)) return;
-      setCustomColor(hex); setColor(-1);
-    },
+    painting: enabled && painting, setPainting, brush, setBrush, size, setSize, color, setColor, count, canUndo: undoCount > 0 || count > 0, palette, sampleMessage, paletteRevision,
     getPainting: (): Painting => ({version:1,palette:[...paletteRef.current],strokes:strokes.current.map(roundStroke)}),
     sampleFrame: async () => {
       const video = wrapperRef.current?.querySelector('video');
-      if (!video || video.readyState < 2) { setSampleMessage('Play or scrub to a frame first.'); return; }
+      if (!video) { setSampleMessage('Play or scrub to a frame first.'); return; }
       stopSampling.current();
-      const next = sampleVideo(video) ?? (playbackId ? await sampleThumbnails(playbackId, [video.currentTime]) : null);
-      if (!next) return;
-      touched.current = true; paletteRef.current = next; setPalette(next); setSampleMessage(''); persist.current();
+      const request = ++sampleRequest.current;
+      setSampleMessage('');
+      const live = sampleVideo(video);
+      const next = live ?? (playbackId ? await sampleThumbnails(playbackId, [video.currentTime]) : null);
+      if (request !== sampleRequest.current) return;
+      if (!next) { setSampleMessage('Could not take colors from this scene. Try again.'); return; }
+      if (wrapperRef.current) wrapperRef.current.dataset['lastPaletteSource'] = live ? 'live' : 'thumbnail';
+      touched.current = true; paletteRef.current = next; setPalette(next); setPaletteRevision(value => value + 1); setSampleMessage('New colors from this scene.'); persist.current();
     },
     undo: () => {
       const previous = history.current.pop(); setUndoCount(history.current.length);

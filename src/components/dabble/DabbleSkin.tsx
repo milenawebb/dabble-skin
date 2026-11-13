@@ -62,7 +62,7 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
     let pointer: number | undefined;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const down = (event: PointerEvent) => {
-      if (event.button !== 0 || !(event.target instanceof Element) || !event.target.matches('.dabble-paint') || !canvas.hasAttribute('data-painting') || canvas.hasAttribute('data-picking')) return;
+      if (event.button !== 0 || !(event.target instanceof Element) || !event.target.matches('.dabble-paint') || !canvas.hasAttribute('data-painting')) return;
       pointer = event.pointerId; clearTimeout(timer); setStrokeHold(true);
     };
     const end = (event: PointerEvent) => {

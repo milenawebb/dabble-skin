@@ -35,10 +35,10 @@ it('offers independent small, medium and large selections', () => {
     }
   }
 });
-it('offers video picking without changing the active sampled paint', () => {
+it('offers scene palette refresh without changing the active sampled paint', () => {
   const { container } = render(<Panel />);
   fireEvent.click(screen.getByRole('button', { name: 'Start painting' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Pick a color from the video' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Take new paint colors from the current video scene' }));
   const sampledPaint = container.querySelector('.phone-colors button');
   if (!sampledPaint) throw new Error('Missing sampled paint');
   fireEvent.click(sampledPaint);

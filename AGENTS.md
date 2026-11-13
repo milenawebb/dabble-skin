@@ -66,5 +66,5 @@ use the editor.
 - Share one optional repository URL across all three GitHub controls; leave controls inactive until supplied to avoid guessed destinations.
 - Observe title visibility once and replay decoration on hover; keycap pointer feedback never invokes player actions.
 - Keep the shelf layout stable inside a measured-height clipping wrapper and synchronize paper/tools transitions to avoid empty closing frames.
-- Keep custom paint separate from the six sampled colors and record it as each stroke's color so palette math and saved strokes stay unchanged.
-- Share video picking across trays; capture pick gestures before playback/paint and use exact-spot live pixels with CORS Mux thumbnail fallback.
+- Scene refresh replaces six sampled paints while preserving the selected slot and each saved stroke's original colors.
+- Share one-press scene palette refresh across trays, using live pixels with a current-time CORS Mux thumbnail fallback; never alter playback.

@@ -19,7 +19,7 @@ function Tool({ label, children, className = '', pressed, expanded, disabled, on
     {note && <span className="tray-note" role="status">{note}</span>}
   </span>;
 }
-export function PaintTray({ paint, src, playbackId, ownerTools = false, width = 1000, sounds, toggleSounds, automaticSound, controlsState, onActivity, onOpenChange, picking = false, togglePick = () => {} }: { paint: ReturnType<typeof usePaint>; src: string; playbackId?: string; ownerTools?: boolean; width?: number; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; controlsState: { visible: boolean; paused: boolean }; onActivity: (active: boolean) => void; onOpenChange?: (open: boolean) => void; picking?: boolean; togglePick?: () => void }) {
+export function PaintTray({ paint, src, playbackId, ownerTools = false, width = 1000, sounds, toggleSounds, automaticSound, controlsState, onActivity, onOpenChange }: { paint: ReturnType<typeof usePaint>; src: string; playbackId?: string; ownerTools?: boolean; width?: number; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; controlsState: { visible: boolean; paused: boolean }; onActivity: (active: boolean) => void; onOpenChange?: (open: boolean) => void }) {
   const id = useId();
   const [copied, setCopied] = useState(false);
   const [snippet, setSnippet] = useState('');
@@ -49,7 +49,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, width = 
       clearTimeout(copyTimer.current); copyTimer.current = setTimeout(() => setCopied(false), 2000);
     } catch { setSnippet(code); }
   };
-  const color = paint.color === -1 ? paint.customColor ?? paint.palette[0] : paint.palette[paint.color] ?? paint.palette[0];
+  const color = paint.palette[paint.color] ?? paint.palette[0];
   const colorNames = paintColorNames(paint.palette);
   const iconTool = (label: string, icon: HandIconKind, action: () => void, disabled = false) => <Tool label={label} className="tray-reveal tray-circle" hidden={!open} disabled={disabled} onClick={action}><HandIcon kind={icon} /></Tool>;
   return <section ref={root} className="paint-tray" aria-label="Paint tools" data-state={open ? "open" : "closed"} data-compact={width <= 1000 || undefined} data-visible={controlsState.visible || undefined} data-paused={controlsState.paused || undefined} style={{ '--tray-color': color } as CSSProperties}
@@ -62,8 +62,8 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, width = 
       <span className="tray-mode-space" aria-hidden="true" />
       <span className="tray-divider tray-divider-one tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
       <div className="tray-colors tray-reveal" role="group" aria-label="Paint color" inert={!open || undefined}>
-        {paint.palette.map((hex, index) => <Tool key={index} label={colorNames[index] ?? `${colorName(hex)} paint`} pressed={paint.color === index} className="tray-color" style={{ '--pot-color': hex } as CSSProperties} onClick={() => choose(() => paint.setColor(index))}><PaintBlob selected={paint.color === index} angle={BLOB_ROTATIONS[index] ?? 0} scale={paint.color === index ? 1.18 : 1} /></Tool>)}
-        <span className="tray-item tray-custom"><MixPaintInput palette={paint.palette} customColor={paint.customColor} selected={paint.color === -1} picking={picking} onToggle={togglePick} /></span>
+        {paint.palette.map((hex, index) => <Tool key={`${index}-${paint.paletteRevision}`} label={colorNames[index] ?? `${colorName(hex)} paint`} pressed={paint.color === index} className={paint.paletteRevision ? "tray-color scene-refill" : "tray-color"} style={{ '--scene-delay': `${index * 50}ms`, '--pot-color': hex } as CSSProperties} onClick={() => choose(() => paint.setColor(index))}><PaintBlob selected={paint.color === index} angle={BLOB_ROTATIONS[index] ?? 0} scale={paint.color === index ? 1.18 : 1} /></Tool>)}
+        <span className="tray-item tray-custom"><MixPaintInput palette={paint.palette} onRefresh={paint.sampleFrame} /></span>
       </div>
       <span className="tray-sample" aria-hidden="true" />
       <span className="tray-divider tray-divider-two tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
@@ -101,5 +101,6 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, width = 
     <span className="sr-only" role="status" aria-live="polite">{paint.count === 0 ? clearMessage : ''}</span>
     {ownerTools && <span className="tray-copy-status" role="status">{copied ? 'Copied' : ''}</span>}
     {ownerTools && snippet && <div className="paint-copy-fallback" inert={!open || undefined} hidden={!open}><label htmlFor={`${id}-code`}>Painting code</label><textarea id={`${id}-code`} readOnly value={snippet} onFocus={event => event.currentTarget.select()} /></div>}
+    <span className="sr-only" role="status" aria-live="polite">{paint.sampleMessage}</span>
   </section>;
 }

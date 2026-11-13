@@ -60,8 +60,8 @@ describe('tray state interactions', () => {
   });
 
 });
-it('offers video picking without changing the six sampled colors', () => {
+it('offers scene palette refresh without changing the six sampled colors', () => {
   const {container} = render(<Tray defaultTrayOpen />);
-  fireEvent.click(screen.getByRole('button', { name: 'Pick a color from the video' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Take new paint colors from the current video scene' }));
   expect(container.querySelectorAll('.tray-color button')).toHaveLength(6);
 });

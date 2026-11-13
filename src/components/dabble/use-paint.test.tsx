@@ -3,7 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { usePaint } from './use-paint';
 import { newPainting, savePainting, loadPainting, type Painting } from './painting-data';
 
-vi.mock('./video-palette', () => ({ sampleSource: () => () => {}, sampleVideo: () => null }));
+const sampling = vi.hoisted(() => ({ live: vi.fn(), thumbnail: vi.fn() }));
+vi.mock('./video-palette', () => ({ sampleSource: () => () => {}, sampleVideo: sampling.live, sampleThumbnails: sampling.thumbnail }));
 beforeEach(() => localStorage.clear());
 
 describe('paint hook lifecycle', () => {
@@ -74,15 +75,35 @@ describe('viewer starting painting', () => {
 });
 it('saves blank canvas and does not restore clear history after reload', () => { const first=renderHook(()=>usePaint({current:null},{current:null},true,'blank-reload')); act(()=>first.result.current.clear()); first.unmount(); const next=renderHook(()=>usePaint({current:null},{current:null},true,'blank-reload')); expect(next.result.current.count).toBe(0); expect(next.result.current.canUndo).toBe(false); act(()=>next.result.current.undo()); expect(next.result.current.count).toBe(0); });
 
-it('selects a custom color separately from the six sampled paints and rejects invalid values', () => {
-  const { result } = renderHook(() => usePaint({current:null}, {current:null}, true, 'custom'));
-  const palette = [...result.current.palette];
-  act(() => result.current.chooseCustomColor('#123456'));
-  expect(result.current.customColor).toBe('#123456');
-  expect(result.current.color).toBe(-1);
-  expect(result.current.palette).toEqual(palette);
-  act(() => result.current.chooseCustomColor('invalid'));
-  expect(result.current.customColor).toBe('#123456');
-  act(() => result.current.setColor(2));
-  expect(result.current.color).toBe(2);
+it('refreshes the palette without changing selection or existing stroke colors, and persists it', async () => {
+  const next: Painting['palette'] = ['#123456','#234567','#345678','#456789','#56789a','#6789ab'];
+  sampling.live.mockReturnValue(next);
+  const video = document.createElement('video');
+  const wrapper = document.createElement('div'); wrapper.append(video);
+  const supplied = newPainting(); const root = {current:wrapper}; const canvas = {current:null};
+  const { result } = renderHook(() => usePaint(root, canvas, true, 'scene-refresh', supplied));
+  act(() => result.current.setColor(3));
+  const before = result.current.getPainting().strokes;
+  await act(() => result.current.sampleFrame());
+  expect(result.current.color).toBe(3);
+  expect(result.current.palette).toEqual(next);
+  expect(result.current.getPainting().strokes).toEqual(before);
+  expect(loadPainting('scene-refresh')?.palette).toEqual(next);
+  act(() => result.current.automatic());
+  expect(result.current.getPainting().strokes.at(-1)?.pal).toEqual(next);
+});
+it('falls back to a thumbnail at the current time without seeking or playing', async () => {
+  sampling.live.mockReturnValue(null);
+  const next = newPainting().palette;
+  sampling.thumbnail.mockResolvedValue(next);
+  const video = document.createElement('video'); video.currentTime = 17;
+  const play = vi.spyOn(video, 'play'); const pause = vi.spyOn(video, 'pause');
+  const wrapper = document.createElement('div'); wrapper.append(video);
+  const supplied = newPainting(); const root = {current:wrapper}; const canvas = {current:null};
+  const { result } = renderHook(() => usePaint(root, canvas, true, 'scene-fallback', supplied, 'film-id'));
+  await act(() => result.current.sampleFrame());
+  expect(sampling.thumbnail).toHaveBeenCalledWith('film-id', [17]);
+  expect(result.current.palette).toEqual(next);
+  expect(video.currentTime).toBe(17);
+  expect(play).not.toHaveBeenCalled(); expect(pause).not.toHaveBeenCalled();
 });
