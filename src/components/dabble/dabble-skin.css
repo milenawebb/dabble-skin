@@ -39,7 +39,7 @@
   transition: opacity 0.45s, transform 0.45s;
 }
 .dabble-row { display: flex; align-items: center; gap: 10px; min-width: 0; width: 100%; }
-.dabble-bar:not([data-visible]):not(:has(:focus-visible)) { opacity: 0; transform: translateY(6px); pointer-events: none; }
+.dabble-bar:not([data-visible]):not(:has(:focus-visible)) { opacity: 0; transform: translateY(6px); pointer-events: none; transition: none; }
 .dabble-skin:not([data-controls-visible]):not(:has(:focus-visible)) { cursor: none; }
 .dabble-button {
   position: relative;
@@ -159,6 +159,7 @@
 .dabble-caption-shape path { vector-effect: non-scaling-stroke; }
 .dabble-caption-shape .dabble-caption-paper { fill: var(--dabble-paper); stroke: none; }
 @media (pointer: coarse) {
+  .dabble-error-close { min-width: 44px; min-height: 44px; }
   .dabble-bar .dabble-button { width: 44px; height: 44px; flex-basis: 44px; }
   .dabble-seek { min-height: 44px; }
   .dabble-speed-item { min-height: 44px; display: flex; align-items: center; }

@@ -76,7 +76,6 @@ const USAGE_CODE = `<DabblePlayer
 />`;
 
 export const Route = createFileRoute("/")({
-  validateSearch: (search: Record<string, unknown>): { broken?: string } => String(search['broken'] ?? '') === '1' ? { broken: '1' } : {},
   head: () => ({
     meta: [
       { title: "Dabble: paint the frame around your video" },
@@ -111,7 +110,7 @@ function DeviceSwitch({ sizes, activeSize, onChoose }: { sizes: typeof PREVIEW_S
       <span className="sr-only" id={labelId}>Preview size</span>
       {sizes.map(size => (
         <Button variant="ghost" key={size.id} type="button" role="radio" aria-checked={activeSize === size.id}
-          tabIndex={activeSize === size.id ? 0 : -1} data-size={size.id} className="device-choice"
+          aria-label={size.label} tabIndex={activeSize === size.id ? 0 : -1} data-size={size.id} className="device-choice"
           onClick={() => onChoose(size.id)}>
           <span className="device-sketch" aria-hidden="true">
             <svg className="device-blob" viewBox="-17 -17 34 34"><path d={BLOB_PATH} /></svg>
@@ -138,7 +137,6 @@ function DripDivider() {
 }
 
 function Index() {
-  const { broken } = Route.useSearch();
   const [previewSize, setPreviewSize] = useState<PreviewSize>('desktop');
   const [windowWidth, setWindowWidth] = useState(1024);
   const heroTitleId = useId();
@@ -174,7 +172,7 @@ function Index() {
             <p className="landing-tagline">A video player on a blank canvas. Press play, then pick up a brush and paint the frame.</p>
             {sizes.length > 0 && <DeviceSwitch sizes={sizes} activeSize={activeSize} onChoose={setPreviewSize} />}
             <div ref={playerRef} className="preview-column" id="player" tabIndex={-1} style={{ maxWidth: columnWidth }}>
-              <DabblePlayer defaultTrayOpen onSoundPreferenceChange={setSoundOptIn} sounds playbackId={PLAYBACK_ID} thumbnailSampleTimes={SAMPLE_TIMES} poster={POSTER} broken={broken === '1'} captions={CAPTIONS} />
+              <DabblePlayer defaultTrayOpen onSoundPreferenceChange={setSoundOptIn} sounds playbackId={PLAYBACK_ID} thumbnailSampleTimes={SAMPLE_TIMES} poster={POSTER} captions={CAPTIONS} />
             </div>
             <p className="film-credit">Dab is an original short made for this demo. Video hosted on Mux.</p>
           </section>
@@ -249,7 +247,7 @@ function Index() {
       <footer className="landing-footer">
         <DabbleLogo size={44} tone="ink" />
         <div className="landing-footer-note">
-          <p>Built on Video.js v10.</p>
+          <p>Built on Video.js v10. Apache License 2.0.</p>
           <p>Made by Milena Webb for the Video.js v10 Skins Design Challenge, 2026.</p>
         </div>
       </footer>

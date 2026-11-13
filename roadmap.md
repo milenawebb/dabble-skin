@@ -1,5 +1,10 @@
 # Dabble
 
+## Contest audit
+- [ ] Keep opening controls visible; enforce 1.8-second idle and immediate leave after playback, including paused/ended cycles.
+- [ ] Audit and fix player states, fullscreen, responsive/keyboard/contrast/touch/reduced-motion behavior without redesign.
+- [ ] Add the footer license line and report every checklist item with testing limitations.
+
 ## Landing page polish
 - [x] Replace the drawn logo with the supplied dark and white artwork, preserving proportions and reduced-motion behavior.
 - [x] Open the demo tray initially without focus or scroll changes; retain the closed component default.

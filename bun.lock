@@ -85,6 +85,9 @@
       },
     },
   },
+  "patchedDependencies": {
+    "@videojs/core@10.3.0": "patches/@videojs%2Fcore@10.3.0.patch",
+  },
   "overrides": {
     "rolldown": "1.2.1",
   },

@@ -1,0 +1,108 @@
+diff --git a/dist/dev/dom/store/features/controls.js b/dist/dev/dom/store/features/controls.js
+--- a/dist/dev/dom/store/features/controls.js
++++ b/dist/dev/dom/store/features/controls.js
+@@ -5,7 +5,7 @@
+ import { isNull } from "@videojs/utils/predicate";
+ import { getRegisteredMedia, isMediaPauseCapable, isMediaRemotePlaybackCapable } from "@videojs/media";
+ //#region src/dom/store/features/controls.ts
+-const IDLE_DELAY = 2e3;
++const IDLE_DELAY = 1800;
+ const TAP_THRESHOLD = 250;
+ const TOUCH_SETTLE_DELAY = 500;
+ /** How long after a control releases pointer capture a `mouseleave` inside the container is treated as spurious. */
+@@ -43,8 +43,10 @@
+ 		}
+ 		let idleTimer;
+ 		let controlsLockCount = 0;
++		let hasPlayed = Boolean(get().started);
++		let endedHold = false;
+ 		const computeVisible = (userActive) => {
+-			return controlsLockCount > 0 || userActive || media.paused || isRemotePlaybackConnected(media) || isRemotePlaybackConnecting(media);
++			return controlsLockCount > 0 || userActive || !hasPlayed || endedHold || isRemotePlaybackConnected(media) || isRemotePlaybackConnecting(media);
+ 		};
+ 		function clearIdle() {
+ 			clearTimeout(idleTimer);
+@@ -56,6 +58,7 @@
+ 			idleTimer = setTimeout(setInactive, IDLE_DELAY);
+ 		}
+ 		function setActive() {
++			endedHold = false;
+ 			if (!get().userActive) set({
+ 				userActive: true,
+ 				controlsVisible: true
+@@ -63,6 +66,7 @@
+ 			scheduleIdle();
+ 		}
+ 		function setInactive() {
++			endedHold = false;
+ 			clearIdle();
+ 			set({
+ 				userActive: false,
+@@ -107,6 +111,13 @@
+ 			} else setActive();
+ 		}
+ 		const onPlaybackChange = () => {
++			if (media.ended) {
++				endedHold = true;
++				clearIdle();
++				set({ controlsVisible: true });
++				return;
++			}
++			if (!media.paused) { hasPlayed = true; endedHold = false; }
+ 			const { userActive } = get();
+ 			set({ controlsVisible: computeVisible(userActive) });
+ 			if (!media.paused && userActive) scheduleIdle();
+diff --git a/dist/default/dom/store/features/controls.js b/dist/default/dom/store/features/controls.js
+--- a/dist/default/dom/store/features/controls.js
++++ b/dist/default/dom/store/features/controls.js
+@@ -5,7 +5,7 @@
+ import { isNull } from "@videojs/utils/predicate";
+ import { getRegisteredMedia, isMediaPauseCapable, isMediaRemotePlaybackCapable } from "@videojs/media";
+ //#region src/dom/store/features/controls.ts
+-const IDLE_DELAY = 2e3;
++const IDLE_DELAY = 1800;
+ const TAP_THRESHOLD = 250;
+ const TOUCH_SETTLE_DELAY = 500;
+ /** How long after a control releases pointer capture a `mouseleave` inside the container is treated as spurious. */
+@@ -40,8 +40,10 @@
+ 		if (!isMediaPauseCapable(media) || isNull(container)) return;
+ 		let idleTimer;
+ 		let controlsLockCount = 0;
++		let hasPlayed = Boolean(get().started);
++		let endedHold = false;
+ 		const computeVisible = (userActive) => {
+-			return controlsLockCount > 0 || userActive || media.paused || isRemotePlaybackConnected(media) || isRemotePlaybackConnecting(media);
++			return controlsLockCount > 0 || userActive || !hasPlayed || endedHold || isRemotePlaybackConnected(media) || isRemotePlaybackConnecting(media);
+ 		};
+ 		function clearIdle() {
+ 			clearTimeout(idleTimer);
+@@ -53,6 +55,7 @@
+ 			idleTimer = setTimeout(setInactive, IDLE_DELAY);
+ 		}
+ 		function setActive() {
++			endedHold = false;
+ 			if (!get().userActive) set({
+ 				userActive: true,
+ 				controlsVisible: true
+@@ -60,6 +63,7 @@
+ 			scheduleIdle();
+ 		}
+ 		function setInactive() {
++			endedHold = false;
+ 			clearIdle();
+ 			set({
+ 				userActive: false,
+@@ -104,6 +108,13 @@
+ 			} else setActive();
+ 		}
+ 		const onPlaybackChange = () => {
++			if (media.ended) {
++				endedHold = true;
++				clearIdle();
++				set({ controlsVisible: true });
++				return;
++			}
++			if (!media.paused) { hasPlayed = true; endedHold = false; }
+ 			const { userActive } = get();
+ 			set({ controlsVisible: computeVisible(userActive) });
+ 			if (!media.paused && userActive) scheduleIdle();

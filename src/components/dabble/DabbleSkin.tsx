@@ -1,4 +1,4 @@
-import { Container, Controls, PlayButton, TimeSlider, Time, MuteButton, VolumePopover, VolumeSlider, CaptionsButton, Menu, PlaybackRateRadioGroup, FullscreenButton, Hotkey, StatusAnnouncer, Poster, Gesture, BufferingIndicator, ErrorDialog, Popover } from '@videojs/react';
+import { Container, Controls, PlayButton, TimeSlider, Time, MuteButton, VolumePopover, VolumeSlider, CaptionsButton, Menu, PlaybackRateRadioGroup, FullscreenButton, Hotkey, useHotkey, StatusAnnouncer, Poster, Gesture, BufferingIndicator, ErrorDialog, Popover } from '@videojs/react';
 import { usePlayer } from '@videojs/react/video';
 import { useEffect, useId, useRef, useState, type ReactNode, type CSSProperties } from 'react';
 import './dabble-skin.css';
@@ -36,6 +36,7 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
   const muteRef = useRef<HTMLButtonElement>(null);
   const volumeEscape = useRef(false);
   const fullscreenActive = usePlayer((state) => state.isFullscreen);
+  const exitFullscreen = usePlayer((state) => state.exitFullscreen);
   const docked = shouldDockControls(playerWidth, fullscreenActive);
   const started = usePlayer((state) => state.started);
   const ended = usePlayer((state) => state.ended);
@@ -48,6 +49,11 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
   const playRef = useRef<HTMLButtonElement>(null);
   const centerHadFocus = useRef(false);
   const captionId = useId().replace(/[^a-zA-Z0-9_-]/g, '');
+  useHotkey({ keys: 'Escape', onActivate: event => {
+    if (!fullscreenActive || keysOpen || volumeOpen || rootRef.current?.querySelector('.dabble-speed[aria-expanded="true"], .dabble-error')) return;
+    event.preventDefault();
+    void exitFullscreen();
+  } });
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
@@ -88,8 +94,8 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
   }, [requestControlsLock]);
 
   useEffect(() => {
-    return ended || docked || volumeOpen || keysOpen ? requestControlsLock() : undefined;
-  }, [ended, docked, volumeOpen, keysOpen, requestControlsLock]);
+    return !started || docked || volumeOpen || keysOpen ? requestControlsLock() : undefined;
+  }, [started, docked, volumeOpen, keysOpen, requestControlsLock]);
 
   useEffect(() => {
     const query = window.matchMedia('(any-hover: hover) and (any-pointer: fine)');
@@ -174,7 +180,7 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
       <KeysHotkey root={rootRef} open={keysOpen} toggle={() => { if (keysOpen) closeKeys(); else setKeysOpen(true); }} />
       {paintable && <PaintingHotkeys root={rootRef} painting={painting} size={brushSize} blocked={keysOpen} />}
       <StatusAnnouncer className="dabble-announcer" />
-      <ErrorDialog.Root><ErrorDialog.Backdrop className="dabble-error-backdrop" /><ErrorDialog.Popup className="dabble-error"><ErrorDialog.Title className="dabble-error-title">This video can't be played</ErrorDialog.Title><ErrorDialog.Description className="dabble-error-description" /><ErrorDialog.Close className="dabble-button dabble-error-close">Close</ErrorDialog.Close></ErrorDialog.Popup></ErrorDialog.Root>
+      <ErrorDialog.Root><ErrorDialog.Backdrop className="dabble-error-backdrop" /><ErrorDialog.Popup className="dabble-error"><ErrorDialog.Title className="dabble-error-title">This video can't be played</ErrorDialog.Title><ErrorDialog.Description className="dabble-error-description">The video could not load. Please check your connection and try reloading the page.</ErrorDialog.Description><ErrorDialog.Close className="dabble-button dabble-error-close">Close</ErrorDialog.Close></ErrorDialog.Popup></ErrorDialog.Root>
     </Container>
   );
 }
