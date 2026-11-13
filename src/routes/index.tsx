@@ -194,7 +194,7 @@ function Index() {
           <h2 id="developers-title"><PaintedTitle>For developers</PaintedTitle></h2>
           <div className="developer-pieces">
             <article className="paper-piece viewer-note"><h3>For viewers</h3><p>Pick a brush and paint the frame.</p><p>Your painting is saved in your browser.</p><p>Clear it or undo it any time.</p></article>
-            <article className="paper-piece owner-note"><h3>For site owners</h3><p>Turn painting off with one setting.</p><p>Set the painting every visitor starts with.</p><p>Turn sounds on or off.</p></article>
+            <article className="paper-piece owner-note"><h3>For site owners</h3><p>Turn painting off with one setting.</p><p>Set the painting every visitor starts with, in your brand colors.</p><p>Turn sounds on or off.</p></article>
           </div>
           <pre className="use-code"><code>{USAGE_CODE}</code></pre>
           <ul className="use-props">{PROPS.map(([name, line]) => <li key={name}><code>{name}</code><span>{line}</span></li>)}</ul>
