@@ -1,6 +1,6 @@
 # Page presentation boundaries
 - Keep the pinned Bun controls-feature patch in dev/production so Video.js alone owns the 2.5-second idle and paused/ended holds; test its actual runtime on upgrades.
-- Keep defaultTrayOpen as a tray-only initial reveal, not painting mode or a focus action, so playback and visibility ownership remain unchanged.
+- Desktop/tablet trays initialize open without enabling painting and change state only through explicit ledge/Escape/P actions; use measured player width for compact three-row shelves, keeping phone state separate.
 - Suppress desktop/tablet controls only during frame strokes plus one-second recovery, never for tray openness or fullscreen; measure caption clearance from the rendered bar top while preserving docked phone positioning.
 - Publish decorative shortcut feedback through the existing Video.js coordinator and guarded custom actions; page listeners never run player actions.
 - Gate page keycap audio on an explicit sound preference and a trusted page gesture; offering player sounds is not itself opt-in consent.

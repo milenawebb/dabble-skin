@@ -1,9 +1,6 @@
 import type { Brush } from './paint-engine';
 
-export type TrayState = 'tucked' | 'peek' | 'pinned';
-export const TRAY_HIDE_DELAY = 600;
 export const BRUSH_SIZES = [{ label: 'Small brush', value: 10, scale: 0.45 }, { label: 'Medium brush', value: 20, scale: 0.72 }, { label: 'Large brush', value: 34, scale: 1.05 }] as const;
-export function trayState(painting: boolean, peeking: boolean): TrayState { return painting ? 'pinned' : peeking ? 'peek' : 'tucked'; }
 export function cursorDiameter(size: number, width: number, brush: Brush) {
   // Match the engine's normalized size and nominal brush footprint, not its random outlying marks.
   const footprint = { rib: 1.6, cub: 1.5, drip: 0.6, imp: 0.4 }[brush];

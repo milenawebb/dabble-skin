@@ -11,7 +11,7 @@ function PaintingHotkey({ keys, root, painting, size, blocked }: { keys: string;
     const canvas = container.closest('.dabble-canvas');
     const tray = canvas?.parentElement?.querySelector('.phone-panel, .paint-tray');
     const phone = tray?.classList.contains('phone-panel');
-    const trayOpen = phone ? Boolean(tray?.hasAttribute('data-painting')) : tray?.getAttribute('data-state') !== 'tucked';
+    const trayOpen = phone ? Boolean(tray?.hasAttribute('data-painting')) : tray?.getAttribute('data-state') === 'open';
     const label = keys === 'p' ? (trayOpen ? 'Done painting' : 'Start painting') : paintingShortcutLabel(keys, painting, size, trayOpen);
     if (!label) return;
     const button = Array.from(tray?.querySelectorAll<HTMLButtonElement>('button') ?? []).find(item => item.getAttribute('aria-label') === label);

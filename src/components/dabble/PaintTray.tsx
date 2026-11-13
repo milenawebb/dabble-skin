@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import type { Brush } from './paint-engine';
 import type { usePaint } from './use-paint';
 import { BLOB_ROTATIONS, BrushDrawing, HandIcon, PaintBlob, type HandIconKind } from './HandDrawings';
-import { BRUSH_SIZES, TRAY_HIDE_DELAY, trayState } from './tray-rules';
+import { BRUSH_SIZES } from './tray-rules';
 import './paint-tray.css';
 import { MixPaintInput } from './MixPaintInput';
 
@@ -19,14 +19,12 @@ function Tool({ label, children, className = '', pressed, expanded, disabled, on
     {note && <span className="tray-note" role="status">{note}</span>}
   </span>;
 }
-export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultTrayOpen = false, sounds, toggleSounds, automaticSound, controlsState, onActivity, onOpenChange, picking = false, togglePick = () => {} }: { paint: ReturnType<typeof usePaint>; src: string; playbackId?: string; ownerTools?: boolean; defaultTrayOpen?: boolean; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; controlsState: { visible: boolean; paused: boolean }; onActivity: (active: boolean) => void; onOpenChange?: (open: boolean) => void; picking?: boolean; togglePick?: () => void }) {
+export function PaintTray({ paint, src, playbackId, ownerTools = false, width = 1000, sounds, toggleSounds, automaticSound, controlsState, onActivity, onOpenChange, picking = false, togglePick = () => {} }: { paint: ReturnType<typeof usePaint>; src: string; playbackId?: string; ownerTools?: boolean; width?: number; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; controlsState: { visible: boolean; paused: boolean }; onActivity: (active: boolean) => void; onOpenChange?: (open: boolean) => void; picking?: boolean; togglePick?: () => void }) {
   const id = useId();
   const [copied, setCopied] = useState(false);
   const [snippet, setSnippet] = useState('');
   const [clearMessage, setClearMessage] = useState('');
-  const [peeking, setPeeking] = useState(defaultTrayOpen);
-  const [initiallyOpen, setInitiallyOpen] = useState(defaultTrayOpen);
-  const [hoverCapable, setHoverCapable] = useState(false);
+  const [open, setOpen] = useState(true);
   const root = useRef<HTMLElement>(null);
   const mode = useRef<HTMLButtonElement>(null);
   const shelf = useRef<HTMLDivElement>(null);
@@ -38,36 +36,12 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
     const observer = new ResizeObserver(measure); observer.observe(content); measure();
     return () => observer.disconnect();
   }, []);
-  const hovering = useRef(false);
-  const suppressPeek = useRef(false);
-  const hideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const copyTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const state = trayState(paint.painting, peeking);
-  const open = state !== 'tucked';
-  useEffect(() => {
-    onOpenChange?.(open);
-  }, [open, onOpenChange]);
-  useEffect(() => {
-    const query = matchMedia('(hover: hover) and (pointer: fine)');
-    const update = () => setHoverCapable(query.matches);
-    update(); query.addEventListener('change', update);
-    return () => { query.removeEventListener('change', update); clearTimeout(hideTimer.current); clearTimeout(copyTimer.current); onActivity(false); };
-  }, [onActivity]);
-  const reveal = () => { clearTimeout(hideTimer.current); if (hoverCapable && !suppressPeek.current) setPeeking(true); };
-  const scheduleTuck = () => {
-    clearTimeout(hideTimer.current);
-    hideTimer.current = setTimeout(() => {
-      if (!hovering.current && !root.current?.contains(document.activeElement)) setPeeking(false);
-    }, TRAY_HIDE_DELAY);
-  };
-  const tuck = () => {
-    suppressPeek.current = true;
-    setInitiallyOpen(false);
-    clearTimeout(hideTimer.current); setPeeking(false); paint.setPainting(false);
-    // Focus returns before the next render makes the other tools inert.
-    mode.current?.focus();
-  };
-  const pin = (action: () => void) => { setInitiallyOpen(false); suppressPeek.current = false; clearTimeout(hideTimer.current); setPeeking(false); paint.setPainting(true); action(); };
+  useEffect(() => { onOpenChange?.(open); }, [open, onOpenChange]);
+  useEffect(() => () => { clearTimeout(copyTimer.current); onActivity(false); }, [onActivity]);
+  const close = () => { setOpen(false); paint.setPainting(false); mode.current?.focus(); };
+  const start = () => { setOpen(true); paint.setPainting(true); };
+  const choose = (action: () => void) => { paint.setPainting(true); action(); };
   const copy = async () => {
     const code = paintingCode(src, paint.getPainting(), playbackId);
     try {
@@ -78,18 +52,17 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
   const color = paint.color === -1 ? paint.customColor ?? paint.palette[0] : paint.palette[paint.color] ?? paint.palette[0];
   const colorNames = paintColorNames(paint.palette);
   const iconTool = (label: string, icon: HandIconKind, action: () => void, disabled = false) => <Tool label={label} className="tray-reveal tray-circle" hidden={!open} disabled={disabled} onClick={action}><HandIcon kind={icon} /></Tool>;
-  return <section ref={root} className="paint-tray" aria-label="Paint tools" data-state={state} data-visible={controlsState.visible || undefined} data-paused={controlsState.paused || undefined} style={{ '--tray-color': color } as CSSProperties}
-    onPointerEnter={() => { hovering.current = true; suppressPeek.current = false; reveal(); onActivity(true); }}
-    onPointerMove={() => { onActivity(true); }}
-    onPointerLeave={() => { hovering.current = false; suppressPeek.current = false; scheduleTuck(); if (!root.current?.contains(document.activeElement)) onActivity(false); }}
-    onFocusCapture={() => { reveal(); onActivity(true); }}
-    onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) { suppressPeek.current = false; scheduleTuck(); if (!hovering.current) onActivity(false); } }}
-    onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); tuck(); } }}>
+  return <section ref={root} className="paint-tray" aria-label="Paint tools" data-state={open ? "open" : "closed"} data-compact={width <= 1000 || undefined} data-visible={controlsState.visible || undefined} data-paused={controlsState.paused || undefined} style={{ '--tray-color': color } as CSSProperties}
+    onPointerEnter={() => onActivity(true)}
+    onPointerLeave={() => { if (!root.current?.contains(document.activeElement)) onActivity(false); }}
+    onFocusCapture={() => onActivity(true)}
+    onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) onActivity(false); }}
+    onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close(); } }}>
     <div className="tray-fold"><div ref={shelf} className="tray-shelf">
       <span className="tray-mode-space" aria-hidden="true" />
       <span className="tray-divider tray-divider-one tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
       <div className="tray-colors tray-reveal" role="group" aria-label="Paint color" inert={!open || undefined}>
-        {paint.palette.map((hex, index) => <Tool key={index} label={colorNames[index] ?? `${colorName(hex)} paint`} pressed={paint.color === index} className="tray-color" style={{ '--pot-color': hex } as CSSProperties} onClick={() => pin(() => paint.setColor(index))}><PaintBlob selected={paint.color === index} angle={BLOB_ROTATIONS[index] ?? 0} scale={paint.color === index ? 1.18 : 1} /></Tool>)}
+        {paint.palette.map((hex, index) => <Tool key={index} label={colorNames[index] ?? `${colorName(hex)} paint`} pressed={paint.color === index} className="tray-color" style={{ '--pot-color': hex } as CSSProperties} onClick={() => choose(() => paint.setColor(index))}><PaintBlob selected={paint.color === index} angle={BLOB_ROTATIONS[index] ?? 0} scale={paint.color === index ? 1.18 : 1} /></Tool>)}
         <span className="tray-item tray-custom"><MixPaintInput palette={paint.palette} customColor={paint.customColor} selected={paint.color === -1} picking={picking} onToggle={togglePick} /></span>
       </div>
       <span className="tray-sample" aria-hidden="true" />
@@ -97,12 +70,12 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
       <div className="tray-equipment">
       <div className="tray-brushes tray-reveal" role="group" aria-label="Brush" inert={!open || undefined}>
         {brushes.map(({ label, type }) => <span key={type} className="tray-item tray-brush" data-brush={type}>
-          <Button variant="ghost" size="icon" aria-label={label} aria-pressed={paint.brush === type} onClick={() => pin(() => paint.setBrush(type))}><BrushDrawing brush={type} /></Button>
+          <Button variant="ghost" size="icon" aria-label={label} aria-pressed={paint.brush === type} onClick={() => choose(() => paint.setBrush(type))}><BrushDrawing brush={type} /></Button>
         </span>)}
       </div>
       <span className="tray-divider tray-divider-three tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
       <div className="tray-sizes tray-reveal" role="group" aria-label="Brush size" inert={!open || undefined}>
-        {BRUSH_SIZES.map(({ label, value, scale }) => <Tool key={value} label={label} className="tray-size" pressed={paint.size === value} onClick={() => pin(() => paint.setSize(value))}><PaintBlob selected={paint.size === value} scale={scale} /></Tool>)}
+        {BRUSH_SIZES.map(({ label, value, scale }) => <Tool key={value} label={label} className="tray-size" pressed={paint.size === value} onClick={() => choose(() => paint.setSize(value))}><PaintBlob selected={paint.size === value} scale={scale} /></Tool>)}
       </div>
       <div className="tray-actions">
         {iconTool('Undo', 'undo', paint.undo, !paint.canUndo)}
@@ -113,7 +86,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
       </div>
       </div>
     </div></div>
-    <Button ref={mode} variant="ghost" className="tray-ledge-mode" aria-label={open ? 'Done painting' : 'Start painting'} aria-expanded={open} onClick={() => { if (open) tuck(); else pin(() => {}); }}><HandIcon kind={open ? 'check' : 'brush'} /><span>{open ? 'Done' : 'Paint the frame'}</span></Button>
+    <Button ref={mode} variant="ghost" className="tray-ledge-mode" aria-label={open ? 'Done painting' : 'Start painting'} aria-expanded={open} onClick={() => { if (open) close(); else start(); }}><HandIcon kind={open ? 'check' : 'brush'} /><span>{open ? 'Done' : 'Paint the frame'}</span></Button>
     <svg className="tray-ledge" viewBox="0 0 680 18" preserveAspectRatio="none" width="100%" height="18" aria-hidden="true">
       <path className="tray-wood" d="M2 3C120 1 420 4 678 2L677 15C460 17 160 14 3 16Z" />
       <path className="tray-wood-shade" d="M4 12.5C160 11 460 14 676 12L677 15C460 17 160 14 3 16Z" />

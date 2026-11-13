@@ -29,7 +29,7 @@ export function PlayerLabels({ children }: { children: ReactNode }) {
   const [visible, setVisible] = useState(false);
   const fallback = () => {
     const scope = root.current;
-    return scope?.querySelector<HTMLButtonElement>('.paint-tray:not([data-state="tucked"]) .tray-brush button[aria-pressed="true"], .phone-panel[data-painting] .phone-upright-brush[aria-pressed="true"]') ?? null;
+    return scope?.querySelector<HTMLButtonElement>('.paint-tray[data-state="open"] .tray-brush button[aria-pressed="true"], .phone-panel[data-painting] .phone-upright-brush[aria-pressed="true"]') ?? null;
   };
   const restore = () => setTarget(hovered.current ?? focused.current ?? fallback());
   const buttonFor = (element: EventTarget | null) => {
@@ -60,7 +60,9 @@ export function PlayerLabels({ children }: { children: ReactNode }) {
       let top = Math.max(4, box.top - tag.height - 8);
       const tray = target.closest('.paint-tray');
       const drawing = target.querySelector('.tray-brush-drawing');
-      if (tray && drawing) {
+      if (tray?.hasAttribute("data-compact") && drawing) {
+        top = Math.max(4, drawing.getBoundingClientRect().top - tag.height - 8);
+      } else if (tray && drawing) {
         const bounds = tray.getBoundingClientRect();
         const obstacles = Array.from(tray.querySelectorAll('.tray-brush-drawing, .tray-item:not(.tray-brush) > button')).map(e => e.getBoundingClientRect());
         const spot = brushLabelPosition(bounds, drawing.getBoundingClientRect(), obstacles, tag.width, tag.height);

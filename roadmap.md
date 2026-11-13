@@ -1,5 +1,9 @@
 # Dabble
 
+## Explicit tray state and compact tablet rows
+- [x] Remove automatic tray opening/closing; start open on each visit with Done, Escape and P actions only; verify hover, leaving and idle playback never change state.
+- [x] Center fixed-gap rows at 480, 600, 756 and 900px; verify 44px targets, brush label clearance and unchanged phone layout in Chromium.
+
 ## Unified player labels and pick blob
 - [x] Match pick artwork and targets across desktop, tablet and phone (38px desktop/tablet artwork, 34px phone artwork, 44px targets).
 - [x] Share one delayed-hover/immediate-focus paper label, with persistent brush fallback and touch-only brush labels; remove old tooltip styles and native titles.

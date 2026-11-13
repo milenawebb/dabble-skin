@@ -1,10 +1,10 @@
 .paint-tray { position: relative; width: calc(100% - 12px); max-width: 860px; margin: 26px 12px 18px auto; color: var(--dabble-ink); font-family: var(--dabble-ui-font); container-type: inline-size; transition: margin-top .3s ease; }
-.paint-tray[data-state="tucked"] { margin-top: 16px; }
+.paint-tray[data-state="closed"] { margin-top: 16px; }
 .tray-shelf { position: relative; display: grid; grid-template-columns: 32px 4px minmax(0, 6fr) 32px 4px minmax(0, 4fr) 4px minmax(0, 3fr) minmax(0, 5fr); align-items: end; gap: 4px; height: 122px; padding: 10px 14px 0; transition: height .3s ease; }
 .tray-shelf::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--dabble-paper); border: 1.5px solid var(--dabble-ink); border-bottom: 0; border-radius: 14px 10px 0 0 / 10px 15px 0 0; transition: opacity .3s ease; }
 .tray-shelf { isolation: isolate; }
 
-.paint-tray[data-state="tucked"] .tray-shelf::before { opacity: 0; }
+.paint-tray[data-state="closed"] .tray-shelf::before { opacity: 0; }
 .tray-item { position: relative; display: inline-flex; align-items: end; justify-content: center; min-width: 0; }
 .tray-equipment { display: contents; }
 .paint-tray .tray-item > button { position: relative; isolation: isolate; flex: 0 0 auto; width: 32px; height: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 0; background: none; color: var(--dabble-ink); box-shadow: none; transition: none; }
@@ -32,11 +32,11 @@
 .tray-wood-outline { stroke: var(--dabble-ink); }
 .tray-ledge path { vector-effect: non-scaling-stroke; }
 .tray-reveal { transition: opacity .3s ease; }
-.paint-tray[data-state="tucked"] .tray-reveal { opacity: 0; pointer-events: none; }
+.paint-tray[data-state="closed"] .tray-reveal { opacity: 0; pointer-events: none; }
 .tray-mode { transition: opacity .45s, transform .45s; }
 .paint-tray .tray-ledge-mode { position: absolute; bottom: 2px; left: 12px; z-index: 9; width: max-content; height: 44px; padding: 0 4px; gap: 8px; background: none; color: var(--landing-wall-dim); font: 20px/1 'Caveat', cursive; }
 .tray-ledge-mode .dabble-icon { width: 32px; height: 32px; padding: 5px; border: 1.5px solid var(--dabble-ink); border-radius: 47% 53% 50% 50%; background: var(--dabble-paper); color: var(--dabble-ink); }
-.paint-tray:not([data-state="tucked"]) { padding-bottom: 44px; }
+.paint-tray:not([data-state="closed"]) { padding-bottom: 44px; }
 .tray-mode-space { width: 36px; }
 @container (max-width: 899px) { .tray-mode-space { position: absolute; left: 16px; top: 10px; } }
 @media (forced-colors: active) { .paint-tray .tray-ledge-mode { color: CanvasText; } }
@@ -181,7 +181,7 @@
 
 /* A stable full-size shelf lives inside one animated clip; its layout never changes on tuck. */
 .tray-fold { height: var(--tray-open-height, 162px); overflow: hidden; transition: height .3s ease; }
-.paint-tray[data-state="tucked"] .tray-fold { height: 54px; }
+.paint-tray[data-state="closed"] .tray-fold { height: 54px; }
 .tray-color-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .paint-tray .tray-custom > button { border: 0; background: none; width: 44px; height: 44px; min-height: 44px; }
 .tray-custom-blob { position: absolute; width: 30px; height: 30px; background: var(--custom-fill); clip-path: path('M1 12C2 2 13 -1 22 2C30 5 32 14 28 22C24 29 12 30 5 26C0 23 0 17 1 12Z'); }
@@ -191,3 +191,18 @@
 @media (forced-colors: active) { .tray-custom-blob { background: Canvas; clip-path: none; border: 1px solid CanvasText; border-radius: 46% 54% 50% 50%; } .tray-custom-plus { background: Canvas; color: CanvasText; } }
 
 .paint-tray .tray-colors .tray-item > button { width: 44px; min-width: 44px; }
+
+/* Compact rows use the measured player width, independently of the shelf width. */
+.paint-tray[data-compact] .tray-shelf { display: grid; grid-template-columns: 1fr; grid-template-areas: 'colors' 'equipment'; height: auto; min-height: 0; padding: 16px 12px; gap: 40px; }
+.paint-tray[data-compact] .tray-mode-space, .paint-tray[data-compact] .tray-sample, .paint-tray[data-compact] .tray-divider { display: none; }
+.paint-tray[data-compact] .tray-colors { grid-area: colors; display: flex; width: max-content; height: 44px; justify-self: center; justify-content: center; gap: 12px; overflow: visible; }
+.paint-tray[data-compact] .tray-equipment { grid-area: equipment; display: grid; grid-template-columns: max-content max-content; grid-template-areas: 'brushes sizes' 'actions actions'; justify-content: center; align-items: end; gap: 24px; overflow: visible; margin: 0; padding: 0; }
+.paint-tray[data-compact] .tray-brushes, .paint-tray[data-compact] .tray-sizes, .paint-tray[data-compact] .tray-actions { display: flex; width: max-content; min-width: 0; justify-content: center; gap: 12px; flex: none; }
+.paint-tray[data-compact] .tray-brushes { grid-area: brushes; }
+.paint-tray[data-compact] .tray-sizes { grid-area: sizes; }
+.paint-tray[data-compact] .tray-actions { grid-area: actions; justify-self: center; padding: 0; }
+.paint-tray[data-compact] .tray-blank { margin-left: 0; }
+.paint-tray .tray-item > button { min-width: 44px; min-height: 44px; }
+.paint-tray .tray-circle > button { width: 44px; height: 44px; margin-block: 0; }
+.paint-tray[data-compact] .tray-blank > button { width: max-content; padding: 0 16px; }
+.paint-tray[data-compact] .tray-blank-text { display: inline; }

@@ -19,12 +19,6 @@ vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} });
 beforeEach(() => { localStorage.clear(); unlock.mockClear(); });
 
 describe('painting defaults', () => {
-  it('defaults the tray closed and forwards the explicit initial-open option', () => {
-    const { rerender } = render(<DabblePlayer src="sample.mp4" />);
-    expect(trayProps.mock.lastCall?.[0].defaultTrayOpen).toBe(false);
-    rerender(<DabblePlayer src="sample.mp4" defaultTrayOpen />);
-    expect(trayProps.mock.lastCall?.[0].defaultTrayOpen).toBe(true);
-  });
   it('enables the viewer tray by default and excludes owner tools', () => {
     render(<DabblePlayer src="sample.mp4" />);
     expect(screen.getByRole('region', {name:'Paint tools'})).toBeInTheDocument();

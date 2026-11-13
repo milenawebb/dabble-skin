@@ -165,7 +165,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
     </div>
     {phone && paintable ? <PhonePaintPanel picking={picker.picking} togglePick={picker.toggle} width={panelWidth} setHost={setPhoneHost} paint={paint} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} onActivity={trayActivity} /> : <>
       <div className="dabble-plaque-space" aria-hidden="true" style={{ height: plaqueSpace }} />
-      {paintable && <PaintTray picking={picker.picking} togglePick={picker.toggle} onOpenChange={setTrayOpen} defaultTrayOpen={defaultTrayOpen} paint={paint} src={src} ownerTools={ownerTools} {...(playbackId ? { playbackId } : {})} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} controlsState={controlsState} onActivity={trayActivity} />}
+      {paintable && <PaintTray picking={picker.picking} togglePick={picker.toggle} onOpenChange={setTrayOpen} width={canvasBox.width} paint={paint} src={src} ownerTools={ownerTools} {...(playbackId ? { playbackId } : {})} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} controlsState={controlsState} onActivity={trayActivity} />}
     </>}
     </PlayerLabels>
   );
