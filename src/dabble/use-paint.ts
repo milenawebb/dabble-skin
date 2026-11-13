@@ -110,6 +110,9 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
       const r = canvas.getBoundingClientRect();
       return [(event.clientX - r.left) / g.W, (event.clientY - r.top) / g.H];
     };
+    let restoreScroll: (() => void) | undefined;
+    const blockTouch = (event: TouchEvent) => { if (restoreScroll) event.preventDefault(); };
+    const releaseScroll = () => { restoreScroll?.(); restoreScroll = undefined; };
     const start = (event: PointerEvent) => {
       const g = geo.current, options = settings.current;
       if (!options.painting || !g || pointer.current !== null || event.button !== 0) return;
@@ -119,6 +122,16 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
       touched.current = true;
       pointer.current = event.pointerId;
       canvas.setPointerCapture(event.pointerId);
+      if (wrapper.hasAttribute('data-phone')) {
+        const targets = [document.documentElement, document.body];
+        const saved = targets.map(target => ({ value: target.style.getPropertyValue('overscroll-behavior'), priority: target.style.getPropertyPriority('overscroll-behavior') }));
+        targets.forEach(target => target.style.setProperty('overscroll-behavior', 'none', 'important'));
+        document.addEventListener('touchmove', blockTouch, { passive: false });
+        restoreScroll = () => {
+          targets.forEach((target, index) => { const previous = saved[index]; if (previous?.value) target.style.setProperty('overscroll-behavior', previous.value, previous.priority); else target.style.removeProperty('overscroll-behavior'); });
+          document.removeEventListener('touchmove', blockTouch);
+        };
+      }
       active.current = { type: options.brush, seed: Math.floor(Math.random() * 2147483647), pal: [...paletteRef.current], color: selected, size: strokeSize(options.size, event.pointerType, event.pressure), pts: [point(event, g)] };
       display();
     };
@@ -133,6 +146,7 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
     };
     const end = (event: PointerEvent) => {
       if (pointer.current !== event.pointerId) return;
+      releaseScroll();
       const stroke = active.current, g = geo.current;
       if (stroke && g) {
         const rounded = roundStroke(stroke);
@@ -149,6 +163,7 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
     canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
     canvas.addEventListener('lostpointercapture', end);
     return () => {
+      releaseScroll();
       clearTimeout(timer); observer.disconnect();
       window.removeEventListener('resize', schedule); document.removeEventListener('fullscreenchange', schedule);
       canvas.removeEventListener('pointerdown', start); canvas.removeEventListener('pointermove', move);

@@ -55,3 +55,40 @@ it('loads with empty storage, paints a stroke, and creates no audio context or n
   expect(nodeCreated).not.toHaveBeenCalled();
   expect(screen.getByRole('button', { name: 'Turn sounds on' })).toHaveAttribute('aria-pressed', 'false');
 });
+
+it.each([320, 390])('blocks touch scrolling only during a captured phone stroke at %ipx', width => {
+  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({ x: 0, y: 0, left: 0, top: 0, right: width, bottom: 240, width, height: 240, toJSON: () => ({}) });
+  const setStyle = vi.spyOn(CSSStyleDeclaration.prototype, 'setProperty');
+  const readStyle = CSSStyleDeclaration.prototype.getPropertyValue;
+  vi.spyOn(CSSStyleDeclaration.prototype, 'getPropertyValue').mockImplementation(function (this: CSSStyleDeclaration, name) { return name === 'overscroll-behavior' ? 'contain' : readStyle.call(this, name); });
+  const capture = vi.fn(); HTMLCanvasElement.prototype.setPointerCapture = capture;
+  const { container } = render(<DabblePlayer src="phone-scroll.mp4" />);
+  fireEvent.click(screen.getByRole('button', { name: 'Start painting' }));
+  const canvas = container.querySelector('.dabble-paint');
+  if (!canvas) throw new Error('Missing painting layer');
+  fireEvent.pointerDown(canvas, { button: 0, clientX: 5, clientY: 5 });
+  expect(capture).toHaveBeenCalledOnce();
+  expect(setStyle).toHaveBeenCalledWith('overscroll-behavior', 'none', 'important');
+  const activeMove = new Event('touchmove', { cancelable: true }); document.dispatchEvent(activeMove);
+  expect(activeMove.defaultPrevented).toBe(true);
+  fireEvent.pointerMove(canvas, { clientX: width + 30, clientY: 20 });
+  fireEvent.pointerUp(canvas);
+  expect(setStyle).toHaveBeenCalledWith('overscroll-behavior', 'contain', '');
+  const freeMove = new Event('touchmove', { cancelable: true }); document.dispatchEvent(freeMove);
+  expect(freeMove.defaultPrevented).toBe(false);
+  document.documentElement.style.removeProperty('overscroll-behavior');
+});
+
+it('does not suppress page scrolling for a desktop stroke', () => {
+  vi.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({ x: 0, y: 0, left: 0, top: 0, right: 1056, bottom: 700, width: 1056, height: 700, toJSON: () => ({}) });
+  const { container } = render(<DabblePlayer src="desktop-scroll.mp4" />);
+  const wrapper = container.querySelector('.dabble-canvas');
+  const canvas = container.querySelector('.dabble-paint');
+  if (!wrapper || !canvas) throw new Error('Missing painting layer');
+  wrapper.removeAttribute('data-phone');
+  fireEvent.click(screen.getByRole('button', { name: 'Start painting' }));
+  fireEvent.pointerDown(canvas, { button: 0, clientX: 5, clientY: 5 });
+  const move = new Event('touchmove', { cancelable: true }); document.dispatchEvent(move);
+  expect(move.defaultPrevented).toBe(false);
+  fireEvent.pointerUp(canvas);
+});

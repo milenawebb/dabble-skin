@@ -113,3 +113,4 @@
 
 .dabble-canvas[data-phone] .dabble-stage { left: 0; top: 0; width: 100%; height: auto; }
 .dabble-plaque-space { flex: none; pointer-events: none; }
+.dabble-canvas[data-phone] .dabble-paint { clip-path: inset(0); }

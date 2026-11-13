@@ -240,3 +240,31 @@
 .dabble-skin[data-phone-overlay] .dabble-caption-swipe { padding-block: 4px; }
 @media (prefers-reduced-motion: reduce) { .dabble-skin[data-phone-overlay] .phone-video-controls { transition: none; } }
 @media (forced-colors: active) { .dabble-skin[data-phone-overlay] .phone-video-controls .dabble-button::before { background: Canvas; border-color: CanvasText; } }
+
+/* Phone-only menu and interaction feedback. */
+.dabble-skin[data-phone-overlay] .phone-video-speed-menu {
+  position: fixed !important; inset: var(--phone-speed-top) auto auto var(--phone-speed-left) !important;
+  position-anchor: none !important; translate: none !important; transform: none !important;
+  width: 220px; max-width: 220px; padding: 0; border: 0; background: var(--dabble-clear);
+  box-shadow: none; overflow: visible; z-index: 6;
+}
+.dabble-skin[data-phone-overlay] .phone-video-speed-menu [role="group"] { display: flex; width: 220px; }
+.dabble-skin[data-phone-overlay] .phone-video-speed-menu .dabble-speed-item {
+  position: relative; isolation: isolate; display: flex; align-items: center; justify-content: center;
+  flex: 0 0 44px; width: 44px; height: 44px; min-height: 44px; padding: 0;
+  font: 13px var(--dabble-ui-font); background: var(--dabble-clear); border: 0; border-radius: 0;
+}
+.dabble-skin[data-phone-overlay] .phone-video-speed-menu .dabble-speed-item::before {
+  content: ''; position: absolute; inset: 7px 1px; z-index: -1;
+  background: var(--dabble-paper); border: 1.5px solid var(--dabble-ink); border-radius: 8px 6px 7px 5px;
+}
+.dabble-skin[data-phone-overlay] .phone-video-speed-menu .dabble-speed-item[aria-checked="true"] { color: var(--dabble-paper); }
+.dabble-skin[data-phone-overlay] .phone-video-speed-menu .dabble-speed-item[aria-checked="true"]::before { background: var(--dabble-ink); }
+.dabble-skin[data-phone-overlay] .phone-video-controls button:not(:focus-visible),
+.dabble-skin[data-phone-overlay] .phone-video-speed-menu .dabble-speed-item:not(:focus-visible) { outline: none; box-shadow: none; }
+.dabble-skin[data-phone-overlay] .phone-video-speed-menu .dabble-speed-item:focus-visible { outline: 2px solid var(--dabble-ink); outline-offset: -3px; box-shadow: var(--dabble-focus-ring); }
+.dabble-skin[data-phone-overlay] .phone-video-controls .dabble-button .dabble-blob { opacity: 0; animation: none; transition: none; inset: 7px; }
+.dabble-skin[data-phone-overlay] .phone-video-controls .dabble-button[data-stroking] .dabble-blob { animation: dabble-phone-splash .34s ease-out; }
+@keyframes dabble-phone-splash { 0% { opacity: .8; transform: scale(.5); } 30% { opacity: .8; transform: scale(1.15); } 100% { opacity: 0; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .dabble-skin[data-phone-overlay] .phone-video-controls .dabble-button[data-stroking] .dabble-blob { animation: none; opacity: 0; } }
+.dabble-skin[data-phone-overlay] .phone-video-speed-menu { pointer-events: auto; }
