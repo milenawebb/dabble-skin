@@ -7,7 +7,7 @@ vi.mock('./video-palette', () => ({ sampleSource: () => () => {}, sampleVideo: (
 beforeEach(() => localStorage.clear());
 
 describe('paint hook lifecycle', () => {
-  it('restores saved viewer strokes after a preview remount and keeps reset usable', () => {
+  it('restores saved viewer strokes after a preview remount and keeps clear and undo usable', () => {
     const supplied = newPainting();
     const wrapper = {current:null}, canvas = {current:null};
     const first = renderHook(() => usePaint(wrapper, canvas, true, 'refresh-video', supplied));
@@ -57,7 +57,7 @@ describe('viewer starting painting', () => {
     const { result } = renderHook(() => usePaint({current:null}, {current:null}, true, 'return-visit', supplied));
     expect(result.current.getPainting()).toEqual(saved);
   });
-  it('start over restores and saves the owner baseline after viewer changes', () => {
+  it('clears and saves an empty painting after owner and viewer strokes', () => {
     const supplied = newPainting(); supplied.strokes[0] = { type: 'auto-imp', seed: 432, pal: [...supplied.palette] };
     savePainting('reset-owner', newPainting());
     const { result } = renderHook(() => usePaint({current:null}, {current:null}, true, 'reset-owner', supplied));
@@ -65,7 +65,7 @@ describe('viewer starting painting', () => {
     act(() => result.current.clear());
     expect(result.current.count).toBe(0); expect(loadPainting('reset-owner')?.strokes).toEqual([]);
   });
-  it('start over restores the built-in stroke rather than an empty frame', () => {
+  it('one undo restores all built-in and added strokes after clearing', () => {
     const { result } = renderHook(() => usePaint({current:null}, {current:null}, true, 'reset-built-in'));
     act(() => result.current.automatic());
     act(() => result.current.clear());

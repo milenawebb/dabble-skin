@@ -6,6 +6,12 @@ import { backingRatio, initialPainting, pointSpacing, strokeSize, undoPainting }
 import { DEFAULT_PALETTE, loadPainting, savePainting, roundStroke, type Painting, type Palette } from './painting-data';
 import { sampleMux, sampleSource, sampleThumbnails, sampleVideo } from './video-palette';
 
+// Hook-only modules have no React component refresh boundary. Reload on their
+// replacement rather than letting an existing player reuse incompatible slots.
+if (import.meta.hot) {
+  import.meta.hot.accept(() => window.location.reload());
+}
+
 export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef: RefObject<HTMLCanvasElement | null>, enabled: boolean, src: string, supplied?: Painting, playbackId?: string, thumbnailSampleTimes?: readonly number[]) {
   const [painting, setPainting] = useState(false);
   const [brush, setBrush] = useState<Brush>('rib');
