@@ -2,6 +2,8 @@
 
 A video player on a canvas. Viewers paint the frame around the video.
 
+![The Dabble player: a video on a white canvas with a painted frame, the paper control bar and the paint tray on a wooden shelf.](docs/preview.png)
+
 [Live demo](https://dabblevideo.com) · [Video.js v10 Skins Design Challenge](https://contra.com/community/topic/videojsskinschallenge) · [GitHub](https://github.com/milenawebb/dabble-skin)
 
 In use on a live site: https://milenawebb.com/#dabble
