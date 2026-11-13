@@ -14,10 +14,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { getHotkeyCoordinator } from '@videojs/core/dom';
 import { announceShortcut } from './page-feedback';
 import { updateFullscreenOrientation } from './fullscreen-orientation';
+import { createPortal } from 'react-dom';
 
 function Blob() { return <span className="dabble-blob" aria-hidden="true" />; }
 
-export function DabbleSkin({ children, paintable = false, brushSize = 20, painting = false, palette = DEFAULT_PALETTE, onControlsState }: { children: ReactNode; paintable?: boolean; brushSize?: number; painting?: boolean; palette?: Palette; onControlsState?: (state: { visible: boolean; paused: boolean }) => void }) {
+export function DabbleSkin({ children, phoneHost, paintable = false, brushSize = 20, painting = false, palette = DEFAULT_PALETTE, onControlsState }: { children: ReactNode; phoneHost?: HTMLDivElement | null; paintable?: boolean; brushSize?: number; painting?: boolean; palette?: Palette; onControlsState?: (state: { visible: boolean; paused: boolean }) => void }) {
   const rootRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<'small' | 'medium' | 'large'>('large');
   const [playerWidth, setPlayerWidth] = useState(860);
@@ -53,7 +54,7 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
   const hasError = usePlayer((state) => Boolean(state.error));
   const toggleControls = usePlayer((state) => state.toggleControls);
   const requestControlsLock = usePlayer((state) => state.requestControlsLock);
-  const centerVisible = (showCenterPlay(started, ended) || (painting && paused)) && !hasError;
+  const centerVisible = (showCenterPlay(started, ended) || (painting && (paused || Boolean(phoneHost)))) && !hasError;
   const centerRef = useRef<HTMLButtonElement>(null);
   const playRef = useRef<HTMLButtonElement>(null);
   const centerHadFocus = useRef(false);
@@ -108,7 +109,7 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
 
   useEffect(() => {
     const root = rootRef.current;
-    const bar = root?.querySelector<HTMLElement>('.dabble-bar');
+    const bar = (phoneHost ?? root)?.querySelector<HTMLElement>('.dabble-bar');
     if (!root || !bar) return;
     let releaseHover: (() => void) | undefined;
     let releaseFocus: (() => void) | undefined;
@@ -119,7 +120,7 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
     bar.addEventListener('pointerenter', enter); bar.addEventListener('pointerleave', leave);
     bar.addEventListener('focusin', focus); bar.addEventListener('focusout', blur);
     return () => { leave(); releaseFocus?.(); bar.removeEventListener('pointerenter', enter); bar.removeEventListener('pointerleave', leave); bar.removeEventListener('focusin', focus); bar.removeEventListener('focusout', blur); };
-  }, [requestControlsLock]);
+  }, [requestControlsLock, phoneHost, fullscreenActive]);
   useEffect(() => { if (!painting) toggleControls(true); }, [painting, toggleControls]);
 
   useEffect(() => {
@@ -182,21 +183,21 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
   const seek = <TimeSlider.Root className="dabble-slider dabble-seek"><TimeSlider.Track className="dabble-track"><TimeSlider.Buffer className="dabble-buffer" /><TimeSlider.Fill className="dabble-fill" /></TimeSlider.Track><TimeSlider.Thumb className="dabble-thumb" /></TimeSlider.Root>;
   const time = <span className="dabble-time"><Time.Value type="current" /><span aria-hidden="true">/</span><Time.Value type="duration" /></span>;
   const colors = { '--dabble-seek':palette[0], '--dabble-b1':tintForInk(palette[4]), '--dabble-b2':tintForInk(palette[3]), '--dabble-b3':tintForInk(palette[2]), '--dabble-b4':tintForInk(palette[5]), '--dabble-b5':tintForInk(palette[1]), '--dabble-keys-tint':tintForInk(palette[0]), '--keys-left': `${keysBounds.left + Math.max(6, keysBounds.width - 306)}px`, '--keys-top': `${keysBounds.top + 6}px`, '--keys-width': `${Math.max(0, Math.min(300, keysBounds.width - 12))}px`, '--keys-height': `${keysBounds.height * .8}px` } as CSSProperties;
+  const phonePlaque = Boolean(phoneHost) && !fullscreenActive;
+  const bar = <Controls.Root><Controls.Content className={`dabble-bar${phonePlaque ? ' phone-control-plaque' : ''}`} style={phonePlaque ? colors : undefined} data-phone-visible={controlsVisible || undefined} inert={phonePlaque && painting || undefined}>
+    {phonePlaque ? <><div className="phone-seek-edge">{seek}</div><Controls.Group className="dabble-row" aria-label="Playback controls">{play}{time}{mute}{captions}{speed}{fullscreen}</Controls.Group></> : size === 'small' ? <><Controls.Group className="dabble-row" aria-label="Timeline">{seek}{time}</Controls.Group><Controls.Group className="dabble-row dabble-buttons-row" aria-label="Playback controls">{play}{mute}{captions}{speed}{keys}{fullscreen}</Controls.Group></> : <Controls.Group className="dabble-row" aria-label="Playback controls">{play}{seek}{time}{mute}{captions}{speed}{keys}{fullscreen}</Controls.Group>}
+  </Controls.Content></Controls.Root>;
 
   return (
     <Container ref={rootRef} tabIndex={-1} aria-label="Dabble video player" style={colors} className="dabble-skin" data-size={size} data-painting={painting || undefined} data-docked={docked || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined} data-bar-visible={(!painting && controlsVisible) || undefined}>
       {children}
       {!hasError && <Poster.Root className="dabble-poster"><Poster.Image /></Poster.Root>}
-      <PaintedCaptions rootRef={rootRef} captionId={captionId} docked={docked} barEnabled={!painting} />
+      <PaintedCaptions phoneHost={phoneHost ?? null} rootRef={rootRef} captionId={captionId} docked={docked} barEnabled={!painting} />
       <Gesture type="tap" action={controlsVisible || painting ? "togglePaused" : "toggleControls"} />
-      <PlayButton ref={centerRef} hidden={!centerVisible} label={ended ? 'Replay' : 'Play'} className="dabble-button dabble-play dabble-center-play" render={(props) => <button {...props} onFocus={(event) => { props.onFocus?.(event); centerHadFocus.current = event.currentTarget.matches(':focus-visible'); }} onBlur={(event) => { props.onBlur?.(event); if (event.relatedTarget) centerHadFocus.current = false; }}><Blob /><Icon kind={ended ? 'replay' : 'play'} /></button>} />
+      <PlayButton ref={centerRef} hidden={!centerVisible} label={ended ? 'Replay' : paused ? 'Play' : 'Pause'} className="dabble-button dabble-play dabble-center-play" render={(props) => <button {...props} onFocus={(event) => { props.onFocus?.(event); centerHadFocus.current = event.currentTarget.matches(':focus-visible'); }} onBlur={(event) => { props.onBlur?.(event); if (event.relatedTarget) centerHadFocus.current = false; }}><Blob /><Icon kind={ended ? 'replay' : paused ? 'play' : 'pause'} /></button>} />
       <BufferingIndicator className="dabble-loading" render={(props, state) => <div {...props} role="status" aria-live="polite">{state.visible && <><span className="dabble-loading-disc" aria-hidden="true"><span /></span><span className="dabble-loading-label">Loading</span></>}</div>} />
       <Popover.Root side="top" align="end" boundary="container" open={keysOpen} onOpenChange={open => { if (open) setKeysOpen(true); else closeKeys(); }}>
-      <Controls.Root>
-        <Controls.Content className="dabble-bar">
-          {size === 'small' ? <><Controls.Group className="dabble-row" aria-label="Timeline">{seek}{time}</Controls.Group><Controls.Group className="dabble-row dabble-buttons-row" aria-label="Playback controls">{play}{mute}{captions}{speed}{keys}{fullscreen}</Controls.Group></> : <Controls.Group className="dabble-row" aria-label="Playback controls">{play}{seek}{time}{mute}{captions}{speed}{keys}{fullscreen}</Controls.Group>}
-        </Controls.Content>
-      </Controls.Root>
+      {phonePlaque && phoneHost ? createPortal(bar, phoneHost) : bar}
       <Popover.Popup ref={keysPopup} tabIndex={-1} role="dialog" aria-labelledby={keysTitleId} className="dabble-keys-panel" render={props => <div {...props} style={{ ...props.style, ...(size !== 'large' || painting ? { translate: 'none', left: `${keysBounds.left + Math.max(6, keysBounds.width - 306)}px`, top: `${keysBounds.top + 6}px`, positionAnchor: 'none' } : {}) }} />} onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeKeys(); } else if (event.key === '?') { event.preventDefault(); event.stopPropagation(); closeKeys(); } }}>
         <KeysContent paintable={paintable} titleId={keysTitleId} popup={keysPopup} />
       </Popover.Popup>

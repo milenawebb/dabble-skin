@@ -111,6 +111,7 @@ function Index() {
   const tryBrush = (name: string) => {
     const button = playerRef.current?.querySelector<HTMLButtonElement>(`button[aria-label="${name} brush"]`);
     if (!button) return;
+    if (button.closest('.phone-paint-panel')?.hasAttribute('inert')) playerRef.current?.querySelector<HTMLButtonElement>('button[aria-label="Start painting"]')?.click();
     button.click();
     playerRef.current?.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
     requestAnimationFrame(() => button.focus({ preventScroll: true }));
@@ -146,7 +147,7 @@ function Index() {
             <p className="landing-tagline">A video player on a canvas. Pick up a brush, paint the frame in your style, then press play.</p>
             {sizes.length > 0 && <DeviceSwitch sizes={sizes} activeSize={activeSize} onChoose={setPreviewSize} />}
             <div ref={playerRef} className="preview-column" id="player" tabIndex={-1} style={{ maxWidth: columnWidth }}>
-              <DabblePlayer onPaletteChange={setPalette} onSoundPreferenceChange={setSoundOptIn} playbackId={PLAYBACK_ID} thumbnailSampleTimes={SAMPLE_TIMES} poster={POSTER} captions={CAPTIONS} />
+              <DabblePlayer defaultTrayOpen onPaletteChange={setPalette} onSoundPreferenceChange={setSoundOptIn} playbackId={PLAYBACK_ID} thumbnailSampleTimes={SAMPLE_TIMES} poster={POSTER} captions={CAPTIONS} />
             </div>
             <p className="film-credit">Dab is an original short made for this demo. Video hosted on Mux.</p>
           </section>

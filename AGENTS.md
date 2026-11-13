@@ -41,7 +41,7 @@ use the editor.
 - Read custom captions from hidden tracks on every browser; the pinned text-track patch keeps library CC intent separate from native mode, allowing iPhone fullscreen handover and unreadable-cue fallback without duplicate captions.
 - Outline caption paper with three SVG parts and non-scaling strokes; fixed-width bristle ends prevent long lines from stretching their shape.
 - Derive unique tray color labels in palette.ts so resampling updates names.
-- Keep phone controls inside the fullscreen Container but visually below the canvas; reserve plaque space outside the fixed frame so visibility never alters painting geometry.
+- Portal phone controls into a shared watching/painting slot and restore them inside the fullscreen Container; switching panels must not alter the canvas geometry.
 - Pass native caption tracks through DabblePlayer props and keep sample VTT files in public/captions so the actual player exercises captions without injected test tracks.
 - Keep the supplied brush engine a math-preserving TypeScript port; isolate interaction and tray UI from renderStroke so reference rendering remains reproducible.
 - Store paintings as versioned seeded normalized strokes, rounded on completion and persisted per video source in optional browser storage; use offscreen canvases only as disposable rendering caches.

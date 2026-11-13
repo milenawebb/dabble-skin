@@ -6,7 +6,7 @@ type ManagedTrack = TextTrack & { __dabblePaintedCaption?: boolean; __dabbleCapt
 
 type Cue = { text: string; startTime: number; endTime: number };
 
-export function PaintedCaptions({ rootRef, captionId, docked, barEnabled }: { rootRef: RefObject<HTMLDivElement | null>; captionId: string; docked: boolean; barEnabled: boolean }) {
+export function PaintedCaptions({ rootRef, captionId, docked, barEnabled, phoneHost }: { rootRef: RefObject<HTMLDivElement | null>; captionId: string; docked: boolean; barEnabled: boolean; phoneHost?: HTMLDivElement | null }) {
   const showing = usePlayer(state => state.subtitlesShowing);
   const controlsVisible = usePlayer(state => state.controlsVisible);
   const nativeFullscreen = useRef(false);
@@ -17,7 +17,7 @@ export function PaintedCaptions({ rootRef, captionId, docked, barEnabled }: { ro
     const root = rootRef.current;
     const video = root?.querySelector('video');
     const layer = layerRef.current;
-    const bar = root?.querySelector<HTMLElement>('.dabble-bar');
+    const bar = (docked && phoneHost ? phoneHost : root)?.querySelector<HTMLElement>('.dabble-bar');
     if (!root || !video || !layer || !bar) return;
     const style = document.createElement('style');
     document.head.append(style);
@@ -130,7 +130,7 @@ export function PaintedCaptions({ rootRef, captionId, docked, barEnabled }: { ro
         track.mode = on ? 'showing' : 'disabled';
       });
     };
-  }, [rootRef, captionId, showing, controlsVisible, docked, barEnabled]);
+  }, [rootRef, captionId, showing, controlsVisible, docked, barEnabled, phoneHost]);
 
   return <div ref={layerRef} className="dabble-painted-captions" aria-hidden="true">{showing && cues.map((cue, index) => <div className="dabble-caption-swipe" key={`${cue.startTime}-${cue.endTime}-${index}`}><span className="dabble-caption-shape" aria-hidden="true">
     <svg viewBox="0 0 16 100" preserveAspectRatio="none"><path className="dabble-caption-paper" d="M16 0H11.2L2.4 10L8 24L.8 36L9.6 50L1.6 62L8.8 76L0 88L6.4 100H16Z" /><path d="M16 0H11.2L2.4 10L8 24L.8 36L9.6 50L1.6 62L8.8 76L0 88L6.4 100H16" /></svg>

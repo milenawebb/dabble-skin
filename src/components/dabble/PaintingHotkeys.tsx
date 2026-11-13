@@ -8,10 +8,12 @@ function PaintingHotkey({ keys, root, painting, size, blocked }: { keys: string;
     const container = root.current;
     const target = event.target instanceof Element ? event.target : null;
     if (!container || blocksPaintingShortcut(target, Boolean(container.querySelector('[aria-expanded="true"], [role="dialog"]')))) return;
-    const trayOpen = container.closest('.dabble-canvas')?.nextElementSibling?.getAttribute('data-state') !== 'tucked';
-    const label = keys === 'p' ? (trayOpen ? 'Put the paints away' : 'Start painting') : paintingShortcutLabel(keys, painting, size, trayOpen);
+    const canvas = container.closest('.dabble-canvas');
+    const tray = canvas?.parentElement?.querySelector('.phone-panel, .paint-tray');
+    const phone = tray?.classList.contains('phone-panel');
+    const trayOpen = phone ? Boolean(tray?.hasAttribute('data-painting')) : tray?.getAttribute('data-state') !== 'tucked';
+    const label = keys === 'p' ? (trayOpen ? phone ? 'Done painting' : 'Put the paints away' : 'Start painting') : paintingShortcutLabel(keys, painting, size, trayOpen);
     if (!label) return;
-    const tray = container.closest('.dabble-canvas')?.nextElementSibling;
     const button = Array.from(tray?.querySelectorAll<HTMLButtonElement>('button') ?? []).find(item => item.getAttribute('aria-label') === label);
     if (button && !button.disabled && button.getAttribute('aria-disabled') !== 'true') { button.click(); announceShortcut(container, keys); }
   } });

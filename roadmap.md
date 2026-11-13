@@ -1,5 +1,9 @@
 # Dabble
 
+## Shared phone watching/painting slot
+- [x] Replace stacked phone panels with one animated slot and compact three-row tools; use agreed reduced padding at 320px.
+- [x] Verify 44px targets at 320/360/390, uninterrupted playback, Done/Escape, fixed canvas, captions and narrow Chromium fullscreen; physical Android remains unavailable.
+
 ## Fixed phone frame and hanging plaque
 - [x] Remove the drawer and split painting; position the phone plaque outside the fixed frame with reserved space.
 - [x] Verify equal 24px frame, stable hide/show layout, captions, bottom-frame painting and narrow desktop/touch Chromium fullscreen controls; physical Android remains unverified.

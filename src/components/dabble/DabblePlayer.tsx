@@ -14,6 +14,8 @@ import { useFeedback } from './use-feedback';
 import { useBrushCursor } from './use-brush-cursor';
 import { setSoundsEnabled, unlockSound } from './sounds';
 import { PaintingGuide } from './PaintingGuide';
+import { PhonePaintPanel } from './PhonePaintPanel';
+import { phonePanelWidth } from './phone-panel-rules';
 
 type DabblePlayerProps = {
   src?: string;
@@ -66,6 +68,10 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   const [frameWidth, setFrameWidth] = useState(() => getFrameWidth(0));
   const [canvasBox, setCanvasBox] = useState({ width: 0, left: 0, top: 0 });
   const [plaqueSpace, setPlaqueSpace] = useState(0);
+  const [phoneHost, setPhoneHost] = useState<HTMLDivElement | null>(null);
+  const [viewportWidth, setViewportWidth] = useState(0);
+  const phone = canvasBox.width > 0 && canvasBox.width < 420;
+  const panelWidth = phonePanelWidth(canvasBox.width, viewportWidth);
   const [metadata, setMetadata] = useState({ src: '', width: 0, height: 0 });
   const stageInput = canvasBox.width > 0 ? { canvasWidth: canvasBox.width, canvasLeft: canvasBox.left, canvasTop: canvasBox.top, frame: paintFrameWidth(frameWidth, paint.painting && canvasBox.width >= 420) } : undefined;
   const layout = metadata.src === source
@@ -101,6 +107,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
     const updateFrame = () => {
       const rect = canvas.getBoundingClientRect();
       const width = rect.width;
+      setViewportWidth(window.innerWidth);
       setCanvasBox(previous => previous.width === width && previous.left === rect.left && previous.top === rect.top ? previous : { width, left: rect.left, top: rect.top });
       setFrameWidth(getFrameWidth(width));
       // Preserve the page's reserved space while its inner Container is fullscreen.
@@ -130,7 +137,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
       {paintable && <PaintingGuide root={canvasRef} open={trayOpen} />}
       <div className="dabble-stage">
         <VideoPlayer key={broken && ready ? 'broken' : 'normal'} poster={poster}>
-          <DabbleSkin paintable={paintable} brushSize={paint.size} painting={trayOpen} palette={paint.palette} onControlsState={setControlsState}>
+          <DabbleSkin phoneHost={phone ? phoneHost : null} paintable={paintable} brushSize={paint.size} painting={phone ? paint.painting : trayOpen} palette={paint.palette} onControlsState={setControlsState}>
             {playbackId && !(broken && ready) ? <MuxVideo ref={videoRef} source={muxSource} crossOrigin="anonymous" playsInline>
               {captions && <track kind="captions" src={captions.src} srcLang={captions.srcLang} label={captions.label} />}
             </MuxVideo> : <Video
@@ -146,8 +153,10 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
         </VideoPlayer>
       </div>
     </div>
-    <div className="dabble-plaque-space" aria-hidden="true" style={{ height: plaqueSpace }} />
-    {paintable && <PaintTray onOpenChange={setTrayOpen} defaultTrayOpen={defaultTrayOpen} paint={paint} src={src} ownerTools={ownerTools} {...(playbackId ? { playbackId } : {})} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} controlsState={controlsState} onActivity={trayActivity} />}
+    {phone && paintable ? <PhonePaintPanel width={panelWidth} setHost={setPhoneHost} paint={paint} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} onActivity={trayActivity} /> : <>
+      <div className="dabble-plaque-space" aria-hidden="true" style={{ height: plaqueSpace }} />
+      {paintable && <PaintTray onOpenChange={setTrayOpen} defaultTrayOpen={defaultTrayOpen} paint={paint} src={src} ownerTools={ownerTools} {...(playbackId ? { playbackId } : {})} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} controlsState={controlsState} onActivity={trayActivity} />}
+    </>}
     </>
   );
 }
