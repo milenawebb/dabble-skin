@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { recoverModuleLoad } from "../lib/module-recovery";
 
 function NotFoundComponent() {
   return (
@@ -39,6 +40,9 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
+    try {
+      if (recoverModuleLoad(error, window.sessionStorage, () => window.location.reload())) return;
+    } catch { /* Browser storage may be unavailable; retain the retry screen. */ }
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 
@@ -121,6 +125,20 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useEffect(() => {
+    const recover = (event: Event) => {
+      const error = 'payload' in event ? event.payload : 'reason' in event ? event.reason : undefined;
+      try {
+        if (recoverModuleLoad(error, window.sessionStorage, () => window.location.reload())) event.preventDefault();
+      } catch { /* Preserve normal error handling when storage is blocked. */ }
+    };
+    window.addEventListener('vite:preloadError', recover);
+    window.addEventListener('unhandledrejection', recover);
+    return () => {
+      window.removeEventListener('vite:preloadError', recover);
+      window.removeEventListener('unhandledrejection', recover);
+    };
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
