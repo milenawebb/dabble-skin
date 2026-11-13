@@ -57,6 +57,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   useEffect(() => {
     setSoundsEnabled(false);
     try {
+      localStorage.removeItem('dabble-painted-once'); // Discard obsolete first-stroke discovery state.
       localStorage.removeItem('dabble-sounds');
       const enabled = localStorage.getItem('dabble-sounds-v2') === 'on';
       setSoundsEnabled(enabled); setSoundChoice(enabled); setSoundOptIn(enabled);
@@ -77,6 +78,12 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   const [phoneHost, setPhoneHost] = useState<HTMLDivElement | null>(null);
   const [viewportWidth, setViewportWidth] = useState(0);
   const phone = canvasBox.width > 0 && canvasBox.width < 420;
+  const measured = canvasBox.width > 0;
+  useEffect(() => {
+    if (!measured) return;
+    paint.setPainting(false);
+    setTrayOpen(!phone && paintable);
+  }, [phone, measured, paintable, paint.setPainting]);
   const panelWidth = phonePanelWidth(canvasBox.width, viewportWidth);
   const [metadata, setMetadata] = useState({ src: '', width: 0, height: 0 });
   const stageInput = canvasBox.width > 0 ? { canvasWidth: canvasBox.width, canvasLeft: canvasBox.left, canvasTop: canvasBox.top, frame: paintFrameWidth(frameWidth, paint.painting && canvasBox.width >= 420) } : undefined;
@@ -140,7 +147,6 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
     <PlayerLabels>
     <div ref={canvasRef} className="dabble-canvas" data-painting={paint.painting || undefined} data-phone={canvasBox.width > 0 && canvasBox.width < 420 || undefined} data-stroke-count={paint.count} data-portrait={layout.portrait} style={geometry}>
       <canvas ref={paintRef} className="dabble-paint" aria-hidden="true" />
-      {paintable && <PaintingGuide root={canvasRef} open={trayOpen} />}
       <div className="dabble-stage">
         <VideoPlayer key={broken && ready ? 'broken' : 'normal'} poster={poster}>
           <DabbleSkin phoneHost={phone ? phoneHost : null} paintable={paintable} brushSize={paint.size} painting={phone ? paint.painting : trayOpen} palette={paint.palette} onControlsState={setControlsState}>
@@ -157,6 +163,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
             </Video>}
           </DabbleSkin>
         </VideoPlayer>
+        {paintable && measured && <PaintingGuide root={canvasRef} open={phone ? paint.painting : trayOpen} />}
       </div>
     </div>
     {phone && paintable ? <PhonePaintPanel width={panelWidth} setHost={setPhoneHost} paint={paint} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} onActivity={trayActivity} /> : <>

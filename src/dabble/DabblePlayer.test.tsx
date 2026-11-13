@@ -8,7 +8,7 @@ vi.mock('@videojs/react/media/mux-video', () => ({ MuxVideo: () => <video /> }))
 vi.mock('./DabbleSkin', () => ({ DabbleSkin: ({children}: {children: ReactNode}) => <div>{children}</div> }));
 const trayProps = vi.hoisted(() => vi.fn());
 vi.mock('./PaintTray', () => ({ PaintTray: (props: {ownerTools: boolean; defaultTrayOpen: boolean}) => { trayProps(props); return <div role="region" aria-label="Paint tools">{props.ownerTools && <span>Owner tools</span>}</div>; } }));
-vi.mock('./use-paint', () => ({ usePaint: () => ({ size:20, palette:['#000000'], color:0, brush:'rib', painting:false, count:1 }) }));
+vi.mock('./use-paint', () => ({ usePaint: () => ({ size:20, palette:['#000000'], color:0, brush:'rib', painting:false, setPainting: vi.fn(), count:1 }) }));
 const feedback = vi.hoisted(() => vi.fn());
 const unlock = vi.hoisted(() => vi.fn());
 vi.mock('./use-feedback', () => ({ useFeedback: (...args: unknown[]) => { feedback(...args); return () => {}; } }));

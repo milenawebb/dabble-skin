@@ -1,5 +1,10 @@
 # Dabble
 
+## Context-only paint hint and layout switching
+- [x] Remove opening dashed outlines, standing hint and first-stroke tracking; retain a two-second centered video-drag reminder and opening announcement.
+- [x] Reset painting mode at measured player phone-layout transitions; preserve playback and reopen desktop/tablet trays.
+- [x] Chromium phone viewport and desktop Mobile preview start watching; Mobile/Tablet/Desktop switching preserves playback. Only open-tools video drags show a two-second reminder; plain phone taps pause without hints. All 237 tests and automatic build pass; physical phones remain unverified.
+
 ## Mobile labels and volume
 - [x] Restrict shared labels to open paint tools on every layout, preserving accessible names and excluding ledge buttons.
 - [x] Keep phone ledge buttons transparent and paper-colored in every state with two-tone keyboard focus; exclude coarse-pointer volume popovers.

@@ -5,7 +5,6 @@ import { renderStroke, type Brush, type Geo, type Point, type Stroke } from './p
 import { backingRatio, initialPainting, pointSpacing, strokeSize, undoPainting } from './paint-rules';
 import { DEFAULT_PALETTE, loadPainting, savePainting, roundStroke, type Painting, type Palette } from './painting-data';
 import { sampleMux, sampleSource, sampleThumbnails, sampleVideo } from './video-palette';
-import { rememberFirstStroke } from './painting-discovery';
 
 // Hook-only modules have no React component refresh boundary. Reload on their
 // replacement rather than letting an existing player reuse incompatible slots.
@@ -112,14 +111,12 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
       const r = canvas.getBoundingClientRect();
       return [(event.clientX - r.left) / g.W, (event.clientY - r.top) / g.H];
     };
-    let strokeAnnounced = false;
     const start = (event: PointerEvent) => {
       const g = geo.current, options = settings.current;
       if (!options.painting || !g || pointer.current !== null || event.button !== 0) return;
       const selected = paletteRef.current[options.color];
       if (!selected) return;
       event.preventDefault();
-      strokeAnnounced = false;
       touched.current = true;
       pointer.current = event.pointerId;
       canvas.setPointerCapture(event.pointerId);
@@ -131,7 +128,6 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
       if (!g || !stroke || event.pointerId !== pointer.current) return;
       const next = point(event, g), last = stroke.pts.at(-1);
       if (!last || Math.hypot((next[0] - last[0]) * g.W, (next[1] - last[1]) * g.H) < pointSpacing(stroke.type)) return;
-      if (!strokeAnnounced) { rememberFirstStroke(); wrapper.dispatchEvent(new CustomEvent('dabble-first-stroke')); strokeAnnounced = true; }
       stroke.pts.push(next);
       stroke.size = strokeSize(settings.current.size, event.pointerType, event.pressure);
       display();
