@@ -7,11 +7,9 @@ export const PREVIEW_SIZES = [
 ] as const satisfies ReadonlyArray<{ id: string; label: string; icon: HandIconKind; width: number }>;
 export type PreviewSize = typeof PREVIEW_SIZES[number]['id'];
 
-// Only offer sizes that fit the visitor's window: under 820px the Tablet tab
-// cannot show its 768px column, and under 440px the visitor is already on a phone.
+// The preview chooser is only useful on a wide real browser viewport.
 export function visiblePreviewSizes(windowWidth: number) {
-  if (windowWidth < 440) return [];
-  return PREVIEW_SIZES.filter(size => size.id !== 'tablet' || windowWidth >= 820);
+  return windowWidth >= 900 ? [...PREVIEW_SIZES] : [];
 }
 
 export function effectivePreviewSize(selected: PreviewSize, windowWidth: number): PreviewSize {

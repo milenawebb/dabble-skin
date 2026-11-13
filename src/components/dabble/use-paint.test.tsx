@@ -73,3 +73,16 @@ describe('viewer starting painting', () => {
   });
 });
 it('saves blank canvas and does not restore clear history after reload', () => { const first=renderHook(()=>usePaint({current:null},{current:null},true,'blank-reload')); act(()=>first.result.current.clear()); first.unmount(); const next=renderHook(()=>usePaint({current:null},{current:null},true,'blank-reload')); expect(next.result.current.count).toBe(0); expect(next.result.current.canUndo).toBe(false); act(()=>next.result.current.undo()); expect(next.result.current.count).toBe(0); });
+
+it('selects a custom color separately from the six sampled paints and rejects invalid values', () => {
+  const { result } = renderHook(() => usePaint({current:null}, {current:null}, true, 'custom'));
+  const palette = [...result.current.palette];
+  act(() => result.current.chooseCustomColor('#123456'));
+  expect(result.current.customColor).toBe('#123456');
+  expect(result.current.color).toBe(-1);
+  expect(result.current.palette).toEqual(palette);
+  act(() => result.current.chooseCustomColor('invalid'));
+  expect(result.current.customColor).toBe('#123456');
+  act(() => result.current.setColor(2));
+  expect(result.current.color).toBe(2);
+});

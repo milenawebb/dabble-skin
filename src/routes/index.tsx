@@ -1,3 +1,4 @@
+import { Github } from 'lucide-react';
 import { createFileRoute } from "@tanstack/react-router";
 import { DabblePlayer } from "@/components/dabble/DabblePlayer";
 import { useEffect, useId, useRef, useState } from 'react';
@@ -16,11 +17,14 @@ const POSTER = `https://image.mux.com/${PLAYBACK_ID}/thumbnail.jpg?time=9&width=
 const SAMPLE_TIMES = [9, 14, 19, 23] as const;
 const CAPTIONS = { src: '/captions/dabble-dab.en.vtt', srcLang: 'en', label: 'English' };
 
-const NAV_LINKS = [
-  { href: '#brushes', label: 'The brushes' },
-  { href: '#open', label: 'Open to all' },
-  { href: '#developers', label: 'For developers' },
-];
+// Add the repository URL here when it is available. Never send visitors to a guessed repo.
+const REPO_URL: string = '';
+function GitHubLink({ text = false }: { text?: boolean }) {
+  const content = text ? 'View the code on GitHub' : <><svg className="github-blob" aria-hidden="true" viewBox="-17 -17 34 34"><path d={BLOB_PATH} /></svg><Github aria-hidden="true" size={24} /></>;
+  const className = text ? 'github-text' : 'github-icon';
+  const label = 'Dabble on GitHub (opens in a new tab)';
+  return REPO_URL ? <Button asChild variant="ghost" className={className}><a href={REPO_URL} target="_blank" rel="noopener noreferrer" aria-label={text ? undefined : label}>{content}</a></Button> : <Button variant="ghost" className={className} aria-disabled="true" aria-label={text ? undefined : label}>{content}</Button>;
+}
 const BRUSHES = [
   { type: 'imp', name: 'Impressionist', line: 'Short dabs of broken color.' },
   { type: 'cub', name: 'Cubist', line: 'Flat, angled facets.' },
@@ -117,12 +121,13 @@ function Index() {
   const playerRef = useRef<HTMLDivElement>(null);
   const [soundOptIn, setSoundOptIn] = useState(false);
   const keycapFeedback = useKeycapFeedback(playerRef, soundOptIn);
-  const keyRows = (rows: string[][], offset: number) => rows.map(([key = '', action], index) => <div className="keys-row" key={key}><dt><kbd className={`keycap paint-tone-${(index + offset) % 5}`} data-dabbed={keycapFeedback.active.has(key) || undefined} onPointerEnter={event => { if (event.isTrusted && event.pointerType === 'mouse') keycapFeedback.playSound(); }}><svg className="keycap-blob" aria-hidden="true" viewBox="-17 -17 34 34" preserveAspectRatio="none"><path d={BLOB_PATH} /></svg><span>{key}</span></kbd></dt><dd>{action}</dd></div>);
+  const keyRows = (rows: string[][], offset: number) => rows.map(([key = '', action], index) => <div className="keys-row" key={key}><dt><kbd className={`keycap paint-tone-${(index + offset) % 5}`} data-dabbed={keycapFeedback.active.has(key) || undefined} onPointerDown={event => { if (event.isTrusted && event.pointerType !== 'mouse') keycapFeedback.dab(key); }} onPointerEnter={event => { if (event.isTrusted && event.pointerType === 'mouse') keycapFeedback.playSound(); }}><svg className="keycap-blob" aria-hidden="true" viewBox="-17 -17 34 34" preserveAspectRatio="none"><path d={BLOB_PATH} /></svg><span>{key}</span></kbd></dt><dd>{action}</dd></div>);
   useEffect(() => {
     const measure = () => {
       const width = window.innerWidth;
+      const wide = matchMedia('(min-width: 900px)').matches;
       setWindowWidth(width);
-      setPreviewSize(selected => effectivePreviewSize(selected, width));
+      setPreviewSize(selected => effectivePreviewSize(selected, wide ? width : 0));
     };
     measure();
     window.addEventListener('resize', measure);
@@ -136,10 +141,7 @@ function Index() {
       <a className="skip-link" href="#player">Skip to player</a>
       <div className="landing-wall">
         <header className="landing-header">
-          <DabbleLogo size={28} tone="paper" />
-          <nav className="landing-nav" aria-label="Page sections">
-            {NAV_LINKS.map(link => <a key={link.href} href={link.href}><PaintedTitle>{link.label}</PaintedTitle></a>)}
-          </nav>
+          <GitHubLink />
         </header>
       </div>
       <main>
@@ -156,7 +158,7 @@ function Index() {
         </div>
         <section className="gallery-section gallery-intro" aria-label="About the artwork">
           <aside className="paper-piece museum-label" aria-label="Museum label">
-            <p className="museum-name">Dabble</p><p>2026</p><p>A skin for Video.js v10</p><p>Paper, ink, four brushes, six colors</p><p>Milena Webb</p>
+            <p className="museum-name">Dabble</p><p>2026</p><p>A skin for Video.js v10</p><p>Paper, ink, four brushes, six colors</p>
           </aside>
           <article className="paper-piece artist-note">
             <h2><PaintedTitle>Artist's note</PaintedTitle></h2>
@@ -197,11 +199,13 @@ function Index() {
           </div>
           <pre className="use-code"><code>{USAGE_CODE}</code></pre>
           <ul className="use-props">{PROPS.map(([name, line]) => <li key={name}><code>{name}</code><span>{line}</span></li>)}</ul>
+          <GitHubLink text />
         </section>
       </main>
       <footer className="landing-footer">
         <svg className="footer-stroke" aria-hidden="true" viewBox="0 0 1100 30" preserveAspectRatio="none"><path d="M2 12L18 7L11 5Q270 1 530 8T1091 5L1085 12L1098 15L1088 20Q800 28 552 21T5 23L12 18Z" /></svg>
         <DabbleLogo size={44} tone="paper" />
+        <GitHubLink />
         <div className="landing-footer-note">
           <p>Built on Video.js v10. Apache License 2.0.</p>
           <p>Made by Milena Webb for the Video.js v10 Skins Design Challenge, 2026.</p>

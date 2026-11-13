@@ -1,10 +1,10 @@
 .paint-tray { position: relative; width: calc(100% - 12px); max-width: 860px; margin: 26px 12px 18px auto; color: var(--dabble-ink); font-family: var(--dabble-ui-font); container-type: inline-size; transition: margin-top .3s ease; }
 .paint-tray[data-state="tucked"] { margin-top: 16px; }
 .tray-shelf { position: relative; display: grid; grid-template-columns: 32px 4px minmax(0, 6fr) 32px 4px minmax(0, 4fr) 4px minmax(0, 3fr) minmax(0, 5fr); align-items: end; gap: 4px; height: 122px; padding: 10px 14px 0; transition: height .3s ease; }
-.tray-shelf::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--dabble-paper); border: 1.5px solid var(--dabble-ink); border-bottom: 0; border-radius: 14px 10px 0 0 / 10px 15px 0 0; transition: visibility .3s; }
+.tray-shelf::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--dabble-paper); border: 1.5px solid var(--dabble-ink); border-bottom: 0; border-radius: 14px 10px 0 0 / 10px 15px 0 0; transition: opacity .3s ease; }
 .tray-shelf { isolation: isolate; }
-.paint-tray[data-state="tucked"] .tray-shelf { height: 54px; overflow: hidden; align-content: end; }
-.paint-tray[data-state="tucked"] .tray-shelf::before { visibility: hidden; }
+
+.paint-tray[data-state="tucked"] .tray-shelf::before { opacity: 0; }
 .tray-item { position: relative; display: inline-flex; align-items: end; justify-content: center; min-width: 0; }
 .tray-equipment { display: contents; }
 .paint-tray .tray-item > button { position: relative; isolation: isolate; flex: 0 0 auto; width: 32px; height: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 0; background: none; color: var(--dabble-ink); box-shadow: none; transition: none; }
@@ -35,8 +35,8 @@
 .tray-wood-grain { stroke: var(--shelf-wood-grain); }
 .tray-wood-outline { stroke: var(--dabble-ink); }
 .tray-ledge path { vector-effect: non-scaling-stroke; }
-.tray-reveal { transition: opacity .2s, translate .2s, visibility .2s; }
-.paint-tray[data-state="tucked"] .tray-reveal { opacity: 0; visibility: hidden; translate: 0 6px; pointer-events: none; }
+.tray-reveal { transition: opacity .3s ease; }
+.paint-tray[data-state="tucked"] .tray-reveal { opacity: 0; pointer-events: none; }
 .tray-mode { transition: opacity .45s, transform .45s; }
 .paint-tray[data-state="tucked"]:not([data-paused]):not([data-visible]):not(:focus-within) .tray-mode { opacity: 0; transform: translateY(6px); }
 .tray-tooltip, .tray-note { position: absolute; z-index: 8; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); width: max-content; max-width: 180px; padding: 4px 7px; border: 1px solid var(--dabble-ink); border-radius: 3px 2px 4px 2px; background: var(--dabble-paper); color: var(--dabble-ink); font: 12px/1.35 var(--dabble-ui-font); pointer-events: none; text-align: center; white-space: normal; }
@@ -58,7 +58,7 @@
 }
 @container (min-width: 560px) and (max-width: 699px) {
   .tray-shelf { grid-template-columns: 140px 96px minmax(0, 1fr); grid-template-areas: 'colors colors colors' 'brushes sizes actions'; height: auto; min-height: 162px; gap: 14px 4px; }
-  .paint-tray[data-state="tucked"] .tray-shelf { min-height: 54px; }
+
   .tray-mode { position: absolute; left: 14px; top: 10px; }
   .tray-sample { position: absolute; right: 14px; top: 10px; }
   .tray-colors { grid-area: colors; width: calc(100% - 88px); justify-self: center; height: 44px; }
@@ -79,8 +79,8 @@
   .tray-colors { width: calc(100% - 88px); justify-self: center; height: 44px; }
   .tray-sample { justify-self: end; }
   .tray-divider { display: none; }
-  .paint-tray[data-state="tucked"] .tray-shelf { height: 52px; display: block; }
-  .paint-tray[data-state="tucked"] .tray-reveal { display: none; }
+
+
 }
 @container (min-width: 420px) and (max-width: 559px) {
   .tray-shelf { grid-template-columns: 140px 96px minmax(0, 1fr); column-gap: 4px; }
@@ -130,7 +130,7 @@
     .paint-tray .tray-equipment .tray-actions { width: 220px; flex-shrink: 0; }
     .tray-colors { width: calc(100% - 88px); }
     .tray-colors { overflow-x: auto; }
-    .paint-tray[data-state="tucked"] .tray-equipment { display: none; }
+
   }
   @container (max-width: 419px) {
     .tray-shelf { grid-template-columns: 1fr; grid-template-areas: 'colors' 'equipment'; }
@@ -189,3 +189,14 @@
 @container (max-width: 559px) { .paint-tray .tray-blank > button { width: 44px; padding: 0; } .tray-blank-text { display: none; } }
 @media (pointer: coarse) { .paint-tray .tray-equipment .tray-actions { min-width: 278px; } @container (max-width: 559px) { .paint-tray .tray-equipment .tray-actions { min-width: 230px; } } }
 @media (forced-colors: active) { .paint-tray .tray-blank > button .tray-tag { fill: Canvas; stroke: CanvasText; } }
+
+/* A stable full-size shelf lives inside one animated clip; its layout never changes on tuck. */
+.tray-fold { height: var(--tray-open-height, 162px); overflow: hidden; transition: height .3s ease; }
+.paint-tray[data-state="tucked"] .tray-fold { height: 54px; }
+.tray-color-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.paint-tray .tray-custom > button { border: 0; background: none; width: 44px; height: 44px; min-height: 44px; }
+.tray-custom-blob { position: absolute; width: 30px; height: 30px; background: var(--custom-fill); clip-path: path('M1 12C2 2 13 -1 22 2C30 5 32 14 28 22C24 29 12 30 5 26C0 23 0 17 1 12Z'); }
+.tray-custom-plus { position: relative; display: grid; place-items: center; width: 14px; height: 14px; border-radius: 50%; background: var(--dabble-paper); color: var(--dabble-ink); font: 700 14px/1 var(--dabble-ui-font); }
+.tray-custom > button[aria-pressed="true"]::after { content: ''; position: absolute; inset: 3px; border: 1.5px solid var(--dabble-ink); border-radius: 46% 54% 50% 50%; }
+@media (prefers-reduced-motion: reduce) { .tray-fold, .tray-reveal, .tray-shelf::before { transition: none; } }
+@media (forced-colors: active) { .tray-custom-blob { background: Canvas; clip-path: none; border: 1px solid CanvasText; border-radius: 46% 54% 50% 50%; } .tray-custom-plus { background: Canvas; color: CanvasText; } }

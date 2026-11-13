@@ -61,3 +61,11 @@ describe('tray state interactions', () => {
     window.matchMedia=original;vi.useRealTimers();
   });
 });
+it('a picked custom paint becomes selected and selecting a sampled paint deselects it', () => {
+  const {container} = render(<Tray defaultTrayOpen />);
+  fireEvent.change(container.querySelector('input[type="color"]') ?? document.createElement('input'), {target:{value:'#123456'}});
+  const custom = container.querySelector('.tray-custom button');
+  expect(custom).toHaveAttribute('aria-pressed', 'true');
+  fireEvent.click(container.querySelector('.tray-color button') ?? document.createElement('button'));
+  expect(custom).toHaveAttribute('aria-pressed', 'false');
+});

@@ -59,3 +59,9 @@ use the editor.
 - Render the tray paper backing independently of its tools and keep the wooden ledge visible in every tray state; shelf decoration must not alter tray actions or visibility timing.
 - Register painting and help shortcuts through Video.js hooks, reusing tray button actions and blocking editable fields and open panels; existing player bindings remain unchanged.
 - Keep the Keys popover inside the Video.js Container with a controls lock and a focusable keyboard fallback when its responsive trigger is hidden.
+
+## Demo presentation
+- Share one optional repository URL across all three GitHub controls; leave controls inactive until supplied to avoid guessed destinations.
+- Observe title visibility once and replay decoration on hover; keycap pointer feedback never invokes player actions.
+- Keep the shelf layout stable inside a measured-height clipping wrapper and synchronize paper/tools transitions to avoid empty closing frames.
+- Keep custom paint separate from the six sampled colors and record it as each stroke's color so palette math and saved strokes stay unchanged.

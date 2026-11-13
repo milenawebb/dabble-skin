@@ -18,6 +18,9 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
   const [brush, setBrush] = useState<Brush>('rib');
   const [size, setSize] = useState(20);
   const [color, setColor] = useState(0);
+  const [customColor, setCustomColor] = useState<string | null>(null);
+  const customRef = useRef(customColor);
+  customRef.current = customColor;
   const strokes = useRef<Stroke[]>(supplied?.strokes ?? (enabled ? initialPainting() : []));
   const [palette, setPalette] = useState<Palette>(supplied?.palette ?? DEFAULT_PALETTE);
   const paletteRef = useRef<Palette>(palette);
@@ -38,7 +41,7 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
   settings.current = { painting: enabled && painting, brush, size, color };
 
   useEffect(() => {
-    history.current = []; setUndoCount(0);
+    history.current = []; setUndoCount(0); setCustomColor(null); setColor(0);
     const identity = playbackId ?? src;
     const restored = loadPainting(identity) ?? supplied;
     touched.current = Boolean(restored);
@@ -113,7 +116,7 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
     const start = (event: PointerEvent) => {
       const g = geo.current, options = settings.current;
       if (!options.painting || !g || pointer.current !== null || event.button !== 0) return;
-      const selected = paletteRef.current[options.color];
+      const selected = options.color === -1 ? customRef.current : paletteRef.current[options.color];
       if (!selected) return;
       event.preventDefault();
       strokeAnnounced = false;
@@ -166,7 +169,11 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
     strokes.current = next; setCount(next.length); replay.current(); persist.current();
   };
   return {
-    painting: enabled && painting, setPainting, brush, setBrush, size, setSize, color, setColor, count, canUndo: undoCount > 0 || count > 0, palette, sampleMessage,
+    painting: enabled && painting, setPainting, brush, setBrush, size, setSize, color, setColor, count, canUndo: undoCount > 0 || count > 0, palette, sampleMessage, customColor,
+    chooseCustomColor: (hex: string) => {
+      if (!/^#[0-9a-f]{6}$/i.test(hex)) return;
+      setCustomColor(hex); setColor(-1);
+    },
     getPainting: (): Painting => ({version:1,palette:[...paletteRef.current],strokes:strokes.current.map(roundStroke)}),
     sampleFrame: async () => {
       const video = wrapperRef.current?.querySelector('video');

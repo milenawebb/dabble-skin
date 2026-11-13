@@ -32,6 +32,16 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
   const [hoverCapable, setHoverCapable] = useState(false);
   const root = useRef<HTMLElement>(null);
   const mode = useRef<HTMLButtonElement>(null);
+  const picker = useRef<HTMLInputElement>(null);
+  const shelf = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const content = shelf.current;
+    const tray = root.current;
+    if (!content || !tray) return;
+    const measure = () => tray.style.setProperty('--tray-open-height', `${content.getBoundingClientRect().height}px`);
+    const observer = new ResizeObserver(measure); observer.observe(content); measure();
+    return () => observer.disconnect();
+  }, []);
   const hovering = useRef(false);
   const suppressPeek = useRef(false);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -108,7 +118,9 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
       clearTimeout(copyTimer.current); copyTimer.current = setTimeout(() => setCopied(false), 2000);
     } catch { setSnippet(code); }
   };
-  const color = paint.palette[paint.color] ?? paint.palette[0];
+  const color = paint.color === -1 ? paint.customColor ?? paint.palette[0] : paint.palette[paint.color] ?? paint.palette[0];
+  const customLabel = paint.customColor ? `Your color, ${colorName(paint.customColor).toLowerCase()}. Change it` : 'Mix your own color';
+  const swirl = `conic-gradient(${[...paint.palette, paint.palette[0]].join(', ')})`;
   const colorNames = paintColorNames(paint.palette);
   const iconTool = (label: string, icon: HandIconKind, action: () => void, disabled = false) => <Tool label={label} className="tray-reveal tray-circle" hidden={!open} disabled={disabled} onClick={action}><HandIcon kind={icon} /></Tool>;
   return <TooltipProvider delayDuration={0}><section ref={root} className="paint-tray" aria-label="Paint tools" data-state={state} data-visible={controlsState.visible || undefined} data-paused={controlsState.paused || undefined} style={{ '--tray-color': color } as CSSProperties}
@@ -118,13 +130,14 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
     onFocusCapture={() => { reveal(); onActivity(true); }}
     onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) { suppressPeek.current = false; scheduleTuck(); if (!hovering.current) onActivity(false); } }}
     onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); tuck(); } }}>
-    <div className="tray-shelf">
+    <div className="tray-fold"><div ref={shelf} className="tray-shelf">
       <Tool modeRef={mode} label={paint.painting || (initiallyOpen && open) ? 'Put the paints away' : 'Start painting'} className="tray-mode tray-circle" expanded={open} onClick={() => { if (paint.painting || (initiallyOpen && open)) tuck(); else pin(() => {}); }}><HandIcon kind="brush" /></Tool>
       <span className="tray-divider tray-divider-one tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
       <div className="tray-colors tray-reveal" role="group" aria-label="Paint color" inert={!open || undefined}>
         {paint.palette.map((hex, index) => <Tool key={index} label={colorNames[index] ?? `${colorName(hex)} paint`} pressed={paint.color === index} className="tray-color" style={{ '--pot-color': hex } as CSSProperties} onClick={() => pin(() => paint.setColor(index))}><PaintBlob selected={paint.color === index} angle={BLOB_ROTATIONS[index] ?? 0} scale={paint.color === index ? 1.18 : 1} /></Tool>)}
       </div>
-      <Tool label="Colors from this frame" className="tray-sample tray-circle tray-reveal" hidden={!open} onClick={paint.sampleFrame} note={paint.sampleMessage}><HandIcon kind="eyedropper" /></Tool>
+      <Tool label={customLabel} className="tray-sample tray-custom tray-reveal" hidden={!open} pressed={paint.color === -1} onClick={() => picker.current?.click()} style={{ '--custom-fill': paint.customColor ?? swirl } as CSSProperties}><span className="tray-custom-blob" /><span className="tray-custom-plus">+</span></Tool>
+      <input ref={picker} type="color" className="tray-color-input" aria-label="Custom paint color" tabIndex={-1} value={paint.customColor ?? paint.palette[0]} onChange={event => pin(() => paint.chooseCustomColor(event.target.value))} />
       <span className="tray-divider tray-divider-two tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
       <div className="tray-equipment">
       <div className="tray-brushes tray-reveal" role="group" aria-label="Brush" inert={!open || undefined}>
@@ -144,8 +157,8 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
         <span className="tray-item tray-blank tray-reveal" inert={!open || undefined}><Tooltip><TooltipTrigger asChild><Button variant="ghost" aria-label="Blank canvas" aria-disabled={paint.count === 0} onClick={() => { if (!paint.count) return; paint.clear(); setClearMessage('Canvas cleared. Undo to bring it back.'); }}><svg className="tray-tag" viewBox="0 0 140 40" preserveAspectRatio="none" aria-hidden="true"><path d="M3 3L48 2L88 4L137 2L138 19L136 37L92 38L45 36L2 38L3 20Z" vectorEffect="non-scaling-stroke" /></svg><HandIcon kind="clear" /><span className="tray-blank-text">Blank canvas</span></Button></TooltipTrigger><TooltipContent className="tray-tooltip-label">Blank canvas</TooltipContent></Tooltip></span>
       </div>
       </div>
-    </div>
-    {open && <span ref={brushLabel} className="tray-brush-name" data-visible={labelVisible || undefined} aria-hidden="true">{brushes.find(brush => brush.type === shownBrush)?.label.replace(' brush', '')}</span>}
+    </div></div>
+    <span ref={brushLabel} className="tray-brush-name" data-visible={open && labelVisible || undefined} aria-hidden="true">{brushes.find(brush => brush.type === shownBrush)?.label.replace(' brush', '')}</span>
     <svg className="tray-ledge" viewBox="0 0 680 18" preserveAspectRatio="none" width="100%" height="18" aria-hidden="true">
       <path className="tray-wood" d="M2 3C120 1 420 4 678 2L677 15C460 17 160 14 3 16Z" />
       <path className="tray-wood-shade" d="M4 12.5C160 11 460 14 676 12L677 15C460 17 160 14 3 16Z" />

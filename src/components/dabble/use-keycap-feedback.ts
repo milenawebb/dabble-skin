@@ -13,6 +13,17 @@ export function useKeycapFeedback(player: RefObject<HTMLDivElement | null>, opte
       swish(...SOUND.pause);
     }
   }, [player]);
+  const touchTimers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  const dab = useCallback((label: string) => {
+    clearTimeout(touchTimers.current.get(label));
+    setActive(previous => new Set([...previous, label]));
+    playSound();
+    touchTimers.current.set(label, setTimeout(() => {
+      touchTimers.current.delete(label);
+      setActive(previous => { const next = new Set(previous); next.delete(label); return next; });
+    }, 800));
+  }, [playSound]);
+  useEffect(() => () => { touchTimers.current.forEach(clearTimeout); }, []);
   useEffect(() => {
     const timers = new Map<string, ReturnType<typeof setTimeout>>();
     const gesture = (event: Event) => {
@@ -32,15 +43,17 @@ export function useKeycapFeedback(player: RefObject<HTMLDivElement | null>, opte
         setActive(previous => { const next = new Set(previous); next.delete(label); return next; });
       }, 600));
     };
+    document.addEventListener('pointerdown', gesture, true);
     document.addEventListener('click', gesture, true);
     document.addEventListener('keydown', gesture, true);
     document.addEventListener(SHORTCUT_EVENT, handled);
     return () => {
+      document.removeEventListener('pointerdown', gesture, true);
       document.removeEventListener('click', gesture, true);
       document.removeEventListener('keydown', gesture, true);
       document.removeEventListener(SHORTCUT_EVENT, handled);
       timers.forEach(clearTimeout);
     };
   }, [player, playSound]);
-  return { active, playSound };
+  return { active, playSound, dab };
 }

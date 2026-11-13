@@ -205,7 +205,7 @@
 .landing-wall { background: var(--landing-wall); color: var(--dabble-paper); --canvas-shadow: var(--canvas-shadow-dark-wall); }
 .skip-link { position: absolute; left: 16px; top: 12px; z-index: 20; padding: 10px 16px; background: var(--dabble-paper); color: var(--dabble-ink); border: 1.5px solid var(--dabble-ink); border-radius: 10px 14px 11px 15px / 15px 11px 16px 12px; font: 500 14px var(--dabble-ui-font); transform: translateY(-300%); }
 .skip-link:focus-visible { transform: none; outline: 2px solid var(--dabble-ink); outline-offset: 3px; }
-.landing-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; max-width: 1100px; margin-inline: auto; padding: 26px 24px 6px; color: var(--dabble-paper); }
+.landing-header { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 16px; max-width: 1100px; margin-inline: auto; padding: 26px 24px 6px; color: var(--dabble-paper); }
 .landing-nav { display: flex; gap: 22px; flex-wrap: wrap; }
 .landing-nav a { color: var(--dabble-paper); text-decoration: none; font: 500 15px var(--dabble-ui-font); padding: 6px 2px; }
 .landing-nav { --title-paint: var(--dabble-paper); }
@@ -216,7 +216,17 @@
 .film-credit { margin: 18px auto 0; font: 500 20px/1.3 Caveat, cursive; color: var(--landing-wall-dim); }
 .painted-title { position: relative; display: inline; }
 .painted-title > svg { position: absolute; left: 0; bottom: -8px; width: 100%; height: 12px; overflow: visible; pointer-events: none; fill: none; stroke: var(--title-paint, var(--landing-teal)); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; transition: stroke-dashoffset .35s ease, opacity .2s; }
-.landing-nav a:focus-visible .painted-title > svg { opacity: 1; stroke-dashoffset: 0; }
+.painted-title[data-drawn] > svg { opacity: 1; stroke-dashoffset: 0; animation: title-draw .35s ease both; }
+@keyframes title-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.github-icon { position: relative; isolation: isolate; width: 44px; height: 44px; padding: 0; color: var(--dabble-paper); background: none; }
+.github-icon > svg:not(.github-blob) { position: relative; width: 24px; height: 24px; }
+.github-icon .github-blob { position: absolute; inset: 0; width: 44px; height: 44px; fill: var(--logo-blue); opacity: 0; transition: opacity .15s; }
+.github-icon:hover { background: none; }
+.github-icon:hover .github-blob { opacity: 1; }
+.github-icon:focus-visible, .github-text:focus-visible { outline: 2px solid var(--dabble-paper); outline-offset: 4px; box-shadow: var(--dabble-focus-ring); }
+.github-text { margin-top: 32px; min-height: 44px; padding: 0; color: var(--dabble-paper); text-decoration: underline; text-underline-offset: 4px; }
+.github-text:hover { background: none; }
+@media (max-width: 899px) { .preview-column { margin-top: 30px; } }
 .paint-tone-0 { --key-paint: var(--logo-lilac); }
 .paint-tone-1 { --key-paint: var(--logo-orange); }
 .paint-tone-2 { --key-paint: var(--logo-blue); }
@@ -230,7 +240,6 @@
 .keycap[data-dabbed] .keycap-blob { opacity: 1; }
 .keycap.paint-tone-2[data-dabbed] { color: var(--dabble-paper); }
 @media (hover: hover) and (pointer: fine) {
-  .painted-title:hover > svg, .landing-nav a:hover .painted-title > svg { opacity: 1; stroke-dashoffset: 0; }
   .keycap:hover .keycap-blob { opacity: 1; }
   .keycap.paint-tone-2:hover { color: var(--dabble-paper); }
 }
@@ -329,6 +338,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .paper-piece { transform: none; }
+  .painted-title > svg, .painted-title[data-drawn] > svg { opacity: 1; stroke-dashoffset: 0; animation: none; }
   .preview-column, .device-blob, .keycap-blob, .painted-title > svg { transition: none; }
 }
 @media (forced-colors: active) {
@@ -419,3 +429,5 @@
     letter-spacing: 0;
   }
 }
+
+@media (forced-colors: active) { .github-icon, .github-text { color: CanvasText; } .github-blob { display: none; } }

@@ -5,19 +5,14 @@ describe('preview size tabs', () => {
   it('offers all three sizes on a wide window', () => {
     expect(visiblePreviewSizes(1280).map(size => size.id)).toEqual(['desktop', 'tablet', 'mobile']);
   });
-  it('hides the Tablet tab when the window is narrower than 820px', () => {
-    expect(visiblePreviewSizes(819).map(size => size.id)).toEqual(['desktop', 'mobile']);
-    expect(visiblePreviewSizes(820).map(size => size.id)).toContain('tablet');
+  it('does not offer any switch below 900px', () => {
+    expect(visiblePreviewSizes(390)).toEqual([]);
+    expect(visiblePreviewSizes(899)).toEqual([]);
+    expect(visiblePreviewSizes(900).map(size => size.id)).toEqual(['desktop', 'tablet', 'mobile']);
   });
-  it('hides the whole group when the window is narrower than 440px', () => {
-    expect(visiblePreviewSizes(439)).toEqual([]);
-    expect(visiblePreviewSizes(440)).not.toEqual([]);
-  });
-  it('falls back to Desktop when the selected size no longer fits', () => {
-    expect(effectivePreviewSize('tablet', 700)).toBe('desktop');
-    expect(effectivePreviewSize('tablet', 1000)).toBe('tablet');
-    expect(effectivePreviewSize('mobile', 500)).toBe('mobile');
-    expect(effectivePreviewSize('mobile', 439)).toBe('desktop');
-    expect(effectivePreviewSize('tablet', 819)).toBe('desktop');
+  it('uses full-width Desktop below 900px regardless of selection', () => {
+    expect(effectivePreviewSize('tablet', 899)).toBe('desktop');
+    expect(effectivePreviewSize('mobile', 390)).toBe('desktop');
+    expect(effectivePreviewSize('mobile', 900)).toBe('mobile');
   });
 });

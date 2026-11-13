@@ -1,5 +1,11 @@
 # Dabble
 
+## Real-phone fixes
+- [x] Restrict preview switch to 900px+, simplify header and museum label, prepare three shared GitHub controls.
+- [ ] Activate and verify the three GitHub destinations: waiting for the user's repository URL.
+- [x] Draw title strokes on scroll; add decorative touch keycap feedback and a working custom paint picker.
+- [x] Close shelf and tools as one clipped piece; verify 390px touch, tablet/desktop, slow transitions, custom-color saved strokes and reduced motion; regression tests pass.
+
 ## Video edge and phone fixes
 - [x] Add a single non-fullscreen video pencil outline and soft shadow; restore device drawings and reset invalid preview choices.
 - [x] Keep brush tags within tray bounds with collision-free above/below/beside placement.
