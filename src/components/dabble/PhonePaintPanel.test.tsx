@@ -24,3 +24,14 @@ it('Escape restores watching and returns focus to the brush button', () => {
   expect(container.querySelector('.phone-paint-panel')).toHaveAttribute('inert');
   expect(screen.getByRole('button', { name: 'Start painting' })).toHaveFocus();
 });
+it('offers independent small, medium and large selections', () => {
+  render(<Panel />);
+  fireEvent.click(screen.getByRole('button', { name: 'Start painting' }));
+  for (const name of ['Small brush', 'Medium brush', 'Large brush']) {
+    fireEvent.click(screen.getByRole('button', { name }));
+    expect(screen.getByRole('button', { name })).toHaveAttribute('aria-pressed', 'true');
+    for (const other of ['Small brush', 'Medium brush', 'Large brush'].filter(item => item !== name)) {
+      expect(screen.getByRole('button', { name: other })).toHaveAttribute('aria-pressed', 'false');
+    }
+  }
+});

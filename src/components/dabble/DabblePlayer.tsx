@@ -54,7 +54,12 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   const [soundOptIn, setSoundOptIn] = useState(false);
   const automaticSound = useFeedback(canvasRef, soundChoice, paint.painting, paint.brush);
   useEffect(() => {
-    try { const saved = localStorage.getItem('dabble-sounds'); setSoundsEnabled(saved === 'on'); setSoundChoice(saved === 'on'); setSoundOptIn(saved === 'on'); } catch { /* Storage is optional. */ }
+    setSoundsEnabled(false);
+    try {
+      localStorage.removeItem('dabble-sounds');
+      const enabled = localStorage.getItem('dabble-sounds-v2') === 'on';
+      setSoundsEnabled(enabled); setSoundChoice(enabled); setSoundOptIn(enabled);
+    } catch { /* Storage is optional; failed reads leave sounds off. */ }
   }, []);
   useEffect(() => { onSoundPreferenceChange?.(soundChoice && soundOptIn); }, [soundChoice, soundOptIn, onSoundPreferenceChange]);
   const toggleSounds = () => {
@@ -63,7 +68,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
     if (next) unlockSound();
     setSoundChoice(next);
     setSoundOptIn(next);
-    try { localStorage.setItem('dabble-sounds', next ? 'on' : 'off'); } catch { /* Storage is optional. */ }
+    try { localStorage.setItem('dabble-sounds-v2', next ? 'on' : 'off'); } catch { /* Storage is optional. */ }
   };
   const [frameWidth, setFrameWidth] = useState(() => getFrameWidth(0));
   const [canvasBox, setCanvasBox] = useState({ width: 0, left: 0, top: 0 });

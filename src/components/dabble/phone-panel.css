@@ -1,21 +1,26 @@
-.phone-panel { position: relative; width: var(--phone-panel-width); max-width: 100vw; margin: 0 0 18px; left: calc((100% - var(--phone-panel-width)) / 2); color: var(--dabble-ink); }
+.phone-panel { position: relative; width: var(--phone-panel-width); max-width: 100vw; margin: 20px 0 18px; left: calc((100% - var(--phone-panel-width)) / 2); color: var(--dabble-ink); }
 .phone-panel-slot { position: relative; height: 72px; transition: height .25s ease; }
-.phone-panel[data-painting] .phone-panel-slot { height: 196px; }
+.phone-panel[data-painting] .phone-panel-slot { height: 256px; }
 .phone-watch-panel, .phone-paint-panel { position: absolute; inset: 0 auto auto 0; width: 100%; transition: opacity .25s ease; }
 .phone-watch-panel { height: 72px; opacity: 1; }
-.phone-paint-panel { height: 196px; opacity: 0; pointer-events: none; padding: 36px var(--phone-panel-padding) 12px; display: grid; grid-template-rows: repeat(3,44px); gap: 8px; background: var(--dabble-paper); outline: 1.5px solid var(--dabble-ink); outline-offset: -1.5px; border-radius: 8px 6px 7px 5px; box-sizing: border-box; }
+.phone-paint-panel { height: 256px; opacity: 0; pointer-events: none; padding: 12px var(--phone-panel-padding); display: grid; grid-template-rows: 44px 120px 44px; gap: 12px; background: var(--dabble-paper); outline: 1.5px solid var(--dabble-ink); outline-offset: -1.5px; border-radius: 8px 6px 7px 5px; box-sizing: border-box; }
 .phone-panel[data-painting] .phone-watch-panel { opacity: 0; pointer-events: none; }
 .phone-panel[data-painting] .phone-paint-panel { opacity: 1; pointer-events: auto; }
-.phone-tool-row { display: flex; justify-content: space-between; height: 44px; }
+.phone-tool-row { display: flex; justify-content: space-between; align-items: end; height: 44px; }
 .phone-tool-row button { position: relative; isolation: isolate; flex: 0 0 44px; width: 44px; min-width: 44px; height: 44px; padding: 0; color: var(--dabble-ink); }
 .phone-colors .tray-blob { width: 34px; height: 34px; }
 .phone-tool-row .dabble-icon { width: 22px; height: 22px; }
 .phone-tool-row .tray-blob { fill: var(--pot-color, var(--tray-color)); }
-.phone-brushes .tray-brush-drawing { width: 13px; height: 37px; transform: rotate(35deg); z-index: 1; }
-.phone-brushes button > .tray-blob:first-child:not(:last-child) { position: absolute; width: 34px; height: 34px; }
+.phone-brushes { position: relative; height: 120px; }
+.phone-brushes .phone-upright-brush { height: 82px; }
+.phone-brushes .tray-brush-drawing { width: 26px; height: 72px; transform-origin: 50% 95%; }
+.phone-brushes .phone-upright-brush[aria-pressed="true"] .tray-brush-drawing { transform: translateY(-6px) rotate(-4deg); }
 .phone-custom-color { position: absolute; width: 30px; height: 30px; background: var(--pot-color); border: 1px dashed var(--dabble-ink); border-radius: 47% 53% 45% 55%; }
 .phone-colors .dabble-icon { z-index: 1; }
-.phone-brush-name { position: absolute; right: 12px; top: 6px; padding: 0 5px; font: 19px/1.15 'Caveat', cursive; border: 1px solid var(--dabble-ink); background: var(--dabble-paper); border-radius: 3px; pointer-events: none; }
+.phone-brush-name { position: absolute; left: clamp(0px, calc(var(--phone-label-index) * (100% - 44px) / 6 + 22px - 56px), calc(100% - 112px)); top: 0; width: 112px; text-align: center; pointer-events: none; }
+.phone-brush-name > span { display: inline-block; padding: 0 4px; font: 19px/1.15 'Caveat', cursive; border: 1px solid var(--dabble-ink); background: var(--dabble-paper); border-radius: 3px 2px 4px 2px; animation: phone-label-in .15s ease; }
+@keyframes phone-label-in { from { opacity: 0; } to { opacity: 1; } }
+.phone-circle::before { content: ''; position: absolute; inset: 6px; border: 1.5px solid var(--dabble-ink); border-radius: 47% 53% 50% 50% / 52% 46% 54% 48%; background: var(--dabble-paper); z-index: -1; }
 .phone-ledge { position: relative; height: 44px; }
 .phone-ledge button { height: 44px; gap: 8px; color: var(--dabble-paper); font: 21px/1 'Caveat', cursive; }
 .phone-ledge .tray-ledge { bottom: -8px; left: 0; width: 100%; }
@@ -26,8 +31,8 @@
 .phone-control-plaque .dabble-time { font: 13px 'Instrument Serif',serif; gap: 1px; }
 .phone-control-plaque .phone-seek-edge { position: absolute; left: 12px; right: 12px; top: -16px; }
 .phone-control-plaque .dabble-seek { height: 44px; }
-.phone-control-plaque:not([data-phone-visible]):not(:focus-within) { opacity: 0; pointer-events: none; }
-.phone-control-plaque:focus-within { opacity: 1; transition: none; }
-.phone-blank button { border: 1px solid var(--dabble-ink); border-radius: 5px 3px 4px 6px; }
-@media (prefers-reduced-motion: reduce) { .phone-panel-slot, .phone-watch-panel, .phone-paint-panel { transition: none; } }
-@media (forced-colors: active) { .phone-paint-panel, .phone-brush-name { background: Canvas; color: CanvasText; border-color: CanvasText; } .phone-panel button { color: CanvasText; } }
+.phone-control-plaque { opacity: 1; pointer-events: auto; }
+.phone-actions .phone-blank { flex: 0 0 150px; width: 150px; gap: 6px; font: 20px/1 'Caveat', cursive; }
+.phone-blank .tray-tag { position: absolute; inset: 2px 0; width: 100%; height: 40px; z-index: -1; fill: var(--dabble-paper); stroke: var(--dabble-ink); stroke-width: 1.5; }
+@media (prefers-reduced-motion: reduce) { .phone-panel-slot, .phone-watch-panel, .phone-paint-panel { transition: none; } .phone-brush-name > span { animation: none; } }
+@media (forced-colors: active) { .phone-paint-panel, .phone-brush-name > span, .phone-circle::before { background: Canvas; color: CanvasText; border-color: CanvasText; } .phone-panel button { color: CanvasText; } .phone-blank .tray-tag { fill: Canvas; stroke: CanvasText; } }

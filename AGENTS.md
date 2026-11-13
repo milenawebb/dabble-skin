@@ -41,7 +41,7 @@ use the editor.
 - Read custom captions from hidden tracks on every browser; the pinned text-track patch keeps library CC intent separate from native mode, allowing iPhone fullscreen handover and unreadable-cue fallback without duplicate captions.
 - Outline caption paper with three SVG parts and non-scaling strokes; fixed-width bristle ends prevent long lines from stretching their shape.
 - Derive unique tray color labels in palette.ts so resampling updates names.
-- Portal phone controls into a shared watching/painting slot and restore them inside the fullscreen Container; switching panels must not alter the canvas geometry.
+- Portal phone controls into a shared watching/painting slot and restore them inside the fullscreen Container; use a library controls lock only outside fullscreen to prevent phone idle hiding, and never alter canvas geometry on slot swaps.
 - Pass native caption tracks through DabblePlayer props and keep sample VTT files in public/captions so the actual player exercises captions without injected test tracks.
 - Keep the supplied brush engine a math-preserving TypeScript port; isolate interaction and tray UI from renderStroke so reference rendering remains reproducible.
 - Store paintings as versioned seeded normalized strokes, rounded on completion and persisted per video source in optional browser storage; use offscreen canvases only as disposable rendering caches.
@@ -53,7 +53,7 @@ use the editor.
 - Pre-optimize the Mux React media entry and Lucide in Vite to avoid late dependency discovery replacing shared React chunks during a preview session.
 - Use VolumePopover with a MuteButton trigger and vertical VolumeSlider only for hover-capable players at least 420px wide; hold the library controls lock while its popup is open.
 - Keep optional Web Audio and activation feedback in a wrapper-level hook with native state listeners and captured trusted gestures, so Video.js actions and brush rendering stay untouched.
-- Gate every audio entry in sounds.ts and stop registered outputs on opt-out; keep brush voices in their wrapper hook so rendering stays unchanged.
+- Gate every audio entry in sounds.ts and stop registered outputs on opt-out; version sound consent keys and discard obsolete choices so consent resets start silent; keep brush voices in their wrapper hook so rendering stays unchanged.
 - Share supplied icon and brush SVGs in a browser-safe drawing module; keep tray state and cursor geometry separate from the painting engine so visual changes cannot alter saved strokes.
 - Subscribe the tray to Video.js visibility through the skin and request the existing controls lock during tray interaction; never introduce a second player auto-hide timer.
 - Page themes must not recolor player/tray; gallery samples use renderStroke and the player's onPaletteChange callback.

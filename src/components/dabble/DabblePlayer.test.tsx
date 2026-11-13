@@ -47,21 +47,28 @@ describe('painting defaults', () => {
     expect(unlock).not.toHaveBeenCalled();
   });
   it('restores a stored off choice without activating audio', () => {
-    localStorage.setItem('dabble-sounds', 'off'); render(<DabblePlayer />);
+    localStorage.setItem('dabble-sounds-v2', 'off'); render(<DabblePlayer />);
     expect(trayProps.mock.lastCall?.[0].sounds).toBe(false); expect(unlock).not.toHaveBeenCalled();
   });
   it('remembers explicit on consent without activating audio on load', () => {
-    localStorage.setItem('dabble-sounds', 'on');
+    localStorage.setItem('dabble-sounds-v2', 'on');
     const changed = vi.fn(); render(<DabblePlayer onSoundPreferenceChange={changed} />);
     expect(trayProps.mock.lastCall?.[0].sounds).toBe(true);
     expect(changed).toHaveBeenLastCalledWith(true);
     expect(unlock).not.toHaveBeenCalled();
   });
+  it('discards earlier sound-on consent and starts silent for returning visitors', () => {
+    localStorage.setItem('dabble-sounds', 'on');
+    render(<DabblePlayer />);
+    expect(trayProps.mock.lastCall?.[0].sounds).toBe(false);
+    expect(localStorage.getItem('dabble-sounds')).toBeNull();
+    expect(unlock).not.toHaveBeenCalled();
+  });
   it('unlocks only when switched on and persists both choices', () => {
     render(<DabblePlayer />);
     act(() => trayProps.mock.lastCall?.[0].toggleSounds());
-    expect(unlock).toHaveBeenCalledOnce(); expect(localStorage.getItem('dabble-sounds')).toBe('on');
+    expect(unlock).toHaveBeenCalledOnce(); expect(localStorage.getItem('dabble-sounds-v2')).toBe('on');
     act(() => trayProps.mock.lastCall?.[0].toggleSounds());
-    expect(unlock).toHaveBeenCalledOnce(); expect(localStorage.getItem('dabble-sounds')).toBe('off');
+    expect(unlock).toHaveBeenCalledOnce(); expect(localStorage.getItem('dabble-sounds-v2')).toBe('off');
   });
  });

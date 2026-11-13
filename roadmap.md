@@ -1,5 +1,10 @@
 # Dabble
 
+## Phone plaque, restored tools and fresh sound consent
+- [x] Keep the phone plaque visible with a 20px canvas gap, preserving the panel swap and fullscreen; verified playing after idle in Chromium.
+- [x] Restore upright brushes, three size blobs, circle actions and Blank canvas tag with 44px targets; verified at 320/360/390px.
+- [x] Migrate sound consent to a new key, delete the old key, and verify fresh-load painting creates no audio; real stroke and permanent regression test pass.
+
 ## Shared phone watching/painting slot
 - [x] Replace stacked phone panels with one animated slot and compact three-row tools; use agreed reduced padding at 320px.
 - [x] Verify 44px targets at 320/360/390, uninterrupted playback, Done/Escape, fixed canvas, captions and narrow Chromium fullscreen; physical Android remains unavailable.

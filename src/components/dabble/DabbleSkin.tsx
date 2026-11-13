@@ -54,6 +54,8 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
   const hasError = usePlayer((state) => Boolean(state.error));
   const toggleControls = usePlayer((state) => state.toggleControls);
   const requestControlsLock = usePlayer((state) => state.requestControlsLock);
+  // A permanent library lock disables phone idle hiding, but not fullscreen auto-hide.
+  useEffect(() => phoneHost && !fullscreenActive ? requestControlsLock() : undefined, [phoneHost, fullscreenActive, requestControlsLock]);
   const centerVisible = (showCenterPlay(started, ended) || (painting && (paused || Boolean(phoneHost)))) && !hasError;
   const centerRef = useRef<HTMLButtonElement>(null);
   const playRef = useRef<HTMLButtonElement>(null);
@@ -184,7 +186,7 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
   const time = <span className="dabble-time"><Time.Value type="current" /><span aria-hidden="true">/</span><Time.Value type="duration" /></span>;
   const colors = { '--dabble-seek':palette[0], '--dabble-b1':tintForInk(palette[4]), '--dabble-b2':tintForInk(palette[3]), '--dabble-b3':tintForInk(palette[2]), '--dabble-b4':tintForInk(palette[5]), '--dabble-b5':tintForInk(palette[1]), '--dabble-keys-tint':tintForInk(palette[0]), '--keys-left': `${keysBounds.left + Math.max(6, keysBounds.width - 306)}px`, '--keys-top': `${keysBounds.top + 6}px`, '--keys-width': `${Math.max(0, Math.min(300, keysBounds.width - 12))}px`, '--keys-height': `${keysBounds.height * .8}px` } as CSSProperties;
   const phonePlaque = Boolean(phoneHost) && !fullscreenActive;
-  const bar = <Controls.Root><Controls.Content className={`dabble-bar${phonePlaque ? ' phone-control-plaque' : ''}`} style={phonePlaque ? colors : undefined} data-phone-visible={controlsVisible || undefined} inert={phonePlaque && painting || undefined}>
+  const bar = <Controls.Root><Controls.Content className={`dabble-bar${phonePlaque ? ' phone-control-plaque' : ''}`} style={phonePlaque ? colors : undefined} inert={phonePlaque && painting || undefined}>
     {phonePlaque ? <><div className="phone-seek-edge">{seek}</div><Controls.Group className="dabble-row" aria-label="Playback controls">{play}{time}{mute}{captions}{speed}{fullscreen}</Controls.Group></> : size === 'small' ? <><Controls.Group className="dabble-row" aria-label="Timeline">{seek}{time}</Controls.Group><Controls.Group className="dabble-row dabble-buttons-row" aria-label="Playback controls">{play}{mute}{captions}{speed}{keys}{fullscreen}</Controls.Group></> : <Controls.Group className="dabble-row" aria-label="Playback controls">{play}{seek}{time}{mute}{captions}{speed}{keys}{fullscreen}</Controls.Group>}
   </Controls.Content></Controls.Root>;
 
