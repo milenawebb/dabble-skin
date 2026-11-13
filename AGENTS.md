@@ -33,6 +33,7 @@ use the editor.
 - Keep player composition inside `DabblePlayer.tsx`, using MuxVideo for playbackId and Video for src; keep UI primitives inside DabbleSkin so source changes cannot alter the skin.
 - Use the packaged `@videojs/react/video` player preset with custom Video.js UI primitives and scoped skin CSS; do not import the stock skin stylesheet.
 - Keep canvas and paint wrappers outside `VideoPlayer`; `DabbleSkin` registers its inner `Container` as the fullscreen target, so fullscreen excludes the frame.
+- Observe library fullscreen transitions for best-effort orientation locking; swallow missing APIs and failures so fullscreen actions remain untouched.
 - Calculate frame spacing from the canvas wrapper's measured width with `ResizeObserver`, and video shape from native metadata; keep geometry rules in a pure tested helper.
 - Round video-stage size and screen position in the layout helper; use paper behind non-fullscreen media and black in fullscreen to prevent dark subpixel seams.
 - Delegate visibility timing and input actions to Video.js; preserve component-provided handlers and ARIA when rendering custom button content.

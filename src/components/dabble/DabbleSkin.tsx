@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { getHotkeyCoordinator } from '@videojs/core/dom';
 import { announceShortcut } from './page-feedback';
+import { updateFullscreenOrientation } from './fullscreen-orientation';
 
 function Blob() { return <span className="dabble-blob" aria-hidden="true" />; }
 
@@ -36,6 +37,13 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
   const muteRef = useRef<HTMLButtonElement>(null);
   const volumeEscape = useRef(false);
   const fullscreenActive = usePlayer((state) => state.isFullscreen);
+  const previousFullscreen = useRef(false);
+  useEffect(() => {
+    if (previousFullscreen.current === fullscreenActive) return;
+    previousFullscreen.current = fullscreenActive;
+    const video = rootRef.current?.querySelector('video');
+    updateFullscreenOrientation(fullscreenActive, video?.videoWidth ?? 0, video?.videoHeight ?? 0, screen.orientation);
+  }, [fullscreenActive]);
   const exitFullscreen = usePlayer((state) => state.exitFullscreen);
   const docked = shouldDockControls(playerWidth, fullscreenActive);
   const started = usePlayer((state) => state.started);
