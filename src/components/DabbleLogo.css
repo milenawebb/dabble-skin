@@ -1,4 +1,20 @@
-.dabble-logo { display: inline-block; width: auto; max-width: 100%; vertical-align: middle; object-fit: contain; }
-.dabble-logo--animate { animation: dabble-logo-in .5s ease-out both; }
-@keyframes dabble-logo-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-@media (prefers-reduced-motion: reduce) { .dabble-logo--animate { animation: none; } }
+.dabble-logo { display: inline-block; max-width: 100%; vertical-align: middle; }
+.dabble-logo--animate { pointer-events: all; }
+.dabble-logo .dabble-blob { position: static; opacity: 1; transition: none; transform-box: fill-box; transform-origin: 50% 90%; }
+.dabble-logo--animate .dabble-blob { animation: dabble-logo-plop .55s cubic-bezier(.3, .7, .3, 1) both; }
+.dabble-logo--animate .dabble-blob:nth-child(1) { animation-delay: .25s; }
+.dabble-logo--animate .dabble-blob:nth-child(2) { animation-delay: .37s; }
+.dabble-logo--animate .dabble-blob:nth-child(3) { animation-delay: .49s; }
+.dabble-logo--animate .dabble-blob:nth-child(4) { animation-delay: .61s; }
+.dabble-logo--animate .dabble-blob:nth-child(5) { animation-delay: .73s; }
+@keyframes dabble-logo-plop {
+  0% { opacity: 0; transform: translateY(-28%) scale(.3); }
+  55% { opacity: 1; transform: translateY(0) scale(1.14, .84); }
+  75% { opacity: 1; transform: translateY(0) scale(.95, 1.06); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) { .dabble-logo--animate .dabble-blob { animation: none; } }
+@media (forced-colors: active) {
+  .dabble-logo .dabble-blob { display: none; }
+  .dabble-logo .dabble-letters { fill: CanvasText; }
+}

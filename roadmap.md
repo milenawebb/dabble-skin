@@ -1,5 +1,9 @@
 # Dabble
 
+## Layered logo plop
+- [x] Render supplied ink/paper SVG layers inline and animate hero blobs only, with two-second hover replay cooldown.
+- [x] Verify exact inline artwork, load, throttled hover, reduced-motion, forced-colors, static header/footer and phone layout.
+
 ## Painting discovery
 - [x] Add timed border guidance, persisted first-stroke completion and video-drag reminders without changing click playback.
 - [x] Add timed/selected brush-name tags without increasing tray height.
