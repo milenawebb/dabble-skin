@@ -1,0 +1,6 @@
+.player-label-scope { display: contents; }
+.player-label-position { position: fixed; z-index: 100; width: max-content; max-width: calc(100vw - 8px); pointer-events: none; opacity: 0; transition: opacity .15s; }
+.player-label-position[data-visible] { opacity: 1; }
+.player-paper-label { display: block; width: max-content; max-width: 100%; padding: 1px 5px; border: 1.5px solid var(--dabble-ink); border-radius: 3px 2px 4px 2px / 2px 4px 2px 3px; background: var(--dabble-paper); color: var(--dabble-ink); font: 500 19px/1.15 'Caveat', cursive; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) { .player-label-position { transition: none; } }
+@media (forced-colors: active) { .player-paper-label { color: CanvasText; background: Canvas; border-color: CanvasText; } }

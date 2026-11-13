@@ -18,6 +18,7 @@ import { PhonePaintPanel } from './PhonePaintPanel';
 import { phonePanelWidth } from './phone-panel-rules';
 import { useVideoColorPicker } from './use-video-color-picker';
 import { VideoColorPicker } from './VideoColorPicker';
+import { PlayerLabels } from './PlayerLabels';
 
 type DabblePlayerProps = {
   src?: string;
@@ -139,7 +140,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   } as CSSProperties;
 
   return (
-    <>
+    <PlayerLabels>
     <div ref={canvasRef} className="dabble-canvas" data-painting={paint.painting || undefined} data-phone={canvasBox.width > 0 && canvasBox.width < 420 || undefined} data-stroke-count={paint.count} data-portrait={layout.portrait} style={geometry}>
       <canvas ref={paintRef} className="dabble-paint" aria-hidden="true" />
       {paintable && <PaintingGuide root={canvasRef} open={trayOpen} />}
@@ -166,6 +167,6 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
       <div className="dabble-plaque-space" aria-hidden="true" style={{ height: plaqueSpace }} />
       {paintable && <PaintTray picking={picker.picking} togglePick={picker.toggle} onOpenChange={setTrayOpen} defaultTrayOpen={defaultTrayOpen} paint={paint} src={src} ownerTools={ownerTools} {...(playbackId ? { playbackId } : {})} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} controlsState={controlsState} onActivity={trayActivity} />}
     </>}
-    </>
+    </PlayerLabels>
   );
 }

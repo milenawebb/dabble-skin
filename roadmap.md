@@ -1,5 +1,10 @@
 # Dabble
 
+## Unified player labels and pick blob
+- [x] Match pick artwork and targets across desktop, tablet and phone (38px desktop/tablet artwork, 34px phone artwork, 44px targets).
+- [x] Share one delayed-hover/immediate-focus paper label, with persistent brush fallback and touch-only brush labels; remove old tooltip styles and native titles.
+- [x] Verify picking and labels across previews, including live pixels, thumbnail fallback, keyboard controls and unchanged playback in Chromium.
+
 ## Desktop and tablet visibility restoration
 - [x] Restore normal controls with the tray open and in fullscreen; suppress only during strokes and for one second afterward.
 - [x] Keep ledge invitation visible, unify paused center Play, and measure upward caption clearance without changing phone slots or color picking.

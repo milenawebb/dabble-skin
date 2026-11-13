@@ -22,10 +22,6 @@
 .tray-colors, .tray-brushes, .tray-sizes, .tray-actions { display: flex; justify-content: space-between; align-items: end; min-width: 0; gap: 0; }
 .paint-tray .tray-brush > button { height: 96px; width: 35px; }
 .paint-tray .tray-brush .tray-brush-drawing { width: 35px; height: 96px; transition: transform .18s; transform-origin: 50% 95%; }
-.tray-brush-name { position: absolute; left: 4px; top: -28px; z-index: 8; padding: 0 4px; white-space: nowrap; border: 1px solid var(--dabble-ink); border-radius: 3px 2px 4px 2px; background: var(--dabble-paper); color: var(--dabble-ink); font: 500 19px/1.15 var(--dabble-hand-font, 'Caveat', cursive); opacity: 0; transition: opacity .075s; pointer-events: none; }
-.tray-brush-name[data-visible] { opacity: 1; }
-@media (prefers-reduced-motion: reduce) { .tray-brush-name { transition: none; } }
-@media (forced-colors: active) { .tray-brush-name { color: CanvasText; border-color: CanvasText; background: Canvas; } }
 .tray-brush > button[aria-pressed="true"] .tray-brush-drawing { transform: translateY(-10px) rotate(-4deg); }
 .tray-divider { align-self: end; height: 32px; width: 4px; margin-bottom: 7px; }
 .tray-divider svg { width: 4px; height: 32px; stroke: currentColor; stroke-width: 1; fill: none; }
@@ -44,14 +40,6 @@
 .tray-mode-space { width: 36px; }
 @container (max-width: 899px) { .tray-mode-space { position: absolute; left: 16px; top: 10px; } }
 @media (forced-colors: active) { .paint-tray .tray-ledge-mode { color: CanvasText; } }
-.tray-tooltip, .tray-note { position: absolute; z-index: 8; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); width: max-content; max-width: 180px; padding: 4px 7px; border: 1px solid var(--dabble-ink); border-radius: 3px 2px 4px 2px; background: var(--dabble-paper); color: var(--dabble-ink); font: 12px/1.35 var(--dabble-ui-font); pointer-events: none; text-align: center; white-space: normal; }
-.tray-tooltip { display: none; visibility: hidden; opacity: 0; }
-.tray-item:hover .tray-tooltip, .tray-item:focus-within .tray-tooltip { display: block; opacity: 1; visibility: visible; }
-.tray-item:has(.tray-note) .tray-tooltip { display: none; }
-.tray-tooltip-label { max-width: 180px; padding: 4px 7px; border: 1px solid var(--dabble-ink); border-radius: 3px 2px 4px 2px; background: var(--dabble-paper); color: var(--dabble-ink); font: 12px/1.35 var(--dabble-ui-font); text-align: center; animation: none; }
-.tray-mode .tray-tooltip { left: 0; transform: none; }
-.tray-actions .tray-item:last-child .tray-tooltip { left: auto; right: 0; transform: none; }
-.tray-sample .tray-tooltip { left: auto; right: 0; transform: none; }
 .paint-tray :focus-visible { outline: 2px solid var(--dabble-ink); outline-offset: 3px; box-shadow: var(--dabble-focus-ring); }
 .tray-copy-status { position: absolute; font-size: 12px; background: var(--dabble-paper); color: var(--dabble-ink); }
 .paint-copy-fallback { margin-top: 16px; display: grid; gap: 8px; font-size: 13px; }
@@ -101,10 +89,6 @@
   .tray-actions { width: 100%; padding-left: calc(100cqw / 6); }
   .paint-tray .tray-item > button { width: 44px; }
   .paint-tray .tray-circle > button { height: 44px; min-height: 44px; margin-block: 0; }
-  .tray-colors .tray-tooltip { max-width: 76px; }
-  .tray-colors .tray-item:first-child .tray-tooltip { left: 0; transform: none; }
-  .tray-colors .tray-item:last-child .tray-tooltip { left: auto; right: 0; transform: none; }
-  .tray-sample .tray-tooltip { left: 0; transform: none; }
 }
 @media (pointer: coarse) {
   .paint-tray .tray-item > button { width: 44px; min-width: 44px; min-height: 44px; }
@@ -205,3 +189,5 @@
 .tray-custom > button[aria-pressed="true"]::after { content: ''; position: absolute; inset: 3px; border: 1.5px solid var(--dabble-ink); border-radius: 46% 54% 50% 50%; }
 @media (prefers-reduced-motion: reduce) { .tray-fold, .tray-reveal, .tray-shelf::before { transition: none; } }
 @media (forced-colors: active) { .tray-custom-blob { background: Canvas; clip-path: none; border: 1px solid CanvasText; border-radius: 46% 54% 50% 50%; } .tray-custom-plus { background: Canvas; color: CanvasText; } }
+
+.paint-tray .tray-colors .tray-item > button { width: 44px; min-width: 44px; }
