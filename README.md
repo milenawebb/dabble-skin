@@ -52,7 +52,7 @@ The import above assumes your example is at the repository root. Inside this dem
 | `onSoundPreferenceChange` | Not supplied | Receives the viewer's sound opt-in state. |
 | `broken` | `false` | Deliberate broken-source test, not needed for normal use. |
 
-Paintings use normalized points, fixed seeds and per-stroke palettes, so they redraw at any size. Browser storage is optional. Fresh visitors start silent; explicit sound consent is remembered. No private Mux credentials or Mux analytics are used.
+Paintings use normalized points, fixed seeds and per-stroke palettes, so they redraw at any size. The tray's scene colors button takes a new palette from the current video frame. Browser storage is optional. Fresh visitors start silent; explicit sound consent is remembered. No private Mux credentials or Mux analytics are used.
 
 ## Customize
 
@@ -82,9 +82,10 @@ Override variables on the elements that use them. `--dabble-paper`, `--dabble-in
 - Every control works with the keyboard. Escape closes menus.
 - Two-tone focus rings show keyboard focus.
 - Opaque paper controls remain readable over video and paint.
+- On desktop and tablet the control bar sits inside the video, along its bottom edge, and hides after 2.5 seconds of idle while playing. It never covers the painted frame.
 - Captions have an outlined paper label, with native fullscreen handover on iOS.
 - Touch controls have targets at least 44 pixels across.
-- Phone controls dock under the video and stay visible outside fullscreen.
+- Phone controls dock under the canvas and stay visible outside fullscreen.
 - Reduced motion disables fades and slides. Forced colors use system colors.
 
 ## Run it locally
