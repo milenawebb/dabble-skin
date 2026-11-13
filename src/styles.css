@@ -80,6 +80,8 @@
   --dabble-ink: var(--paint-ink);
   --dabble-paper: var(--canvas-surface);
   --dabble-caption-shadow: drop-shadow(0 2px 6px rgba(0, 0, 0, .18));
+  --dabble-video-pencil: color-mix(in srgb, var(--dabble-ink) 30%, transparent);
+  --dabble-video-shadow: 0 1px 3px oklch(0 0 0 / .12);
   --dabble-ui-font: 'DM Sans', Arial, sans-serif;
   --dabble-focus-ring: 0 0 0 2px var(--dabble-paper), 0 0 0 5px var(--dabble-ink), 0 0 0 7px var(--dabble-paper);
   --paint-highlight: oklch(1 0 0);
@@ -236,8 +238,8 @@
 .device-choice { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 56px; min-height: 44px; padding: 4px 8px; border: 0; background: none; color: var(--landing-wall-dim); cursor: pointer; }
 .device-choice[aria-checked="true"] { color: var(--dabble-paper); }
 .device-choice[aria-checked="true"] .device-sketch { color: var(--dabble-ink); }
-.device-sketch { position: relative; display: grid; place-items: center; width: 48px; height: 42px; }
-.device-sketch .dabble-icon { position: relative; z-index: 1; width: 30px; height: 30px; stroke-width: 2; }
+.device-sketch { position: relative; display: grid; place-items: center; width: 48px; height: 42px; flex: 0 0 42px; }
+.device-choice .device-sketch .dabble-icon { position: relative; z-index: 1; width: 30px; height: 30px; flex-shrink: 0; stroke-width: 2; }
 .device-blob { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; transform: translate(-50%, -50%) rotate(-12deg); fill: var(--landing-teal); opacity: 0; transition: opacity .2s; }
 .device-choice:hover .device-blob { opacity: .3; }
 .device-choice[aria-checked="true"] .device-blob { opacity: 1; }

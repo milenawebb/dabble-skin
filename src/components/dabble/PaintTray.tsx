@@ -62,8 +62,10 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
       const colors = tray.querySelector('.tray-colors');
       if (!drawing || !colors) return;
       const drawingRect = drawing.getBoundingClientRect();
-      const top = Math.min(...Array.from(tray.querySelectorAll('.tray-brush-drawing'), brush => brush.getBoundingClientRect().top));
-      const position = brushLabelPosition(tray.getBoundingClientRect(), { left: drawingRect.left, right: drawingRect.right, width: drawingRect.width, bottom: drawingRect.bottom, top }, colors.getBoundingClientRect(), label.offsetWidth, label.offsetHeight);
+      const obstacles = Array.from(tray.querySelectorAll('.tray-brush-drawing, .tray-item:not(.tray-brush) > button')).map(control => control.getBoundingClientRect());
+      const position = brushLabelPosition(tray.getBoundingClientRect(), drawingRect, obstacles, label.offsetWidth, label.offsetHeight);
+      if (!position) { label.style.visibility = 'hidden'; return; }
+      label.style.visibility = 'visible';
       label.style.left = `${position.left}px`;
       label.style.top = `${position.top}px`;
     };
@@ -71,8 +73,9 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
     settle();
     const observer = new ResizeObserver(measure);
     observer.observe(tray); observer.observe(label);
+    tray.addEventListener('scroll', measure, true);
     document.fonts?.ready.then(measure);
-    return () => { observer.disconnect(); cancelAnimationFrame(frame); };
+    return () => { observer.disconnect(); cancelAnimationFrame(frame); tray.removeEventListener('scroll', measure, true); };
   }, [shownBrush, paint.brush, open]);
   useEffect(() => {
     onOpenChange?.(open);

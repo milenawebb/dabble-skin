@@ -17,5 +17,7 @@ describe('preview size tabs', () => {
     expect(effectivePreviewSize('tablet', 700)).toBe('desktop');
     expect(effectivePreviewSize('tablet', 1000)).toBe('tablet');
     expect(effectivePreviewSize('mobile', 500)).toBe('mobile');
+    expect(effectivePreviewSize('mobile', 439)).toBe('desktop');
+    expect(effectivePreviewSize('tablet', 819)).toBe('desktop');
   });
 });

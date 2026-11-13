@@ -112,14 +112,18 @@ function Index() {
     requestAnimationFrame(() => button.focus({ preventScroll: true }));
   };
   const [previewSize, setPreviewSize] = useState<PreviewSize>('desktop');
-  const [windowWidth, setWindowWidth] = useState(1024);
+  const [windowWidth, setWindowWidth] = useState(0);
   const heroTitleId = useId();
   const playerRef = useRef<HTMLDivElement>(null);
   const [soundOptIn, setSoundOptIn] = useState(false);
   const keycapFeedback = useKeycapFeedback(playerRef, soundOptIn);
   const keyRows = (rows: string[][], offset: number) => rows.map(([key = '', action], index) => <div className="keys-row" key={key}><dt><kbd className={`keycap paint-tone-${(index + offset) % 5}`} data-dabbed={keycapFeedback.active.has(key) || undefined} onPointerEnter={event => { if (event.isTrusted && event.pointerType === 'mouse') keycapFeedback.playSound(); }}><svg className="keycap-blob" aria-hidden="true" viewBox="-17 -17 34 34" preserveAspectRatio="none"><path d={BLOB_PATH} /></svg><span>{key}</span></kbd></dt><dd>{action}</dd></div>);
   useEffect(() => {
-    const measure = () => setWindowWidth(window.innerWidth);
+    const measure = () => {
+      const width = window.innerWidth;
+      setWindowWidth(width);
+      setPreviewSize(selected => effectivePreviewSize(selected, width));
+    };
     measure();
     window.addEventListener('resize', measure);
     return () => window.removeEventListener('resize', measure);

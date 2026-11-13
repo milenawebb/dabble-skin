@@ -1,5 +1,10 @@
 # Dabble
 
+## Video edge and phone fixes
+- [x] Add a single non-fullscreen video pencil outline and soft shadow; restore device drawings and reset invalid preview choices.
+- [x] Keep brush tags within tray bounds with collision-free above/below/beside placement.
+- [x] Verify even outline at 390/767/1001/1439, device limits and live resize without remounting, fullscreen and collision-free labels in every tray layout.
+
 ## Gallery wall
 - [x] Rearrange the landing page into gallery paper pieces, live brush samples, access sign, loose keys and developer notes.
 - [x] Preserve hero interactions; verify all Try it actions, palette samples, accessibility modes and 360px layout; omit default-silence and CSS paint-palette claims.

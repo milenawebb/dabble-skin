@@ -23,6 +23,8 @@
   container-type: inline-size;
 }
 .dabble-skin > video { display: block; width: 100%; height: 100%; object-fit: contain; background: var(--dabble-paper); }
+.dabble-skin:not(:fullscreen)::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none; border: 1px solid var(--dabble-video-pencil); box-shadow: var(--dabble-video-shadow); }
+@media (forced-colors: active) { .dabble-skin:not(:fullscreen)::after { border-color: CanvasText; } }
 .dabble-bar {
   position: absolute;
   z-index: 3;
