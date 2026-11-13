@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { usePlayer } from '@videojs/react/video';
+import { phoneCaptionBottom } from './phone-control-rules';
 import { captionBottom, measuredCaptionBottom, captionsOverlap, fittedVideoRect, plainCueText } from './caption-rules';
 
 type ManagedTrack = TextTrack & { __dabblePaintedCaption?: boolean; __dabbleCaptionOn?: boolean };
 
 type Cue = { text: string; startTime: number; endTime: number };
 
-export function PaintedCaptions({ rootRef, captionId, docked, barEnabled, phoneHost }: { rootRef: RefObject<HTMLDivElement | null>; captionId: string; docked: boolean; barEnabled: boolean; phoneHost?: HTMLDivElement | null }) {
+export function PaintedCaptions({ rootRef, captionId, docked, barEnabled, phoneHost, phoneOverlay = false }: { rootRef: RefObject<HTMLDivElement | null>; captionId: string; docked: boolean; barEnabled: boolean; phoneHost?: HTMLDivElement | null; phoneOverlay?: boolean }) {
   const showing = usePlayer(state => state.subtitlesShowing);
   const controlsVisible = usePlayer(state => state.controlsVisible);
   const nativeFullscreen = useRef(false);
@@ -105,7 +106,7 @@ export function PaintedCaptions({ rootRef, captionId, docked, barEnabled, phoneH
       const videoBox = fittedVideoRect(video.getBoundingClientRect(), video.videoWidth, video.videoHeight);
       const barShowing = barEnabled && (controlsVisible || Boolean(bar.querySelector(':focus-visible')) || docked);
       const barBox = bar.getBoundingClientRect();
-      const bottom = docked ? captionBottom(videoBox, barBox.top, barShowing, true) : measuredCaptionBottom(videoBox, barBox, barShowing);
+      const bottom = phoneOverlay ? phoneCaptionBottom(videoBox, barBox.top, barShowing) : docked ? captionBottom(videoBox, barBox.top, barShowing, true) : measuredCaptionBottom(videoBox, barBox, barShowing);
       layer.style.left = `${videoBox.left + videoBox.width / 2 - rootBox.left}px`;
       layer.style.bottom = `${rootBox.bottom - bottom}px`;
       layer.style.maxWidth = `${Math.max(0, Math.min(videoBox.width * .86, videoBox.width - 48))}px`;
@@ -116,7 +117,9 @@ export function PaintedCaptions({ rootRef, captionId, docked, barEnabled, phoneH
         return !panel.hidden && computed.display !== 'none' && computed.visibility !== 'hidden' && Number(computed.opacity) > 0 && panel.getClientRects().length > 0 && boxes.some(box => captionsOverlap(box, panel.getBoundingClientRect()));
       });
       const tooTall = boxes.some(box => box.top < videoBox.top + 8);
-      layer.style.visibility = overlap || tooTall ? 'hidden' : 'visible';
+      const center = phoneOverlay && barShowing ? root.querySelector<HTMLElement>('.phone-video-play')?.getBoundingClientRect() : undefined;
+      const centerOverlap = center && boxes.some(box => captionsOverlap(box, center));
+      layer.style.visibility = overlap || tooTall || centerOverlap ? 'hidden' : 'visible';
       updateCueStyle();
       frame = requestAnimationFrame(measure);
     };
@@ -154,7 +157,7 @@ export function PaintedCaptions({ rootRef, captionId, docked, barEnabled, phoneH
         track.mode = on ? 'showing' : 'disabled';
       });
     };
-  }, [rootRef, captionId, showing, controlsVisible, docked, barEnabled, phoneHost]);
+  }, [rootRef, captionId, showing, controlsVisible, docked, barEnabled, phoneHost, phoneOverlay]);
 
   return <div ref={layerRef} className="dabble-painted-captions" aria-hidden="true">{showing && cues.map((cue, index) => <div className="dabble-caption-swipe" key={`${cue.startTime}-${cue.endTime}-${index}`}><span className="dabble-caption-shape" aria-hidden="true">
     <svg viewBox="0 0 16 100" preserveAspectRatio="none"><path className="dabble-caption-paper" d="M16 0H11.2L2.4 10L8 24L.8 36L9.6 50L1.6 62L8.8 76L0 88L6.4 100H16Z" /><path d="M16 0H11.2L2.4 10L8 24L.8 36L9.6 50L1.6 62L8.8 76L0 88L6.4 100H16" /></svg>

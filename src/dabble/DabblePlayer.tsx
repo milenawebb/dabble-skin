@@ -125,7 +125,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
       setFrameWidth(getFrameWidth(width));
       // Preserve the page's reserved space while its inner Container is fullscreen.
       if (!canvas.querySelector('.dabble-skin:fullscreen')) {
-        setPlaqueSpace(getPlaqueSpace(width, bar?.getBoundingClientRect().height ?? 0));
+        setPlaqueSpace(width < 420 ? 0 : getPlaqueSpace(width, bar?.getBoundingClientRect().height ?? 0));
       }
     };
     updateFrame();

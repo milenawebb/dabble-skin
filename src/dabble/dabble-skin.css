@@ -206,3 +206,37 @@
 }
 /* Only suppress native WebKit captions while our inline/container renderer owns display. */
 .dabble-skin[data-caption-renderer="painted"] video::-webkit-media-text-track-container { display: none !important; }
+
+/* Measured phone layout only; fullscreen retains the existing skin. */
+.dabble-skin[data-phone-overlay] { --dabble-phone-tint: oklch(0 0 0 / .15); }
+.dabble-skin[data-phone-overlay] .phone-video-controls { position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 1; transition: opacity .2s; }
+.dabble-skin[data-phone-overlay]:not([data-bar-visible]) .phone-video-controls { opacity: 0; }
+.dabble-skin[data-phone-overlay] .phone-video-controls:has(:focus-visible) { opacity: 1; }
+.dabble-skin[data-phone-overlay] .phone-video-tint { position: absolute; inset: 0; background: var(--dabble-phone-tint); pointer-events: none; }
+.dabble-skin[data-phone-overlay] .phone-video-controls .dabble-button { isolation: isolate; width: 44px; height: 44px; flex: 0 0 44px; border: 0; border-radius: 0; background: var(--dabble-clear); pointer-events: auto; }
+.dabble-skin[data-phone-overlay] .phone-video-controls .dabble-button::before { content: ''; position: absolute; inset: 7px; z-index: -1; background: var(--dabble-paper); border: 1.5px solid var(--dabble-ink); border-radius: 47% 53% 50% 50% / 52% 46% 54% 48%; }
+.dabble-skin[data-phone-overlay] .phone-video-play { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.dabble-skin[data-phone-overlay] .phone-video-controls .phone-video-play { width: 48px; height: 48px; }
+.dabble-skin[data-phone-overlay] .phone-video-controls .phone-video-play::before { inset: 0; }
+.dabble-skin[data-phone-overlay] .phone-video-play .dabble-icon { width: 24px; height: 24px; }
+.dabble-skin[data-phone-overlay] .phone-video-top { position: absolute; top: 1px; right: 1px; display: flex; gap: 0; pointer-events: none; }
+.dabble-skin[data-phone-overlay] .phone-video-top .dabble-icon { width: 17px; height: 17px; }
+.dabble-skin[data-phone-overlay] .phone-video-strip { top: auto; left: 8px; right: 8px; bottom: 8px; height: 30px; flex-direction: row; align-items: center; gap: 6px; padding: 0 0 0 7px; pointer-events: none; transition: none; }
+.dabble-skin[data-phone-overlay] .phone-video-strip:has(.phone-strip-play) { padding-left: 0; gap: 4px; }
+.dabble-skin[data-phone-overlay] .phone-video-strip .dabble-time { font: 12px var(--dabble-label-font); gap: 2px; }
+.dabble-skin[data-phone-overlay] .phone-video-strip .dabble-seek { height: 44px; min-height: 44px; align-self: flex-end; margin-bottom: -1.5px; padding-top: 14px; pointer-events: auto; }
+.dabble-skin[data-phone-overlay] .phone-video-strip .dabble-track { height: 7px; }
+.dabble-skin[data-phone-overlay] .phone-video-strip .dabble-fill,
+.dabble-skin[data-phone-overlay] .phone-video-strip .dabble-buffer { height: 8px; top: -2px; }
+.dabble-skin[data-phone-overlay] .phone-video-strip .dabble-button { align-self: flex-end; margin-bottom: -1.5px; padding-top: 14px; }
+.dabble-skin[data-phone-overlay] .phone-video-strip .dabble-button::before { display: none; }
+.dabble-skin[data-phone-overlay] .phone-video-strip .dabble-icon { width: 17px; height: 17px; }
+.dabble-skin[data-phone-overlay]:not([data-bar-visible]) .phone-video-controls .dabble-button,
+.dabble-skin[data-phone-overlay]:not([data-bar-visible]) .phone-video-controls .dabble-seek { pointer-events: none; }
+.dabble-skin[data-phone-overlay] .phone-video-controls:has(:focus-visible) .dabble-button,
+.dabble-skin[data-phone-overlay] .phone-video-controls:has(:focus-visible) .dabble-seek { pointer-events: auto; }
+.dabble-skin[data-phone-overlay] .phone-video-speed-menu { max-height: calc(100dvh - 16px); max-width: calc(100vw - 16px); }
+.dabble-skin[data-phone-overlay] .phone-video-speed-menu .dabble-speed-item { min-height: 44px; }
+.dabble-skin[data-phone-overlay] .dabble-caption-swipe { padding-block: 4px; }
+@media (prefers-reduced-motion: reduce) { .dabble-skin[data-phone-overlay] .phone-video-controls { transition: none; } }
+@media (forced-colors: active) { .dabble-skin[data-phone-overlay] .phone-video-controls .dabble-button::before { background: Canvas; border-color: CanvasText; } }

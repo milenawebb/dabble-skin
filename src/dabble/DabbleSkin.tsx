@@ -15,6 +15,8 @@ import { announceShortcut } from './page-feedback';
 import { updateFullscreenOrientation } from './fullscreen-orientation';
 import { createPortal } from 'react-dom';
 import { STROKE_RETURN_DELAY, suppressPaintingControls } from './stroke-controls';
+import { PhoneControls } from './PhoneControls';
+import { usesPhoneOverlay } from './phone-control-rules';
 
 function Blob() { return <span className="dabble-blob" aria-hidden="true" />; }
 
@@ -50,6 +52,7 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
   }, [fullscreenActive]);
   const exitFullscreen = usePlayer((state) => state.exitFullscreen);
   const docked = shouldDockControls(playerWidth, fullscreenActive);
+  const phoneOverlay = usesPhoneOverlay(playerWidth, fullscreenActive);
   const started = usePlayer((state) => state.started);
   const ended = usePlayer((state) => state.ended);
   const controlsVisible = usePlayer((state) => state.controlsVisible);
@@ -58,7 +61,7 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
   const toggleControls = usePlayer((state) => state.toggleControls);
   const requestControlsLock = usePlayer((state) => state.requestControlsLock);
   const [strokeHold, setStrokeHold] = useState(false);
-  const hideForPainting = suppressPaintingControls(playerWidth, fullscreenActive, painting, strokeHold);
+  const hideForPainting = !phoneOverlay && suppressPaintingControls(playerWidth, fullscreenActive, painting, strokeHold);
   useEffect(() => {
     const canvas = rootRef.current?.closest<HTMLElement>('.dabble-canvas');
     if (!canvas || playerWidth < 420 || fullscreenActive) { setStrokeHold(false); return; }
@@ -77,8 +80,8 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
     return () => { clearTimeout(timer); canvas.removeEventListener('pointerdown', down); canvas.removeEventListener('pointerup', end); canvas.removeEventListener('pointercancel', end); canvas.removeEventListener('lostpointercapture', end); };
   }, [playerWidth, fullscreenActive, toggleControls]);
   // A permanent library lock disables phone idle hiding, but not fullscreen auto-hide.
-  useEffect(() => phoneHost && !fullscreenActive ? requestControlsLock() : undefined, [phoneHost, fullscreenActive, requestControlsLock]);
-  const centerVisible = showCenterPlay(started, ended, painting, paused) && !hasError;
+  useEffect(() => phoneHost && !fullscreenActive && !phoneOverlay ? requestControlsLock() : undefined, [phoneHost, fullscreenActive, phoneOverlay, requestControlsLock]);
+  const centerVisible = !phoneOverlay && showCenterPlay(started, ended, painting, paused) && !hasError;
   const centerRef = useRef<HTMLButtonElement>(null);
   const playRef = useRef<HTMLButtonElement>(null);
   const centerHadFocus = useRef(false);
@@ -117,7 +120,7 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
   useEffect(() => { onControlsState?.({ visible: controlsVisible, paused }); }, [controlsVisible, paused, onControlsState]);
   useEffect(() => {
     const canvas = rootRef.current?.closest('.dabble-canvas');
-    if (!canvas || fullscreenActive) return;
+    if (!canvas || fullscreenActive || phoneOverlay) return;
     let release: (() => void) | undefined;
     const activity = (event: Event) => {
       const active = (event as CustomEvent<boolean>).detail;
@@ -126,7 +129,7 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
     };
     canvas.addEventListener('dabble-tray-activity', activity);
     return () => { canvas.removeEventListener('dabble-tray-activity', activity); release?.(); };
-  }, [requestControlsLock, fullscreenActive]);
+  }, [requestControlsLock, fullscreenActive, phoneOverlay]);
 
   useEffect(() => {
     return volumeOpen || keysOpen ? requestControlsLock() : undefined;
@@ -135,7 +138,7 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
   useEffect(() => {
     const root = rootRef.current;
     const bar = (phoneHost ?? root)?.querySelector<HTMLElement>('.dabble-bar');
-    if (!root || !bar) return;
+    if (!root || !bar || phoneOverlay) return;
     let releaseHover: (() => void) | undefined;
     let releaseFocus: (() => void) | undefined;
     const enter = (event: PointerEvent) => { if (event.pointerType !== 'touch') releaseHover ??= requestControlsLock(); };
@@ -146,10 +149,10 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
     bar.addEventListener('pointerenter', enter); bar.addEventListener('pointerleave', leave);
     bar.addEventListener('focusin', focus); bar.addEventListener('focusout', blur);
     return () => { leave(); releaseFocus?.(); bar.removeEventListener('pointerenter', enter); bar.removeEventListener('pointerleave', leave); bar.removeEventListener('focusin', focus); bar.removeEventListener('focusout', blur); };
-  }, [requestControlsLock, phoneHost, fullscreenActive]);
+  }, [requestControlsLock, phoneHost, fullscreenActive, phoneOverlay]);
   useEffect(() => {
     const root = rootRef.current;
-    if (!root || phoneHost) return;
+    if (!root || phoneHost || phoneOverlay) return;
     // Video.js only restarts its idle timer on leave; hide at once instead. Locks (menus, keyboard focus) still win.
     const leave = (event: PointerEvent) => {
       if (event.pointerType === 'touch' || (event.relatedTarget instanceof Node && root.contains(event.relatedTarget))) return;
@@ -158,7 +161,7 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
     };
     root.addEventListener('pointerleave', leave);
     return () => root.removeEventListener('pointerleave', leave);
-  }, [phoneHost, toggleControls]);
+  }, [phoneHost, toggleControls, phoneOverlay]);
   useEffect(() => { if (!painting) toggleControls(true); }, [painting, toggleControls]);
 
   useEffect(() => {
@@ -229,9 +232,9 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
   </Controls.Content></Controls.Root>;
 
   return (
-    <Container ref={rootRef} tabIndex={-1} aria-label="Dabble video player" style={colors} className="dabble-skin" data-size={size} data-painting={painting || undefined} data-stroke-hold={strokeHold && !fullscreenActive || undefined} data-docked={docked || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined} data-bar-visible={(!hideForPainting && controlsVisible) || undefined} onPointerDownCapture={event => {
+    <Container ref={rootRef} tabIndex={-1} aria-label="Dabble video player" style={colors} className="dabble-skin" data-phone-overlay={phoneOverlay || undefined} data-size={size} data-painting={painting || undefined} data-stroke-hold={strokeHold && !fullscreenActive || undefined} data-docked={docked && !phoneOverlay || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined} data-bar-visible={(!hideForPainting && controlsVisible) || undefined} onPointerDownCapture={event => {
       // Pausing reveals Play under the finger before the compatibility click.
-      paintingVideoTouch.current = event.pointerType === 'touch' && event.target instanceof HTMLVideoElement;
+      paintingVideoTouch.current = !phoneOverlay && event.pointerType === 'touch' && event.target instanceof HTMLVideoElement;
     }} onClickCapture={event => {
       if (!paintingVideoTouch.current) return;
       paintingVideoTouch.current = false;
@@ -239,12 +242,12 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
     }}>
       {children}
       {!hasError && <Poster.Root className="dabble-poster"><Poster.Image /></Poster.Root>}
-      <PaintedCaptions phoneHost={phoneHost ?? null} rootRef={rootRef} captionId={captionId} docked={docked} barEnabled={!hideForPainting} />
-      <Gesture type="tap" action={controlsVisible || painting ? "togglePaused" : "toggleControls"} />
+      <PaintedCaptions phoneOverlay={phoneOverlay} phoneHost={phoneHost ?? null} rootRef={rootRef} captionId={captionId} docked={docked && !phoneOverlay} barEnabled={!hideForPainting} />
+      {!phoneOverlay && <Gesture type="tap" action={controlsVisible || painting ? "togglePaused" : "toggleControls"} />}
       <PlayButton ref={centerRef} hidden={!centerVisible} label={ended ? 'Replay' : paused ? 'Play' : 'Pause'} className="dabble-button dabble-play dabble-center-play" render={(props) => <button {...props} onFocus={(event) => { props.onFocus?.(event); centerHadFocus.current = event.currentTarget.matches(':focus-visible'); }} onBlur={(event) => { props.onBlur?.(event); if (event.relatedTarget) centerHadFocus.current = false; }}><Blob /><Icon kind={ended ? 'replay' : paused ? 'play' : 'pause'} /></button>} />
       <BufferingIndicator className="dabble-loading" render={(props, state) => <div {...props} role="status" aria-live="polite">{state.visible && <><span className="dabble-loading-disc" aria-hidden="true"><span /></span><span className="dabble-loading-label">Loading</span></>}</div>} />
       <Popover.Root side="top" align="end" boundary="container" open={keysOpen} onOpenChange={open => { if (open) setKeysOpen(true); else closeKeys(); }}>
-      {phonePlaque && phoneHost ? createPortal(bar, phoneHost) : bar}
+      {phoneOverlay ? <PhoneControls /> : phonePlaque && phoneHost ? createPortal(bar, phoneHost) : bar}
       <Popover.Popup ref={keysPopup} tabIndex={-1} role="dialog" aria-labelledby={keysTitleId} className="dabble-keys-panel" data-wide={playerWidth >= 560 || undefined} data-compact={playerWidth >= 560 && playerWidth < 700 || undefined} data-short-actions={playerWidth >= 560 && keysBounds.width < 750 || undefined} render={props => <div {...props} style={{ ...props.style, translate: 'none', positionAnchor: 'none' }} />} onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeKeys(); } else if (event.key === '?') { event.preventDefault(); event.stopPropagation(); closeKeys(); } }}>
         <KeysContent paintable={paintable} titleId={keysTitleId} popup={keysPopup} onClose={closeKeys} open={keysOpen} />
       </Popover.Popup>
