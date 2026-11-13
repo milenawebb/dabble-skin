@@ -22,14 +22,19 @@ it('moves captions above the visible strip and lowers them when hidden', () => {
   expect(phoneCaptionBottom({ top: 0, height: 180 }, 142, true)).toBe(140);
   expect(phoneCaptionBottom({ top: 0, height: 180 }, 142, false)).toBe(172);
 });
-it.each([224, 264, 294, 334, 330])('insets the speed row eight pixels from video edges at %ipx', width => {
+it.each([264, 294, 334, 330])('insets the speed row eight pixels from video edges at %ipx', width => {
   const bounds = phoneSpeedBounds({ left: 24, top: 50, width });
   expect(bounds.left).toBe(32);
   expect(bounds.top).toBe(58);
   expect(bounds.width).toBe(width - 16);
   expect(bounds.left + bounds.width).toBe(24 + width - 8);
 });
-it('uses compact pills below forty pixels per choice', () => {
+it('keeps five speed touch areas at least 44px wide in the 224px video on a 320px screen', () => {
+  const bounds = phoneSpeedBounds({ left: 24, top: 50, width: 224 });
+  expect(bounds.left).toBe(26);
+  expect(bounds.width / 5).toBe(44);
+});
+it('uses compact pills below forty-eight pixels per choice', () => {
   expect(phoneSpeedBounds({ left: 0, top: 0, width: 224 }).compact).toBe(true);
   expect(phoneSpeedBounds({ left: 0, top: 0, width: 294 }).compact).toBe(false);
 });

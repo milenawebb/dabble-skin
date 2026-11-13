@@ -35,7 +35,7 @@ const OPEN_ITEMS = [
   'Every control works with the keyboard. Escape closes any menu.',
   'A two-tone focus ring shows where you are.',
   'Controls sit on an opaque paper label, so they stay readable over any video and any paint.',
-  'Ink on paper (controls, captions, paint tray): 16.93:1. Page text on the wall: 16.50:1. Secondary text: 9.77:1. All above the 4.5:1 AA minimum, and the controls sit on an opaque label, so video and paint never reduce them.',
+  'Ink on paper (controls, captions, paint tray): 16.93:1. Page text on the wall: 16.50:1. Secondary text: 9.77:1. Where a dab of paint sits behind a control, its color is adjusted so the ink stays at least 4.5:1, the AA minimum.',
   'Captions have their own outlined label.',
   'Buttons are at least 44 pixels on touch screens.',
   'On phones the controls sit inside the video, with 44 pixel touch targets, and appear with a tap.',

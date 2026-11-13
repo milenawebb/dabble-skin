@@ -45,12 +45,12 @@ export function PhoneControls() {
   useEffect(() => {
     if (!speedOpen) return;
     const release = requestControlsLock();
+    speedRow.current?.querySelector<HTMLButtonElement>('[aria-checked="true"]')?.focus({ preventScroll: true });
     const outside = (event: PointerEvent) => { if (event.target instanceof Node && !speedRow.current?.contains(event.target)) setSpeedOpen(false); };
-    const layer = root.current?.closest<HTMLElement>('.dabble-skin');
-    layer?.addEventListener('pointerdown', outside, true);
+    document.addEventListener('pointerdown', outside, true);
     const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeSpeed(true); } };
     document.addEventListener('keydown', escape, true);
-    return () => { release(); layer?.removeEventListener('pointerdown', outside, true); document.removeEventListener('keydown', escape, true); };
+    return () => { release(); document.removeEventListener('pointerdown', outside, true); document.removeEventListener('keydown', escape, true); };
   }, [speedOpen, requestControlsLock]);
   useEffect(() => {
     const layer = root.current;
@@ -78,7 +78,6 @@ export function PhoneControls() {
       <MuteButton className="dabble-button dabble-mute" render={(props, state) => <button {...props}><span className="dabble-blob" aria-hidden="true" /><HandIcon kind={state.volumeLevel === 'off' ? 'muted' : 'volume'} /></button>} />
     </Controls.Group>
     {speedOpen && <div ref={speedRow} className="phone-speed-row" role="radiogroup" aria-label="Playback speed">
-      <Button variant="ghost" size="icon" className="phone-speed-close" aria-label="Close speed" onClick={event => closeSpeed(event.detail === 0)}><svg className="dabble-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 5 12 14M18 5 6 19" /></svg></Button>
       {DABBLE_PLAYBACK_RATES.map((rate, index) => <Button key={rate} variant="ghost" role="radio" aria-checked={playbackRate === rate} tabIndex={playbackRate === rate ? 0 : -1} className="phone-speed-pill" onClick={event => { setPlaybackRate(rate); closeSpeed(event.detail === 0); }} onKeyDown={event => {
         if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return;
         event.preventDefault(); event.stopPropagation();

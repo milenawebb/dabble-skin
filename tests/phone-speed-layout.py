@@ -27,7 +27,8 @@ async def main():
             assert box['x'] >= video['x'] and box['y'] >= video['y']
             assert box['x'] + box['width'] <= video['x'] + video['width']
             assert box['y'] + box['height'] <= video['y'] + video['height']
-            assert abs(box['x'] - video['x'] - 8) < 1
+            inset = min(8, max(0, (video['width'] - 220) / 2))
+            assert abs(box['x'] - video['x'] - inset) < 1
             assert abs(box['y'] - video['y'] - 8) < 1
             assert await row.evaluate('e => e.parentElement.classList.contains("phone-video-controls") && !e.closest("[popover]")')
             center = page.locator('.phone-video-play')
@@ -35,6 +36,11 @@ async def main():
                 play = await center.bounding_box()
                 assert play and box['y'] + box['height'] <= play['y']
             assert await row.get_by_role('radio').count() == 5
+            pill_boxes = [await pill.bounding_box() for pill in await row.get_by_role('radio').all()]
+            for pill in pill_boxes:
+                assert pill and pill['width'] >= 44 and pill['height'] >= 44, (width, pill)
+            assert await row.get_by_role('radio', checked=True).evaluate('e => e === document.activeElement')
+            print(f'{width}: smallest pill {min(pill["width"] for pill in pill_boxes):.2f}px x 44px')
             await page.locator('.dabble-skin').screenshot(path=str(screenshots / f'{width}.png'))
             await row.get_by_role('radio', name='1.25x', exact=True).tap()
             await row.wait_for(state='hidden')
@@ -44,7 +50,7 @@ async def main():
             await trigger.tap()
             await row.wait_for(state='visible')
             assert await row.get_by_role('radio', name='1.25x', exact=True).get_attribute('aria-checked') == 'true'
-            await page.get_by_role('button', name='Close speed').tap()
+            await row.get_by_role('radio', name='1.25x', exact=True).tap()
             await row.wait_for(state='hidden')
             await trigger.tap()
             await page.keyboard.press('Escape')
