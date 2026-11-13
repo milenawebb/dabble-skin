@@ -247,3 +247,21 @@
 .paint-tray[data-grouped][data-compact]:not([data-two-zone]) .tray-sizes { grid-area: sizes; }
 .paint-tray[data-grouped][data-compact]:not([data-two-zone]) .tray-actions { grid-area: actions; }
 .paint-tray[data-grouped][data-two-zone] .tray-shelf { padding-inline: 8px; }
+
+@media (forced-colors: active) {
+  .paint-tray .tray-blob, .phone-panel .tray-blob { forced-color-adjust: none; visibility: visible; }
+  .tray-blob-body { stroke: CanvasText; stroke-width: 1.5; }
+  .tray-selected-ring { stroke: CanvasText; stroke-width: 3; }
+  .tray-brush-drawing { stroke: CanvasText; }
+  .tray-handle { fill: Canvas; }
+  .tray-metal, .tray-blade { fill: ButtonFace; }
+  .tray-tip { forced-color-adjust: none; stroke: CanvasText; }
+  .paint-tray .tray-custom > button[aria-pressed="true"]::after { border: 3px solid CanvasText; }
+  .paint-copy-fallback textarea, .tray-copy-status { color: CanvasText; background: Canvas; border-color: CanvasText; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .tray-blob-highlight, .tray-blob-shade { display: none; }
+  .tray-reveal, .tray-mode, .tray-shelf::before { transition: none; }
+  .paint-tray .tray-blank > button[aria-disabled="true"] { opacity: 1; }
+}

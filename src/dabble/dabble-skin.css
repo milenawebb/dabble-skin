@@ -257,3 +257,25 @@
 .dabble-skin[data-phone-overlay] .phone-video-controls .dabble-button[data-stroking] .dabble-blob { animation: dabble-phone-splash .34s ease-out; }
 @keyframes dabble-phone-splash { 0% { opacity: .8; transform: scale(.5); } 30% { opacity: .8; transform: scale(1.15); } 100% { opacity: 0; transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .dabble-skin[data-phone-overlay] .phone-video-controls .dabble-button[data-stroking] .dabble-blob { animation: none; opacity: 0; } }
+
+@media (forced-colors: active) {
+  .dabble-skin { --dabble-paper: Canvas; --dabble-ink: CanvasText; --dabble-caption-text: CanvasText; }
+  .dabble-keys-panel { color: CanvasText; background: Canvas; border-color: CanvasText; }
+  .dabble-key-row kbd { border-color: CanvasText; }
+  .dabble-speed-item[aria-checked="true"] { outline: 2px solid CanvasText; outline-offset: -2px; }
+  .dabble-button[data-on="true"] { outline: 2px solid CanvasText; outline-offset: -2px; }
+  .dabble-skin[data-phone-overlay] .phone-video-tint { display: none; }
+  .dabble-skin[data-phone-overlay] .phone-speed-row button { color: CanvasText; }
+  .dabble-skin[data-phone-overlay] .phone-speed-row button::before { background: Canvas; border-color: CanvasText; }
+  .dabble-skin[data-phone-overlay] .phone-speed-row button[aria-checked="true"] { forced-color-adjust: none; color: HighlightText; }
+  .dabble-skin[data-phone-overlay] .phone-speed-row button[aria-checked="true"]::before { background: Highlight; border-width: 3px; }
+  .dabble-skin[data-phone-overlay] .phone-speed-row button:focus-visible { outline-color: CanvasText; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .dabble-skin { --dabble-video-pencil: var(--dabble-ink); --dabble-video-shadow: none; --dabble-caption-shadow: none; --dabble-buffer: var(--dabble-ink); }
+  .dabble-skin[data-phone-overlay] .phone-video-tint { display: none; }
+  .dabble-bar, .dabble-blob, .dabble-skin[data-phone-overlay] .phone-video-controls { transition: none; }
+  .dabble-speed-item[data-highlighted] .dabble-blob { opacity: 1; }
+  .dabble-skin[data-phone-overlay] .phone-video-controls .dabble-button[data-stroking] .dabble-blob { animation: none; opacity: 0; }
+}

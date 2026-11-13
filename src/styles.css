@@ -352,3 +352,20 @@
 
 @media (forced-colors: active) { .github-icon, .github-text { color: CanvasText; } .github-blob { display: none; } }
 
+@media (forced-colors: active) {
+  .who-intro { color: CanvasText; }
+  .device-choice[aria-checked="true"] .device-sketch { color: CanvasText; }
+  .landing :focus-visible { outline-color: CanvasText; }
+  .use-mini-canvas { forced-color-adjust: none; outline: 1px solid CanvasText; }
+  .use-mini-canvas::after { background: CanvasText; }
+  .use-mini-canvas img { outline-color: CanvasText; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .landing { --gallery-paper-shadow: none; --gallery-key-shadow: none; }
+  .use-mini-canvas { background-image: none; }
+  .use-mini-canvas img { outline-color: var(--dabble-ink); }
+  .device-blob, .keycap-blob, .painted-title > svg, .github-icon .github-blob { transition: none; }
+  .device-choice:hover .device-blob { opacity: 1; }
+  .player-label-position, .painting-guide { transition: none; }
+}
+

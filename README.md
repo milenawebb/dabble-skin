@@ -90,11 +90,14 @@ Override variables on the elements that use them. `--dabble-paper`, `--dabble-in
 - Every control works with the keyboard. Escape closes menus.
 - Two-tone focus rings show keyboard focus.
 - Opaque paper controls remain readable over video and paint.
+- Ink on paper (controls, captions, paint tray): 16.93:1. Page text on the wall: 16.50:1. Secondary text: 9.77:1. All above the 4.5:1 AA minimum, and the controls sit on an opaque label, so video and paint never reduce them.
 - On desktop and tablet the control bar sits inside the video, along its bottom edge, and hides after 2 seconds of idle while playing. It never covers the painted frame.
 - Captions have an outlined paper label, with native fullscreen handover on iOS.
 - Phone controls have touch targets at least 44 pixels tall. Speed choices share the available width and may be narrower on small videos.
 - Phone speed choices have radio semantics; Escape, Close speed, or a tap elsewhere on the video closes the row.
 - Reduced motion disables fades and slides. Forced colors use system colors.
+- Forced colors preserve painted artwork and paint swatch colors, with system-color outlines and a thicker selected-swatch outline.
+- Transparency is removed when reduced transparency is on.
 
 ## Run it locally
 

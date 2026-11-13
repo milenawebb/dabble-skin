@@ -34,3 +34,13 @@
 .phone-blank .tray-tag { position: absolute; inset: 2px 0; width: 100%; height: 40px; z-index: -1; fill: var(--dabble-paper); stroke: var(--dabble-ink); stroke-width: 1.5; }
 @media (prefers-reduced-motion: reduce) { .phone-panel-slot, .phone-watch-panel, .phone-paint-panel { transition: none; } }
 @media (forced-colors: active) { .phone-paint-panel, .phone-circle::before { background: Canvas; color: CanvasText; border-color: CanvasText; } .phone-panel button { color: CanvasText; } .phone-blank .tray-tag { fill: Canvas; stroke: CanvasText; } }
+
+@media (forced-colors: active) {
+  .phone-paint-panel { outline-color: CanvasText; }
+  .phone-panel :focus-visible { outline-color: CanvasText; }
+  .phone-ledge button { background: Canvas; }
+  .phone-custom-color { forced-color-adjust: none; border-color: CanvasText; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .phone-watch-panel, .phone-paint-panel { transition: none; }
+}
