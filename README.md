@@ -4,6 +4,8 @@ A video player on a canvas. Viewers paint the frame around the video.
 
 [Live demo](https://dabblevideo.com) · [Video.js v10 Skins Design Challenge](https://contra.com/community/topic/videojsskinschallenge) · [GitHub](https://github.com/milenawebb/dabble-skin)
 
+In use on a live site: https://milenawebb.com/#dabble
+
 ## Where the skin is
 
 The skin lives in `src/dabble/`. The demo landing page lives outside that folder. The remaining root files provide project tooling and hosting. Import the skin only through `src/dabble/index.ts`. It has no imports from the landing page or other app folders.

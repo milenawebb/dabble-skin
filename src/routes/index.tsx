@@ -161,6 +161,7 @@ function Index() {
         <section className="gallery-section gallery-intro" aria-label="About the artwork">
           <aside className="paper-piece museum-label" aria-label="Museum label">
             <p className="museum-name">Dabble</p><p>2026</p><p>A skin for Video.js v10</p><p>Paper, ink, four brushes, every icon drawn for it</p>
+            <p>In use on <Button asChild variant="ghost" className="github-text github-museum mt-0! min-h-0!"><a href="https://milenawebb.com/#dabble" target="_blank" rel="noopener noreferrer" aria-label="See Dabble in use on milenawebb.com (opens in a new tab)">milenawebb.com</a></Button></p>
             <GitHubLink museum />
           </aside>
           <article className="paper-piece artist-note">
