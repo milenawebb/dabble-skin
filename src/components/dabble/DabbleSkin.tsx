@@ -161,7 +161,7 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
   return (
     <Container ref={rootRef} tabIndex={-1} aria-label="Dabble video player" style={colors} className="dabble-skin" data-size={size} data-painting={painting || undefined} data-docked={docked || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined}>
       {children}
-      <Poster.Root className="dabble-poster"><Poster.Image /></Poster.Root>
+      {!hasError && <Poster.Root className="dabble-poster"><Poster.Image /></Poster.Root>}
       <PaintedCaptions rootRef={rootRef} captionId={captionId} docked={docked} barEnabled={!(painting && !docked && !fullscreenActive)} />
       <Gesture type="tap" action="togglePaused" />
       <PlayButton ref={centerRef} hidden={!centerVisible} label={ended ? 'Replay' : 'Play'} className="dabble-button dabble-play dabble-center-play" render={(props) => <button {...props} onFocus={(event) => { props.onFocus?.(event); centerHadFocus.current = event.currentTarget.matches(':focus-visible'); }} onBlur={(event) => { props.onBlur?.(event); if (event.relatedTarget) centerHadFocus.current = false; }}><Blob /><Icon kind={ended ? 'replay' : 'play'} /></button>} />

@@ -1,9 +1,9 @@
 # Dabble
 
 ## Contest audit
-- [ ] Keep opening controls visible; enforce 1.8-second idle and immediate leave after playback, including paused/ended cycles.
-- [ ] Audit and fix player states, fullscreen, responsive/keyboard/contrast/touch/reduced-motion behavior without redesign.
-- [ ] Add the footer license line and report every checklist item with testing limitations.
+- [x] Keep opening controls visible; enforce 1.8-second idle and immediate leave after playback, including paused/ended cycles.
+- [x] Audit and fix player states, fullscreen, responsive/keyboard/contrast/touch/reduced-motion behavior without redesign; Chrome checks and 183 tests passed.
+- [x] Add the footer license line and report every checklist item with testing limitations; temporary error route removed.
 
 ## Landing page polish
 - [x] Replace the drawn logo with the supplied dark and white artwork, preserving proportions and reduced-motion behavior.
