@@ -160,13 +160,13 @@ function Index() {
         </div>
         <section className="gallery-section gallery-intro" aria-label="About the artwork">
           <aside className="paper-piece museum-label" aria-label="Museum label">
-            <p className="museum-name">Dabble</p><p>2026</p><p>A skin for Video.js v10</p><p>Paper, ink, four brushes, six colors</p>
+            <p className="museum-name">Dabble</p><p>2026</p><p>A skin for Video.js v10</p><p>Paper, ink, four brushes, every icon drawn for it</p>
             <GitHubLink museum />
           </aside>
           <article className="paper-piece artist-note">
             <h2><PaintedTitle>Artist's note</PaintedTitle></h2>
             <p>Most player skins are finished before anyone presses play. Dabble starts unfinished on purpose. The video sits on a white stretched canvas, and the frame around it is yours to paint.</p>
-            <p>Under the paint it is a plain Video.js v10 skin built from the standard components. Your painting is saved in your own browser, scales with the player, and steps aside completely in fullscreen.</p>
+            <p>Under the paint it is a plain Video.js v10 skin built from the standard components. Your painting is saved in your own browser, scales with the player, and steps aside completely in fullscreen. Every icon, button, brush and paint blob was drawn for Dabble. There is no icon set.</p>
             <p>The film is original too. Dab, the blank canvas who rolls through four colors and stays blank, was made for this page so the video and the player tell the same story.</p>
           </article>
         </section>
