@@ -8,7 +8,7 @@ import type { usePaint } from './use-paint';
 import { BLOB_ROTATIONS, BrushDrawing, HandIcon, PaintBlob, type HandIconKind } from './HandDrawings';
 import { BRUSH_SIZES, TRAY_HIDE_DELAY, trayState } from './tray-rules';
 import './paint-tray.css';
-import { BRUSH_NAMES_MS } from './painting-discovery';
+import { activeBrushLabel, brushLabelPosition } from './brush-label';
 
 const brushes: { label: string; type: Brush }[] = [
   { label: 'Impressionist brush', type: 'imp' }, { label: 'Cubist brush', type: 'cub' },
@@ -38,13 +38,44 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
   const copyTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const state = trayState(paint.painting, peeking);
   const open = state !== 'tucked';
-  const [showNames, setShowNames] = useState(false);
+  const [hoveredBrush, setHoveredBrush] = useState<Brush | null>(null);
+  const [focusedBrush, setFocusedBrush] = useState<Brush | null>(null);
+  const labelBrush = activeBrushLabel(paint.brush, hoveredBrush, focusedBrush);
+  const [shownBrush, setShownBrush] = useState(labelBrush);
+  const [labelVisible, setLabelVisible] = useState(true);
+  const brushLabel = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (labelBrush === shownBrush) { setLabelVisible(true); return; }
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { setShownBrush(labelBrush); setLabelVisible(true); return; }
+    setLabelVisible(false);
+    const timer = setTimeout(() => { setShownBrush(labelBrush); setLabelVisible(true); }, 75);
+    return () => clearTimeout(timer);
+  }, [labelBrush, shownBrush]);
+  useEffect(() => {
+    const tray = root.current;
+    const label = brushLabel.current;
+    if (!tray || !label || !open) return;
+    let frame = 0;
+    const start = performance.now();
+    const measure = () => {
+      const drawing = tray.querySelector(`[data-brush="${shownBrush}"] .tray-brush-drawing`);
+      const colors = tray.querySelector('.tray-colors');
+      if (!drawing || !colors) return;
+      const drawingRect = drawing.getBoundingClientRect();
+      const top = Math.min(...Array.from(tray.querySelectorAll('.tray-brush-drawing'), brush => brush.getBoundingClientRect().top));
+      const position = brushLabelPosition(tray.getBoundingClientRect(), { left: drawingRect.left, right: drawingRect.right, width: drawingRect.width, bottom: drawingRect.bottom, top }, colors.getBoundingClientRect(), label.offsetWidth, label.offsetHeight);
+      label.style.left = `${position.left}px`;
+      label.style.top = `${position.top}px`;
+    };
+    const settle = () => { measure(); if (performance.now() - start < 350) frame = requestAnimationFrame(settle); };
+    settle();
+    const observer = new ResizeObserver(measure);
+    observer.observe(tray); observer.observe(label);
+    document.fonts?.ready.then(measure);
+    return () => { observer.disconnect(); cancelAnimationFrame(frame); };
+  }, [shownBrush, paint.brush, open]);
   useEffect(() => {
     onOpenChange?.(open);
-    setShowNames(open);
-    if (!open) return;
-    const timer = setTimeout(() => setShowNames(false), BRUSH_NAMES_MS);
-    return () => clearTimeout(timer);
   }, [open, onOpenChange]);
   useEffect(() => {
     const query = matchMedia('(hover: hover) and (pointer: fine)');
@@ -77,7 +108,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
   const color = paint.palette[paint.color] ?? paint.palette[0];
   const colorNames = paintColorNames(paint.palette);
   const iconTool = (label: string, icon: HandIconKind, action: () => void, disabled = false) => <Tool label={label} className="tray-reveal tray-circle" hidden={!open} disabled={disabled} onClick={action}><HandIcon kind={icon} /></Tool>;
-  return <TooltipProvider delayDuration={0}><section ref={root} className="paint-tray" aria-label="Paint tools" data-state={state} data-brush-names={showNames || undefined} data-visible={controlsState.visible || undefined} data-paused={controlsState.paused || undefined} style={{ '--tray-color': color } as CSSProperties}
+  return <TooltipProvider delayDuration={0}><section ref={root} className="paint-tray" aria-label="Paint tools" data-state={state} data-visible={controlsState.visible || undefined} data-paused={controlsState.paused || undefined} style={{ '--tray-color': color } as CSSProperties}
     onPointerEnter={() => { hovering.current = true; suppressPeek.current = false; reveal(); onActivity(true); }}
     onPointerMove={() => { onActivity(true); }}
     onPointerLeave={() => { hovering.current = false; suppressPeek.current = false; scheduleTuck(); if (!root.current?.contains(document.activeElement)) onActivity(false); }}
@@ -94,7 +125,9 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
       <span className="tray-divider tray-divider-two tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
       <div className="tray-equipment">
       <div className="tray-brushes tray-reveal" role="group" aria-label="Brush" inert={!open || undefined}>
-        {brushes.map(({ label, type }) => <Tool key={type} label={label} className="tray-brush" pressed={paint.brush === type} onClick={() => pin(() => paint.setBrush(type))}><BrushDrawing brush={type} /><span className="tray-brush-name" aria-hidden="true">{label.replace(' brush', '')}</span></Tool>)}
+        {brushes.map(({ label, type }) => <span key={type} className="tray-item tray-brush" data-brush={type} onPointerEnter={() => setHoveredBrush(type)} onPointerLeave={() => setHoveredBrush(null)}>
+          <Button variant="ghost" size="icon" aria-label={label} aria-pressed={paint.brush === type} onFocus={() => setFocusedBrush(type)} onBlur={() => setFocusedBrush(null)} onClick={() => pin(() => paint.setBrush(type))}><BrushDrawing brush={type} /></Button>
+        </span>)}
       </div>
       <span className="tray-divider tray-divider-three tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
       <div className="tray-sizes tray-reveal" role="group" aria-label="Brush size" inert={!open || undefined}>
@@ -109,6 +142,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
       </div>
       </div>
     </div>
+    {open && <span ref={brushLabel} className="tray-brush-name" data-visible={labelVisible || undefined} aria-hidden="true">{brushes.find(brush => brush.type === shownBrush)?.label.replace(' brush', '')}</span>}
     <svg className="tray-ledge" viewBox="0 0 680 18" preserveAspectRatio="none" width="100%" height="18" aria-hidden="true">
       <path className="tray-wood" d="M2 3C120 1 420 4 678 2L677 15C460 17 160 14 3 16Z" />
       <path className="tray-wood-shade" d="M4 12.5C160 11 460 14 676 12L677 15C460 17 160 14 3 16Z" />

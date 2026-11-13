@@ -22,12 +22,8 @@
 .tray-colors, .tray-brushes, .tray-sizes, .tray-actions { display: flex; justify-content: space-between; align-items: end; min-width: 0; gap: 0; }
 .paint-tray .tray-brush > button { height: 96px; width: 35px; }
 .paint-tray .tray-brush .tray-brush-drawing { width: 35px; height: 96px; transition: transform .18s; transform-origin: 50% 95%; }
-.tray-brush-name { position: absolute; left: 0; top: -8px; z-index: 4; padding: 0 4px; white-space: nowrap; border: 1px solid var(--dabble-ink); border-radius: 3px 2px 4px 2px; background: var(--dabble-paper); color: var(--dabble-ink); font: 500 17px/1.15 Caveat, cursive; opacity: 0; transition: opacity .2s; pointer-events: none; }
-.tray-brush:nth-child(2) .tray-brush-name { top: 16px; }
-.tray-brush:nth-child(3) .tray-brush-name { top: 40px; }
-.tray-brush:nth-child(4) .tray-brush-name { top: -8px; left: auto; right: -60px; }
-.paint-tray[data-brush-names] .tray-brush-name, .tray-brush button[aria-pressed="true"] .tray-brush-name, .tray-brush:hover .tray-brush-name, .tray-brush:focus-within .tray-brush-name { opacity: 1; }
-@container (max-width: 559px) { .paint-tray .tray-brush button:not([aria-pressed="true"]) .tray-brush-name { display: none; } .paint-tray .tray-brush .tray-brush-name { top: -8px; left: auto; right: 0; } }
+.tray-brush-name { position: absolute; left: 4px; top: -28px; z-index: 8; padding: 0 4px; white-space: nowrap; border: 1px solid var(--dabble-ink); border-radius: 3px 2px 4px 2px; background: var(--dabble-paper); color: var(--dabble-ink); font: 500 19px/1.15 var(--dabble-hand-font, 'Caveat', cursive); opacity: 0; transition: opacity .075s; pointer-events: none; }
+.tray-brush-name[data-visible] { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .tray-brush-name { transition: none; } }
 @media (forced-colors: active) { .tray-brush-name { color: CanvasText; border-color: CanvasText; background: Canvas; } }
 .tray-brush > button[aria-pressed="true"] .tray-brush-drawing { transform: translateY(-10px) rotate(-4deg); }

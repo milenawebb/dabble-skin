@@ -1,7 +1,6 @@
 export const DISCOVERY_KEY = 'dabble-painted-once';
 export const BORDER_HINT_MS = 3000;
 export const VIDEO_HINT_MS = 2000;
-export const BRUSH_NAMES_MS = 4000;
 export function hasPaintedBefore() {
   try { return localStorage.getItem(DISCOVERY_KEY) === 'yes'; } catch { return false; }
 }

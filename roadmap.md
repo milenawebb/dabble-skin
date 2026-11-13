@@ -1,5 +1,9 @@
 # Dabble
 
+## Single brush tag
+- [x] Replace duplicate/timed brush names with one selected/hovered/focused tag; preserve accessible names and other tooltips.
+- [x] Verify all four tag positions, hover/focus restoration, reduced-motion swaps and unchanged tray height at desktop, tablet and mobile sizes.
+
 ## Layered logo plop
 - [x] Render supplied ink/paper SVG layers inline and animate hero blobs only, with two-second hover replay cooldown.
 - [x] Verify exact inline artwork, load, throttled hover, reduced-motion, forced-colors, static header/footer and phone layout.

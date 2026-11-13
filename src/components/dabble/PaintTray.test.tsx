@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { usePaint } from './use-paint';
 import { PaintTray } from './PaintTray';
 vi.mock('./video-palette', () => ({ sampleSource: () => () => {}, sampleVideo: () => null }));
-beforeEach(() => localStorage.clear());
+beforeEach(() => { localStorage.clear(); vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} }); });
 function Tray({ ownerTools = false, defaultTrayOpen = false }: { ownerTools?: boolean; defaultTrayOpen?: boolean }) {
   const paint = usePaint({ current: null }, { current: null }, true, 'tray-test');
   return <PaintTray defaultTrayOpen={defaultTrayOpen} paint={paint} src="tray-test" ownerTools={ownerTools} sounds={false} toggleSounds={() => {}} automaticSound={() => {}} controlsState={{visible:true,paused:true}} onActivity={() => {}} />;
