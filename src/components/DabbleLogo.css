@@ -1,0 +1,67 @@
+.dabble-logo {
+  display: inline-flex;
+  align-items: baseline;
+  position: relative;
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  line-height: 1;
+}
+.dabble-logo--ink {
+  color: #1b1b1a;
+}
+.dabble-logo--paper {
+  color: #fdfdfb;
+}
+.dabble-logo-letter {
+  position: relative;
+  display: inline-block;
+}
+.dabble-logo-glyph {
+  position: relative;
+  z-index: 1;
+}
+.dabble-logo-blob {
+  position: absolute;
+  width: 0.62em;
+  height: 0.62em;
+  transform: translate(-50%, -50%) rotate(var(--dabble-rot));
+}
+.dabble-logo--animate .dabble-logo-blob {
+  animation: dabble-logo-blob-in 0.35s ease-out var(--dabble-delay) both;
+}
+@keyframes dabble-logo-blob-in {
+  0% {
+    transform: translate(-50%, -50%) rotate(var(--dabble-rot)) scale(0);
+  }
+  70% {
+    transform: translate(-50%, -50%) rotate(var(--dabble-rot)) scale(1.15);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(var(--dabble-rot)) scale(1);
+  }
+}
+.dabble-logo-dots {
+  position: relative;
+  width: 0;
+  align-self: stretch;
+}
+.dabble-logo-dot {
+  position: absolute;
+  width: 0.06em;
+  height: 0.06em;
+  border-radius: 50%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dabble-logo--animate .dabble-logo-blob {
+    animation: none;
+  }
+}
+@media (forced-colors: active) {
+  .dabble-logo {
+    color: CanvasText;
+  }
+  .dabble-logo-blob,
+  .dabble-logo-dot {
+    display: none;
+  }
+}

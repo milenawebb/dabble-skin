@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { WALLS, WALL_STORAGE_KEY, readWall, type Wall } from '@/components/dabble/wall-rules';
 import { PREVIEW_SIZES, effectivePreviewSize, visiblePreviewSizes, type PreviewSize } from '@/components/dabble/preview-rules';
 import { HandIcon } from '@/components/dabble/HandDrawings';
+import { DabbleLogo } from '@/components/DabbleLogo';
 
 const PLAYBACK_ID = 'AAprZsIykh7T29gtsNk02YhBrQRHXTj14ZxbWdc498wA';
 const POSTER = `https://image.mux.com/${PLAYBACK_ID}/thumbnail.jpg?time=9&width=1280`;
@@ -15,10 +16,10 @@ export const Route = createFileRoute("/")({
   validateSearch: (search: Record<string, unknown>): { broken?: string } => String(search['broken'] ?? '') === '1' ? { broken: '1' } : {},
   head: () => ({
     meta: [
-      { title: "Dabble — Hand-drawn video player" },
-      { name: "description", content: "Dabble’s canvas-framed video player with hand-drawn controls, playback speeds, and accessible player states." },
-      { property: "og:title", content: "Dabble — Hand-drawn video player" },
-      { property: "og:description", content: "Dabble’s canvas-framed video player with hand-drawn controls, playback speeds, and accessible player states." },
+      { title: "Dabble: paint the frame around your video" },
+      { name: "description", content: "A Video.js v10 skin where the video sits on a white canvas and every viewer paints the frame." },
+      { property: "og:title", content: "Dabble: paint the frame around your video" },
+      { property: "og:description", content: "A Video.js v10 skin where the video sits on a white canvas and every viewer paints the frame." },
       { property: "og:image", content: POSTER },
       { name: "twitter:image", content: POSTER },
       { property: "og:type", content: "website" },
@@ -63,7 +64,7 @@ function Index() {
       <div className="mx-auto w-full max-w-[860px]">
         <div className="demo-heading-row">
         <div>
-        <h1 className="text-xl font-semibold">Dabble</h1>
+        <h1><DabbleLogo size={44} animate /></h1>
         <p className="mt-2 text-sm">Paint the frame around your video.</p>
         </div>
         {sizes.length > 0 && <div className="preview-size" role="radiogroup" aria-labelledby={previewLabelId} ref={previewGroup}
