@@ -106,3 +106,31 @@ diff --git a/dist/default/dom/store/features/controls.js b/dist/default/dom/stor
  			const { userActive } = get();
  			set({ controlsVisible: computeVisible(userActive) });
  			if (!media.paused && userActive) scheduleIdle();
+diff --git a/dist/dev/dom/store/features/text-track.js b/dist/dev/dom/store/features/text-track.js
+--- a/dist/dev/dom/store/features/text-track.js
++++ b/dist/dev/dom/store/features/text-track.js
+@@ -22,0 +23 @@
++		if (track.__dabblePaintedCaption) track.__dabbleCaptionOn = track === active;
+@@ -50 +51 @@
+-				const showing = subtitlesTracks.find(({ track }) => track.mode === "showing");
++				const showing = subtitlesTracks.find(({ track }) => (track.__dabblePaintedCaption ? track.__dabbleCaptionOn : track.mode === "showing"));
+@@ -68 +69 @@
+-					const showing = subtitlesTracks.find(({ track }) => track.mode === "showing");
++					const showing = subtitlesTracks.find(({ track }) => (track.__dabblePaintedCaption ? track.__dabbleCaptionOn : track.mode === "showing"));
+@@ -104 +105 @@
+-				if (isCaptionOrSubtitleTrack(track) && track.mode === "showing") subtitlesShowing = true;
++				if (isCaptionOrSubtitleTrack(track) && (track.__dabblePaintedCaption ? track.__dabbleCaptionOn : track.mode === "showing")) subtitlesShowing = true;
+diff --git a/dist/default/dom/store/features/text-track.js b/dist/default/dom/store/features/text-track.js
+--- a/dist/default/dom/store/features/text-track.js
++++ b/dist/default/dom/store/features/text-track.js
+@@ -22,0 +23 @@
++		if (track.__dabblePaintedCaption) track.__dabbleCaptionOn = track === active;
+@@ -50 +51 @@
+-				const showing = subtitlesTracks.find(({ track }) => track.mode === "showing");
++				const showing = subtitlesTracks.find(({ track }) => (track.__dabblePaintedCaption ? track.__dabbleCaptionOn : track.mode === "showing"));
+@@ -68 +69 @@
+-					const showing = subtitlesTracks.find(({ track }) => track.mode === "showing");
++					const showing = subtitlesTracks.find(({ track }) => (track.__dabblePaintedCaption ? track.__dabbleCaptionOn : track.mode === "showing"));
+@@ -104 +105 @@
+-				if (isCaptionOrSubtitleTrack(track) && track.mode === "showing") subtitlesShowing = true;
++				if (isCaptionOrSubtitleTrack(track) && (track.__dabblePaintedCaption ? track.__dabbleCaptionOn : track.mode === "showing")) subtitlesShowing = true;

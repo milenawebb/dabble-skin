@@ -1,5 +1,9 @@
 # Dabble
 
+## iOS painted captions
+- [x] Remove Safari fallback, preserve library CC intent with hidden tracks, and hand over only in native iPhone fullscreen.
+- [x] Verified real Mux playback on iOS-sized Chromium views, cue events, mode resets, CC off, phone clearance and simulated fullscreen handover; WebKit crashes loading the page, so real iPhone/iPad handover remains unverified.
+
 ## Compact gallery and wider phone frame
 - [x] Move the header GitHub control to the museum label and tighten phone/desktop spacing; shared repository URL remains pending below.
 - [x] Use 24px below 560px and 5% above; verified visible starter paint, 24px below phone bar, long two-line captions, painting and page fit at 390/1280px; 197 tests passed.

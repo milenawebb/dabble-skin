@@ -10,7 +10,7 @@ export function fittedVideoRect(box: CaptionRect, nativeWidth: number, nativeHei
 
 export function captionBottom(video: CaptionRect, barTop: number, barVisible: boolean, docked: boolean) {
   const bottom = video.top + video.height;
-  return barVisible && !docked && barTop < bottom ? barTop - 10 : bottom - video.height * .06;
+  return barVisible && !docked && barTop < bottom ? barTop - 10 : bottom - Math.max(8, video.height * .06);
 }
 
 export function captionsOverlap(caption: CaptionRect, panel: CaptionRect) {

@@ -37,7 +37,7 @@ use the editor.
 - Round video-stage size and screen position in the layout helper; use paper behind non-fullscreen media and black in fullscreen to prevent dark subpixel seams.
 - Delegate visibility timing and input actions to Video.js; preserve component-provided handlers and ARIA when rendering custom button content.
 - Compose player states with Poster, PlayButton, Gesture, BufferingIndicator, and ErrorDialog, and speed selection with Menu and PlaybackRateRadioGroup; library primitives own actions, focus, and controls locks.
-- Read showing caption tracks through native activeCues/cuechange without changing track modes; render safe visual-only ink captions inside Container, with measured video/control/panel clearance and opaque native fallback for WebKit or unreadable cues, because CC state and system fullscreen must remain library-owned.
+- Read custom captions from hidden tracks on every browser; the pinned text-track patch keeps library CC intent separate from native mode, allowing iPhone fullscreen handover and unreadable-cue fallback without duplicate captions.
 - Outline caption paper with three SVG parts and non-scaling strokes; fixed-width bristle ends prevent long lines from stretching their shape.
 - Derive unique tray color labels in palette.ts so resampling updates names.
 - Keep phone docking inside the Video.js Container and reserve measured bar height in the outer canvas; use a Video.js controls lock only outside fullscreen so fullscreen retains library auto-hide.
