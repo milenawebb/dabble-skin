@@ -35,3 +35,13 @@ it('offers independent small, medium and large selections', () => {
     }
   }
 });
+it('selects live custom paint and sampled paint replaces it', () => {
+  const { container } = render(<Panel />);
+  fireEvent.click(screen.getByRole('button', { name: 'Start painting' }));
+  fireEvent.input(screen.getByLabelText('Mix your own color'), { target: { value: '#123456' } });
+  expect(container.querySelector('.mix-paint')).toHaveAttribute('data-selected');
+  const sampledPaint = container.querySelector('.phone-colors button');
+  if (!sampledPaint) throw new Error('Missing sampled paint');
+  fireEvent.click(sampledPaint);
+  expect(container.querySelector('.mix-paint')).not.toHaveAttribute('data-selected');
+});

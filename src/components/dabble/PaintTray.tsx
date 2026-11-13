@@ -9,6 +9,7 @@ import { BLOB_ROTATIONS, BrushDrawing, HandIcon, PaintBlob, type HandIconKind } 
 import { BRUSH_SIZES, TRAY_HIDE_DELAY, trayState } from './tray-rules';
 import './paint-tray.css';
 import { activeBrushLabel, brushLabelPosition } from './brush-label';
+import { MixPaintInput } from './MixPaintInput';
 
 const brushes: { label: string; type: Brush }[] = [
   { label: 'Impressionist brush', type: 'imp' }, { label: 'Cubist brush', type: 'cub' },
@@ -32,7 +33,6 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
   const [hoverCapable, setHoverCapable] = useState(false);
   const root = useRef<HTMLElement>(null);
   const mode = useRef<HTMLButtonElement>(null);
-  const picker = useRef<HTMLInputElement>(null);
   const shelf = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const content = shelf.current;
@@ -119,8 +119,6 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
     } catch { setSnippet(code); }
   };
   const color = paint.color === -1 ? paint.customColor ?? paint.palette[0] : paint.palette[paint.color] ?? paint.palette[0];
-  const customLabel = paint.customColor ? `Your color, ${colorName(paint.customColor).toLowerCase()}. Change it` : 'Mix your own color';
-  const swirl = `conic-gradient(${[...paint.palette, paint.palette[0]].join(', ')})`;
   const colorNames = paintColorNames(paint.palette);
   const iconTool = (label: string, icon: HandIconKind, action: () => void, disabled = false) => <Tool label={label} className="tray-reveal tray-circle" hidden={!open} disabled={disabled} onClick={action}><HandIcon kind={icon} /></Tool>;
   return <TooltipProvider delayDuration={0}><section ref={root} className="paint-tray" aria-label="Paint tools" data-state={state} data-visible={controlsState.visible || undefined} data-paused={controlsState.paused || undefined} style={{ '--tray-color': color } as CSSProperties}
@@ -136,8 +134,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
       <div className="tray-colors tray-reveal" role="group" aria-label="Paint color" inert={!open || undefined}>
         {paint.palette.map((hex, index) => <Tool key={index} label={colorNames[index] ?? `${colorName(hex)} paint`} pressed={paint.color === index} className="tray-color" style={{ '--pot-color': hex } as CSSProperties} onClick={() => pin(() => paint.setColor(index))}><PaintBlob selected={paint.color === index} angle={BLOB_ROTATIONS[index] ?? 0} scale={paint.color === index ? 1.18 : 1} /></Tool>)}
       </div>
-      <Tool label={customLabel} className="tray-sample tray-custom tray-reveal" hidden={!open} pressed={paint.color === -1} onClick={() => picker.current?.click()} style={{ '--custom-fill': paint.customColor ?? swirl } as CSSProperties}><span className="tray-custom-blob" /><span className="tray-custom-plus">+</span></Tool>
-      <input ref={picker} type="color" className="tray-color-input" aria-label="Custom paint color" tabIndex={-1} value={paint.customColor ?? paint.palette[0]} onChange={event => pin(() => paint.chooseCustomColor(event.target.value))} />
+      <span className="tray-item tray-sample tray-custom tray-reveal" inert={!open || undefined}><MixPaintInput palette={paint.palette} customColor={paint.customColor} selected={paint.color === -1} onPick={color => pin(() => paint.chooseCustomColor(color))} /></span>
       <span className="tray-divider tray-divider-two tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
       <div className="tray-equipment">
       <div className="tray-brushes tray-reveal" role="group" aria-label="Brush" inert={!open || undefined}>

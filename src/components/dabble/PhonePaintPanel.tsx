@@ -7,11 +7,11 @@ import { BRUSH_SIZES } from './tray-rules';
 import { activeBrushLabel } from './brush-label';
 import type { usePaint } from './use-paint';
 import './phone-panel.css';
+import { MixPaintInput } from './MixPaintInput';
 
 const brushes = [{ type: 'imp', name: 'Impressionist' }, { type: 'cub', name: 'Cubist' }, { type: 'drip', name: 'Drip' }, { type: 'rib', name: 'Ribbon' }] as const;
 export function PhonePaintPanel({ paint, width, setHost, sounds, toggleSounds, automaticSound, onActivity }: { paint: ReturnType<typeof usePaint>; width: number; setHost: (host: HTMLDivElement | null) => void; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; onActivity: (active: boolean) => void }) {
   const mode = useRef<HTMLButtonElement>(null);
-  const picker = useRef<HTMLInputElement>(null);
   const [hoveredBrush, setHoveredBrush] = useState<typeof paint.brush | null>(null);
   const [focusedBrush, setFocusedBrush] = useState<typeof paint.brush | null>(null);
   const labelBrush = activeBrushLabel(paint.brush, hoveredBrush, focusedBrush);
@@ -25,8 +25,7 @@ export function PhonePaintPanel({ paint, width, setHost, sounds, toggleSounds, a
       <div className="phone-paint-panel" inert={!paint.painting || undefined}>
         <div className="phone-tool-row phone-colors" role="group" aria-label="Paint color">
           {paint.palette.map((color, i) => <Button key={i} variant="ghost" size="icon" aria-label={names[i]} title={names[i]} aria-pressed={paint.color === i} onClick={() => paint.setColor(i)} style={{ '--pot-color': color } as CSSProperties}><PaintBlob selected={paint.color === i} /></Button>)}
-          <Button variant="ghost" size="icon" aria-label="Mix your own color" title="Mix your own color" aria-pressed={paint.color === -1} onClick={() => picker.current?.click()}><span className="phone-custom-color" style={{ '--pot-color': paint.customColor ?? paint.palette[0] } as CSSProperties} /><HandIcon kind="eyedropper" /></Button>
-          <input ref={picker} type="color" className="tray-color-input" aria-label="Custom paint color" tabIndex={-1} value={paint.customColor ?? paint.palette[0]} onChange={event => paint.chooseCustomColor(event.target.value)} />
+          <MixPaintInput palette={paint.palette} customColor={paint.customColor} selected={paint.color === -1} onPick={paint.chooseCustomColor} />
         </div>
         <div className="phone-tool-row phone-brushes" role="group" aria-label="Brush and size">
           <span className="phone-brush-name" aria-hidden="true" style={{ '--phone-label-index': labelIndex } as CSSProperties}><span key={labelBrush}>{brushes.find(item => item.type === labelBrush)?.name}</span></span>

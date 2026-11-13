@@ -112,6 +112,7 @@
 .dabble-skin .dabble-center-play { position: absolute; z-index: 2; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 76px; height: 76px; background: var(--dabble-paper); }
 .dabble-center-play[hidden] { display: none; }
 .dabble-center-play[hidden][data-stroking] { display: inline-flex; pointer-events: none; }
+.dabble-skin[data-painting] .dabble-center-play[hidden][data-stroking] { display: none; }
 .dabble-skin .dabble-center-play .dabble-icon { width: 34px; height: 34px; }
 .dabble-center-play .dabble-blob { opacity: 1; inset: -5px 6px 6px -5px; }
 .dabble-skin[data-size="small"] .dabble-center-play { z-index: 4; }

@@ -1,5 +1,10 @@
 # Dabble
 
+## Painting playback and direct custom color picker
+- [x] Hide the center button during painting playback, retaining tap-to-pause and paused/replay states; suppress the touch compatibility click that otherwise hits the newly revealed Play button.
+- [x] Replace both indirect color pickers with a full-target native input and permanent swirled artwork; verify live/final selection and keyboard access.
+- [x] Verify desktop and 390px touch Chromium flows with real video playback; WebKit crashes on page load, so Safari and native OS picker selection remain unverified.
+
 ## Phone plaque, restored tools and fresh sound consent
 - [x] Keep the phone plaque visible with a 20px canvas gap, preserving the panel swap and fullscreen; verified playing after idle in Chromium.
 - [x] Restore upright brushes, three size blobs, circle actions and Blank canvas tag with 44px targets; verified at 320/360/390px.

@@ -56,10 +56,11 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
   const requestControlsLock = usePlayer((state) => state.requestControlsLock);
   // A permanent library lock disables phone idle hiding, but not fullscreen auto-hide.
   useEffect(() => phoneHost && !fullscreenActive ? requestControlsLock() : undefined, [phoneHost, fullscreenActive, requestControlsLock]);
-  const centerVisible = (showCenterPlay(started, ended) || (painting && (paused || Boolean(phoneHost)))) && !hasError;
+  const centerVisible = showCenterPlay(started, ended, painting, paused) && !hasError;
   const centerRef = useRef<HTMLButtonElement>(null);
   const playRef = useRef<HTMLButtonElement>(null);
   const centerHadFocus = useRef(false);
+  const paintingVideoTouch = useRef(false);
   const captionId = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   useHotkey({ keys: 'Escape', onActivate: event => {
     if (!fullscreenActive || keysOpen || volumeOpen || rootRef.current?.querySelector('.dabble-speed[aria-expanded="true"], .dabble-error')) return;
@@ -191,7 +192,14 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
   </Controls.Content></Controls.Root>;
 
   return (
-    <Container ref={rootRef} tabIndex={-1} aria-label="Dabble video player" style={colors} className="dabble-skin" data-size={size} data-painting={painting || undefined} data-docked={docked || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined} data-bar-visible={(!painting && controlsVisible) || undefined}>
+    <Container ref={rootRef} tabIndex={-1} aria-label="Dabble video player" style={colors} className="dabble-skin" data-size={size} data-painting={painting || undefined} data-docked={docked || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined} data-bar-visible={(!painting && controlsVisible) || undefined} onPointerDownCapture={event => {
+      // Pausing reveals Play under the finger before the compatibility click.
+      paintingVideoTouch.current = painting && event.pointerType === 'touch' && event.target instanceof HTMLVideoElement;
+    }} onClickCapture={event => {
+      if (!paintingVideoTouch.current) return;
+      paintingVideoTouch.current = false;
+      event.preventDefault(); event.stopPropagation();
+    }}>
       {children}
       {!hasError && <Poster.Root className="dabble-poster"><Poster.Image /></Poster.Root>}
       <PaintedCaptions phoneHost={phoneHost ?? null} rootRef={rootRef} captionId={captionId} docked={docked} barEnabled={!painting} />
