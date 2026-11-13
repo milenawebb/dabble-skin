@@ -83,8 +83,6 @@ Override variables on the elements that use them. `--dabble-paper`, `--dabble-in
 - Phone controls dock under the video and stay visible outside fullscreen.
 - Reduced motion disables fades and slides. Forced colors use system colors.
 
-Real-device iPhone/iPad caption handover and Safari playback still need manual verification; the sandbox WebKit browser crashes on this page.
-
 ## Run it locally
 
 Install Bun, then:

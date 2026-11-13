@@ -42,13 +42,19 @@ const OPEN_ITEMS = [
 ];
 
 const PROPS: Array<[string, string]> = [
-  ['playbackId', 'Mux playback ID. Plays through Mux, and paintings are saved under this ID.'],
-  ['src', 'Direct video URL, used when there is no playbackId. Default: \'\'.'],
-  ['poster', 'Poster image shown before play. Optional.'],
-  ['captions', 'A captions track: { src, srcLang, label }. Optional.'],
-  ['paintable', 'Show the painting tools. Default: true.'],
-  ['painting', 'A starting painting; a viewer\'s own saved painting wins over it. Optional.'],
-  ['sounds', 'Offer the sound toggle and interface sounds. Default: false.'],
+  ['playbackId', 'Public Mux playback ID. Takes priority over src and identifies saved paintings. Default: Not supplied.'],
+  ['src', 'Direct video URL when no Mux ID is supplied. Cross-origin video needs permission for color sampling. Default: \'\'.'],
+  ['poster', 'Image shown before play. Default: Not supplied.'],
+  ['captions', 'One track with { src, srcLang, label }. Explicit VTT disables generated HLS subtitle formats. Default: Not supplied.'],
+  ['paintable', 'Shows viewer painting tools. Default: true.'],
+  ['painting', 'Starting { version: 1, palette, strokes } painting. Stored viewer paintings take priority. Each stroke retains its own chosen colors. Default: Not supplied.'],
+  ['ownerTools', 'Adds Copy painting code to the desktop/tablet tray. Default: false.'],
+  ['sounds', 'Compatibility prop. It does not enable sound or hide the toggle; explicit viewer consent controls sound. Default: false.'],
+  ['defaultTrayOpen', 'Initial discovery state. Desktop/tablet trays currently open on every visit regardless; phones start with watching controls. Default: false.'],
+  ['thumbnailSampleTimes', 'Mux thumbnail times in seconds. Otherwise uses 15%, 35%, 55% and 75% of duration. Default: Not supplied.'],
+  ['onPaletteChange', 'Receives the six current paint colors. Default: Not supplied.'],
+  ['onSoundPreferenceChange', 'Receives the viewer\'s sound opt-in state. Default: Not supplied.'],
+  ['broken', 'Deliberate broken-source test, not needed for normal use. Default: false.'],
 ];
 
 const USAGE_CODE = `<DabblePlayer
