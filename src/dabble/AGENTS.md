@@ -1,4 +1,5 @@
 # Page presentation boundaries
+- Keep the reusable player, local button primitives, frame/skin styles, and tests in `src/dabble/`; all consumers use its `index.ts` entry, and skin imports never depend on demo files, so it can be reused without the landing page.
 - Keep the pinned Bun controls-feature patch in dev/production so Video.js alone owns the 2.5-second idle and paused/ended holds; test its actual runtime on upgrades.
 - Desktop/tablet trays initialize open without enabling painting and change state only through explicit ledge/Escape/P actions; use measured player width for two-zone shelves at 670–1000px and three rows below, keeping phone state separate.
 - Suppress desktop/tablet controls only during frame strokes plus one-second recovery, never for tray openness or fullscreen; measure caption clearance from the rendered bar top while preserving docked phone positioning.

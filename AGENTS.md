@@ -30,7 +30,6 @@ use the editor.
 <!-- LOVABLE:END -->
 
 ## Player architecture
-- Keep the reusable player, local button primitives, frame/skin styles, and tests in `src/dabble/`; all consumers use its `index.ts` entry, and skin imports never depend on demo files, so it can be reused without the landing page.
 - Keep player composition inside `DabblePlayer.tsx`, using MuxVideo for playbackId and Video for src; keep UI primitives inside DabbleSkin so source changes cannot alter the skin.
 - Use the packaged `@videojs/react/video` player preset with custom Video.js UI primitives and scoped skin CSS; do not import the stock skin stylesheet.
 - Keep canvas and paint wrappers outside `VideoPlayer`; `DabbleSkin` registers its inner `Container` as the fullscreen target, so fullscreen excludes the frame.
