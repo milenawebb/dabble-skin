@@ -1,5 +1,12 @@
 # Dabble
 
+## Landing page
+- [x] Rebuild the demo route as a landing page: header with skip link and nav, hero with pill/logo/tagline, Keys card, drip divider, Access, Notes, Use it, footer.
+- [x] Replace preview-size pills with a hand-drawn device switch (teal blob and underline selected state, Caveat words, 44px targets, same radio behavior and hiding rules).
+- [x] Remove the wall switcher and wall-rules; fixed #1F1D1B wall; recheck tray, ledge, brush button and tooltips on dark.
+- [x] Share the Keys panel data with the Keys card; verify every Access claim against the code and report any untrue one.
+- [x] Verify 360px layout, landmarks, contrast, playback/painting continuity, and the test suite.
+
 ## Demo preview sizes and tucked shelf
 - [x] Collapse the tucked tray shelf to the brush button on the ledge, animating growth with reduced-motion instant switching.
 - [x] Rename the mode button Start painting / Put the paints away with aria-expanded.

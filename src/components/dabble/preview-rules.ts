@@ -1,7 +1,7 @@
 import type { HandIconKind } from './HandDrawings';
 
 export const PREVIEW_SIZES = [
-  { id: 'desktop', label: 'Desktop', icon: 'monitor', width: 860 },
+  { id: 'desktop', label: 'Desktop', icon: 'monitor', width: 1100 },
   { id: 'tablet', label: 'Tablet', icon: 'tablet', width: 768 },
   { id: 'mobile', label: 'Mobile', icon: 'phone', width: 390 },
 ] as const satisfies ReadonlyArray<{ id: string; label: string; icon: HandIconKind; width: number }>;

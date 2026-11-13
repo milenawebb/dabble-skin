@@ -55,7 +55,7 @@ use the editor.
 - Keep continuous brush audio in a dedicated wrapper hook using the shared gesture-created AudioContext; supplied voice math stays in sounds, with explicit stroke, mute, visibility, and unmount teardown.
 - Share supplied icon and brush SVGs in a browser-safe drawing module; keep tray state and cursor geometry separate from the painting engine so visual changes cannot alter saved strokes.
 - Subscribe the tray to Video.js visibility through the skin and request the existing controls lock during tray interaction; never introduce a second player auto-hide timer.
-- Keep wall selection in the demo route with validated optional browser storage and scoped wall tokens; page themes must not recolor the player or tray.
+- The demo landing page uses a fixed dark wall (#1F1D1B) with paper lower sections; page themes must not recolor the player or tray.
 - Render the tray paper backing independently of its tools and keep the wooden ledge visible in every tray state; shelf decoration must not alter tray actions or visibility timing.
 - Register painting and help shortcuts through Video.js hooks, reusing tray button actions and blocking editable fields and open panels; existing player bindings remain unchanged.
 - Keep the Keys popover inside the Video.js Container with a controls lock and a focusable keyboard fallback when its responsive trigger is hidden.
