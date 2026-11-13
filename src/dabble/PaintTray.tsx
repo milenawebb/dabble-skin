@@ -19,12 +19,12 @@ function Tool({ label, children, className = '', pressed, expanded, disabled, on
     {note && <span className="tray-note" role="status">{note}</span>}
   </span>;
 }
-export function PaintTray({ paint, src, playbackId, ownerTools = false, width = 1000, sounds, toggleSounds, automaticSound, controlsState, onActivity, onOpenChange }: { paint: ReturnType<typeof usePaint>; src: string; playbackId?: string; ownerTools?: boolean; width?: number; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; controlsState: { visible: boolean; paused: boolean }; onActivity: (active: boolean) => void; onOpenChange?: (open: boolean) => void }) {
+export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultTrayOpen = false, width = 1000, sounds, toggleSounds, automaticSound, controlsState, onActivity, onOpenChange }: { paint: ReturnType<typeof usePaint>; src: string; playbackId?: string; ownerTools?: boolean; defaultTrayOpen?: boolean; width?: number; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; controlsState: { visible: boolean; paused: boolean }; onActivity: (active: boolean) => void; onOpenChange?: (open: boolean) => void }) {
   const id = useId();
   const [copied, setCopied] = useState(false);
   const [snippet, setSnippet] = useState('');
   const [clearMessage, setClearMessage] = useState('');
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(defaultTrayOpen);
   const root = useRef<HTMLElement>(null);
   const mode = useRef<HTMLButtonElement>(null);
   const shelf = useRef<HTMLDivElement>(null);

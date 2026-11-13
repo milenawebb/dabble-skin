@@ -50,7 +50,7 @@ const PROPS: Array<[string, string]> = [
   ['painting', 'Starting { version: 1, palette, strokes } painting. Stored viewer paintings take priority. Each stroke retains its own chosen colors. Default: Not supplied.'],
   ['ownerTools', 'Adds Copy painting code to the desktop/tablet tray. Default: false.'],
   ['sounds', 'Compatibility prop. It does not enable sound or hide the toggle; explicit viewer consent controls sound. Default: false.'],
-  ['defaultTrayOpen', 'Initial discovery state. Desktop/tablet trays currently open on every visit regardless; phones start with watching controls. Default: false.'],
+  ['defaultTrayOpen', 'Starts the desktop/tablet tray open when true. Phones always start with watching controls and the tray closed. Default: false.'],
   ['thumbnailSampleTimes', 'Mux thumbnail times in seconds. Otherwise uses 15%, 35%, 55% and 75% of duration. Default: Not supplied.'],
   ['onPaletteChange', 'Receives the six current paint colors. Default: Not supplied.'],
   ['onSoundPreferenceChange', 'Receives the viewer\'s sound opt-in state. Default: Not supplied.'],

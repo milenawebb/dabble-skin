@@ -82,8 +82,8 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   useEffect(() => {
     if (!measured) return;
     paint.setPainting(false);
-    setTrayOpen(!phone && paintable);
-  }, [phone, measured, paintable, paint.setPainting]);
+    setTrayOpen(!phone && paintable && defaultTrayOpen);
+  }, [phone, measured, paintable, defaultTrayOpen, paint.setPainting]);
   const panelWidth = phonePanelWidth(canvasBox.width, viewportWidth);
   const [metadata, setMetadata] = useState({ src: '', width: 0, height: 0 });
   const stageInput = canvasBox.width > 0 ? { canvasWidth: canvasBox.width, canvasLeft: canvasBox.left, canvasTop: canvasBox.top, frame: paintFrameWidth(frameWidth, paint.painting && canvasBox.width >= 420) } : undefined;
@@ -171,7 +171,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
     </div>
     {phone && paintable ? <PhonePaintPanel width={panelWidth} setHost={setPhoneHost} paint={paint} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} onActivity={trayActivity} /> : <>
       <div className="dabble-plaque-space" aria-hidden="true" style={{ height: plaqueSpace }} />
-      {paintable && <PaintTray onOpenChange={setTrayOpen} width={canvasBox.width} paint={paint} src={src} ownerTools={ownerTools} {...(playbackId ? { playbackId } : {})} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} controlsState={controlsState} onActivity={trayActivity} />}
+      {paintable && <PaintTray defaultTrayOpen={defaultTrayOpen} onOpenChange={setTrayOpen} width={canvasBox.width} paint={paint} src={src} ownerTools={ownerTools} {...(playbackId ? { playbackId } : {})} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} controlsState={controlsState} onActivity={trayActivity} />}
     </>}
     </PlayerLabels>
   );
