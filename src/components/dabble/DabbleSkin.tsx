@@ -114,7 +114,7 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
     let releaseFocus: (() => void) | undefined;
     const enter = (event: PointerEvent) => { if (event.pointerType !== 'touch') releaseHover ??= requestControlsLock(); };
     const leave = () => { releaseHover?.(); releaseHover = undefined; };
-    const focus = () => { if (bar.querySelector(':focus-visible')) releaseFocus ??= requestControlsLock(); };
+    const focus = () => { releaseFocus ??= requestControlsLock(); };
     const blur = (event: FocusEvent) => { if (!(event.relatedTarget instanceof Node) || !bar.contains(event.relatedTarget)) { releaseFocus?.(); releaseFocus = undefined; } };
     bar.addEventListener('pointerenter', enter); bar.addEventListener('pointerleave', leave);
     bar.addEventListener('focusin', focus); bar.addEventListener('focusout', blur);

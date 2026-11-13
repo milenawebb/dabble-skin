@@ -24,8 +24,8 @@ export function shouldShowVolumePopover(width: number, hoverCapable: boolean) {
   return width >= 420 && hoverCapable;
 }
 
-export function getDockSpace(width: number, barHeight: number) {
-  return shouldDockControls(width, false) ? barHeight + 8 : 0;
+export function getPlaqueSpace(width: number, barHeight: number) {
+  return shouldDockControls(width, false) ? barHeight + 12 : 0;
 }
 
 export const DABBLE_PLAYBACK_RATES = [0.5, 1, 1.25, 1.5, 2] as const;

@@ -5,7 +5,7 @@ import { MuxVideo } from '@videojs/react/media/mux-video';
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { getFrameWidth, getVideoLayout } from './canvas-layout';
 import { DabbleSkin } from './DabbleSkin';
-import { getDockSpace, getPlayerSource } from './skin-rules';
+import { getPlaqueSpace, getPlayerSource } from './skin-rules';
 import { paintFrameWidth } from './paint-rules';
 import { usePaint } from './use-paint';
 import { PaintTray } from './PaintTray';
@@ -65,7 +65,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   };
   const [frameWidth, setFrameWidth] = useState(() => getFrameWidth(0));
   const [canvasBox, setCanvasBox] = useState({ width: 0, left: 0, top: 0 });
-  const [dockSpace, setDockSpace] = useState(0);
+  const [plaqueSpace, setPlaqueSpace] = useState(0);
   const [metadata, setMetadata] = useState({ src: '', width: 0, height: 0 });
   const stageInput = canvasBox.width > 0 ? { canvasWidth: canvasBox.width, canvasLeft: canvasBox.left, canvasTop: canvasBox.top, frame: paintFrameWidth(frameWidth, paint.painting && canvasBox.width >= 420) } : undefined;
   const layout = metadata.src === source
@@ -105,7 +105,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
       setFrameWidth(getFrameWidth(width));
       // Preserve the page's reserved space while its inner Container is fullscreen.
       if (!canvas.querySelector('.dabble-skin:fullscreen')) {
-        setDockSpace(getDockSpace(width, bar?.getBoundingClientRect().height ?? 0));
+        setPlaqueSpace(getPlaqueSpace(width, bar?.getBoundingClientRect().height ?? 0));
       }
     };
     updateFrame();
@@ -119,7 +119,6 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
 
   const geometry = {
     '--dabble-m': `${paintFrameWidth(frameWidth, paint.painting && canvasBox.width >= 420)}px`,
-    '--dabble-dock-space': `${canvasBox.width < 420 && !trayOpen && controlsState.visible ? dockSpace : 0}px`,
     '--dabble-aspect': layout.aspectRatio,
     ...(layout.stage ? { '--dabble-stage-width': `${layout.stage.width}px`, '--dabble-stage-height': `${layout.stage.height}px`, '--dabble-stage-left': `${layout.stage.left}px`, '--dabble-stage-top': `${layout.stage.top}px` } : {}),
   } as CSSProperties;
@@ -147,6 +146,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
         </VideoPlayer>
       </div>
     </div>
+    <div className="dabble-plaque-space" aria-hidden="true" style={{ height: plaqueSpace }} />
     {paintable && <PaintTray onOpenChange={setTrayOpen} defaultTrayOpen={defaultTrayOpen} paint={paint} src={src} ownerTools={ownerTools} {...(playbackId ? { playbackId } : {})} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} controlsState={controlsState} onActivity={trayActivity} />}
     </>
   );

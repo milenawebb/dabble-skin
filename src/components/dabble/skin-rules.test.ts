@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DABBLE_HOTKEYS, DABBLE_PLAYBACK_RATES, getCaptionLine, getPlayerSource, getControlSize, showCenterPlay, shouldDockControls, getDockSpace } from './skin-rules';
+import { DABBLE_HOTKEYS, DABBLE_PLAYBACK_RATES, getCaptionLine, getPlayerSource, getControlSize, showCenterPlay, shouldDockControls, getPlaqueSpace } from './skin-rules';
 
 describe('Dabble keyboard rules', () => {
   it('binds Space and K to playback', () => {
@@ -19,9 +19,9 @@ describe('player-relative controls', () => {
     expect(shouldDockControls(420, false)).toBe(false);
     expect(shouldDockControls(419, true)).toBe(false);
   });
-  it('reserves the bar height plus an 8px video gap only on phones', () => {
-    expect(getDockSpace(419, 115)).toBe(123);
-    expect(getDockSpace(420, 115)).toBe(0);
+  it('reserves the plaque height plus a 12px canvas gap only on phones', () => {
+    expect(getPlaqueSpace(419, 115)).toBe(127);
+    expect(getPlaqueSpace(420, 115)).toBe(0);
   });
   it('keeps caption bottoms inside the video when the docked bar has no overlap', () => {
     expect(getCaptionLine(0, 200, true)).toBe(96);

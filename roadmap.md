@@ -1,5 +1,9 @@
 # Dabble
 
+## Fixed phone frame and hanging plaque
+- [x] Remove the drawer and split painting; position the phone plaque outside the fixed frame with reserved space.
+- [x] Verify equal 24px frame, stable hide/show layout, captions, bottom-frame painting and narrow desktop/touch Chromium fullscreen controls; physical Android remains unverified.
+
 ## Phone drawer and centralized sound gate
 - [x] Animate phone drawer with fixed equal-frame painting geometry and a moving bottom paint band.
 - [x] Gate every audio entry and stop active sources immediately when switched off; verified silent/off and active/on strokes, identical bottom paint pixels and fixed video bounds.
