@@ -8,9 +8,9 @@ export function initialPainting(palette: readonly string[] = PAINT_PALETTE): Str
   const colors = [palette[0] ?? PAINT_PALETTE[0], palette[2] ?? PAINT_PALETTE[2], palette[4] ?? PAINT_PALETTE[4]];
   const pal = [...colors, ...colors];
   return [
-    { type: 'rib', seed: INITIAL_SEED, pal: [...pal], color: colors[1] ?? '', size: .025, pts: [[.025,.38],[.025,.2],[.035,.065],[.1,.035],[.25,.035],[.4,.035]] },
-    { type: 'rib', seed: INITIAL_SEED + 1, pal: [...pal], color: colors[0] ?? '', size: .017, pts: [[.045,.28],[.045,.13],[.075,.055],[.2,.055],[.32,.055]] },
-    { type: 'rib', seed: INITIAL_SEED + 2, pal: [...pal], color: colors[1] ?? '', size: .027, pts: [[.975,.62],[.975,.8],[.965,.94],[.9,.965],[.75,.965],[.6,.965]] },
+    { type: 'rib', seed: INITIAL_SEED, pal: [...pal], color: colors[1] ?? '', size: .025, pts: [[-.07,.4],[.045,.32],[.008,.23],[.04,.16],[.005,.095],[.06,.018],[.13,.055],[.21,.014],[.27,.028],[.34,-.08]] },
+    { type: 'rib', seed: INITIAL_SEED + 1, pal: [...pal], color: colors[2] ?? '', size: .012, pts: [[-.07,.16],[.025,.13],[.08,.045],[.12,.015],[.16,.10],[.23,.19]] },
+    { type: 'rib', seed: INITIAL_SEED + 2, pal: [...pal], color: colors[1] ?? '', size: .027, pts: [[.6,1.08],[.69,.965],[.77,.99],[.83,.953],[.9,.983],[.974,.944],[.944,.865],[.986,.78],[.965,.705],[1.08,.62]] },
     { type: 'drip', seed: INITIAL_SEED + 3, pal: [...pal], color: colors[2] ?? '', size: .022, pts: [[.095,.04],[.13,.045],[.155,.035]] },
     { type: 'drip', seed: INITIAL_SEED + 4, pal: [...pal], color: colors[0] ?? '', size: .023, pts: [[.967,.84],[.965,.885],[.957,.91]] },
     { type: 'drip', seed: INITIAL_SEED + 5, pal: [...pal], color: colors[2] ?? '', size: .022, pts: [[.84,.966],[.805,.957],[.77,.965]] },

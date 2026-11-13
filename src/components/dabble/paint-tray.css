@@ -155,10 +155,33 @@
 }
 
 .paint-tray .tray-blank { margin-left: 10px; }
-.paint-tray .tray-blank > button { width: 128px; padding: 0 8px; gap: 5px; font: 500 20px/1 var(--dabble-hand-font, 'Caveat', cursive); }
+.paint-tray .tray-blank > button { width: max-content; padding: 0 16px; gap: 8px; font: 500 20px/1 var(--dabble-hand-font, 'Caveat', cursive); }
 .paint-tray .tray-blank > button[aria-disabled="true"] { opacity: .45; }
 .paint-tray .tray-blank > button .tray-tag { position: absolute; inset: 2px 0; width: 100%; height: 40px; z-index: -1; fill: var(--dabble-paper); stroke: var(--dabble-ink); stroke-width: 1.5; }
-@container (min-width: 700px) { .tray-shelf { grid-template-columns: 36px 4px minmax(0,6fr) 36px 4px minmax(0,4fr) 4px minmax(0,3fr) minmax(248px,7fr); gap: 4px; } }
+@container (min-width: 560px) {
+  .tray-shelf { grid-template-columns: 1fr; grid-template-areas: 'colors' 'equipment'; height: auto; min-height: 162px; gap: 14px 0; padding-inline: 16px; }
+  .tray-mode { position: absolute; left: 16px; top: 10px; }
+  .tray-sample { position: absolute; right: 16px; top: 10px; }
+  .tray-colors { grid-area: colors; width: calc(100% - 88px); justify-self: center; height: 44px; }
+  .tray-divider { display: none; }
+  .tray-equipment { grid-area: equipment; display: flex; align-items: end; gap: 10px; overflow: visible; }
+  .tray-brushes { width: 140px; flex: 0 0 auto; }
+  .tray-sizes { width: 96px; flex: 0 0 auto; }
+  .tray-actions { flex: 1; width: auto; gap: 6px; justify-content: flex-end; }
+  .paint-tray .tray-blank { flex: 0 0 auto; }
+}
+@container (min-width: 560px) and (max-width: 699px) {
+  .tray-equipment { flex-wrap: wrap; }
+  .tray-actions { flex-basis: 100%; padding-block: 4px; }
+}
+@container (min-width: 900px) {
+  .tray-shelf { grid-template-columns: 36px 4px minmax(192px,6fr) 36px 4px 140px 4px 96px minmax(300px,7fr); grid-template-areas: none; height: 122px; min-height: 0; gap: 4px; }
+  .tray-equipment { display: contents; }
+  .tray-mode, .tray-sample { position: relative; inset: auto; }
+  .tray-colors, .tray-brushes, .tray-sizes, .tray-actions { grid-area: auto; }
+  .tray-colors { width: 100%; height: auto; }
+  .tray-divider { display: inline; }
+}
 @container (max-width: 559px) { .paint-tray .tray-blank > button { width: 44px; padding: 0; } .tray-blank-text { display: none; } }
 @media (pointer: coarse) { .paint-tray .tray-equipment .tray-actions { min-width: 278px; } @container (max-width: 559px) { .paint-tray .tray-equipment .tray-actions { min-width: 230px; } } }
 @media (forced-colors: active) { .paint-tray .tray-blank > button .tray-tag { fill: Canvas; stroke: CanvasText; } }
