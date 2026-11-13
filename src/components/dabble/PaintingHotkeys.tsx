@@ -1,17 +1,18 @@
 import { useHotkey } from '@videojs/react';
 import { useEffect, useState, type RefObject } from 'react';
 import { blocksPaintingShortcut, paintingShortcutLabel } from './painting-shortcuts';
+import { announceShortcut } from './page-feedback';
 
 function PaintingHotkey({ keys, root, painting, size, blocked }: { keys: string; root: RefObject<HTMLDivElement | null>; painting: boolean; size: number; blocked: boolean }) {
   useHotkey({ keys, target: 'document', repeatable: false, disabled: blocked, onActivate: event => {
     const container = root.current;
     const target = event.target instanceof Element ? event.target : null;
     if (!container || blocksPaintingShortcut(target, Boolean(container.querySelector('[aria-expanded="true"], [role="dialog"]')))) return;
-    const label = paintingShortcutLabel(keys, painting, size);
+    const label = keys === 'p' ? (container.closest('.dabble-canvas')?.nextElementSibling?.getAttribute('data-state') !== 'tucked' ? 'Put the paints away' : 'Start painting') : paintingShortcutLabel(keys, painting, size);
     if (!label) return;
     const tray = container.closest('.dabble-canvas')?.nextElementSibling;
     const button = Array.from(tray?.querySelectorAll<HTMLButtonElement>('button') ?? []).find(item => item.getAttribute('aria-label') === label);
-    if (button && !button.disabled) button.click();
+    if (button && !button.disabled) { button.click(); announceShortcut(container, keys); }
   } });
   return null;
 }

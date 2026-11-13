@@ -21,7 +21,7 @@ function Tool({ label, children, className = '', pressed, expanded, disabled, on
     {note && <span className="tray-note" role="status">{note}</span>}
   </span>;
 }
-export function PaintTray({ paint, src, playbackId, ownerTools = false, sounds, toggleSounds, automaticSound, controlsState, onActivity }: { paint: ReturnType<typeof usePaint>; src: string; playbackId?: string; ownerTools?: boolean; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; controlsState: { visible: boolean; paused: boolean }; onActivity: (active: boolean) => void }) {
+export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultTrayOpen = false, sounds, toggleSounds, automaticSound, controlsState, onActivity }: { paint: ReturnType<typeof usePaint>; src: string; playbackId?: string; ownerTools?: boolean; defaultTrayOpen?: boolean; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; controlsState: { visible: boolean; paused: boolean }; onActivity: (active: boolean) => void }) {
   const id = useId();
   const [copied, setCopied] = useState(false);
   const [snippet, setSnippet] = useState('');
@@ -31,7 +31,8 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, sounds, 
   const resetTitle = useId();
   const closeReset = () => { setConfirmReset(false); resetButton.current?.focus(); };
   useEffect(() => { if (confirmReset) keepPainting.current?.focus(); }, [confirmReset]);
-  const [peeking, setPeeking] = useState(false);
+  const [peeking, setPeeking] = useState(defaultTrayOpen);
+  const [initiallyOpen, setInitiallyOpen] = useState(defaultTrayOpen);
   const [hoverCapable, setHoverCapable] = useState(false);
   const root = useRef<HTMLElement>(null);
   const mode = useRef<HTMLButtonElement>(null);
@@ -56,11 +57,12 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, sounds, 
   };
   const tuck = () => {
     suppressPeek.current = true;
+    setInitiallyOpen(false);
     clearTimeout(hideTimer.current); setPeeking(false); paint.setPainting(false);
     // Focus returns before the next render makes the other tools inert.
     mode.current?.focus();
   };
-  const pin = (action: () => void) => { suppressPeek.current = false; clearTimeout(hideTimer.current); setPeeking(false); paint.setPainting(true); action(); };
+  const pin = (action: () => void) => { setInitiallyOpen(false); suppressPeek.current = false; clearTimeout(hideTimer.current); setPeeking(false); paint.setPainting(true); action(); };
   const copy = async () => {
     const code = paintingCode(src, paint.getPainting(), playbackId);
     try {
@@ -79,7 +81,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, sounds, 
     onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) { suppressPeek.current = false; scheduleTuck(); if (!hovering.current) onActivity(false); } }}
     onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); if (confirmReset) closeReset(); else tuck(); } }}>
     <div className="tray-shelf">
-      <Tool modeRef={mode} label={paint.painting ? 'Put the paints away' : 'Start painting'} className="tray-mode tray-circle" expanded={open} onClick={() => { if (paint.painting) tuck(); else pin(() => {}); }}><HandIcon kind="brush" /></Tool>
+      <Tool modeRef={mode} label={paint.painting || (initiallyOpen && open) ? 'Put the paints away' : 'Start painting'} className="tray-mode tray-circle" expanded={open} onClick={() => { if (paint.painting || (initiallyOpen && open)) tuck(); else pin(() => {}); }}><HandIcon kind="brush" /></Tool>
       <span className="tray-divider tray-divider-one tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
       <div className="tray-colors tray-reveal" role="group" aria-label="Paint color" inert={!open || undefined}>
         {paint.palette.map((hex, index) => <Tool key={index} label={colorNames[index] ?? `${colorName(hex)} paint`} pressed={paint.color === index} className="tray-color" style={{ '--pot-color': hex } as CSSProperties} onClick={() => pin(() => paint.setColor(index))}><PaintBlob selected={paint.color === index} angle={BLOB_ROTATIONS[index] ?? 0} scale={paint.color === index ? 1.18 : 1} /></Tool>)}

@@ -1,5 +1,12 @@
 # Dabble
 
+## Landing page polish
+- [x] Replace the drawn logo with the supplied dark and white artwork, preserving proportions and reduced-motion behavior.
+- [x] Open the demo tray initially without focus or scroll changes; retain the closed component default.
+- [x] Add decorative keycap feedback from handled shortcuts with explicitly opted-in, gesture-gated sounds.
+- [x] Polish tagline, painted title/nav strokes, film credit, Notes, fixed-width drips and two-column prop descriptions.
+- [x] Verify desktop/phone, shortcut single actions, silence, tray behavior and regression tests.
+
 ## Landing page
 - [x] Rebuild the demo route as a landing page: header with skip link and nav, hero with pill/logo/tagline, Keys card, drip divider, Access, Notes, Use it, footer.
 - [x] Replace preview-size pills with a hand-drawn device switch (teal blob and underline selected state, Caveat words, 44px targets, same radio behavior and hiding rules).

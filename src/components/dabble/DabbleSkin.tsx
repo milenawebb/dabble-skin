@@ -11,6 +11,8 @@ import { PaintingHotkeys } from './PaintingHotkeys';
 import { KeysContent, KeysHotkey } from './KeysPanel';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { getHotkeyCoordinator } from '@videojs/core/dom';
+import { announceShortcut } from './page-feedback';
 
 function Blob() { return <span className="dabble-blob" aria-hidden="true" />; }
 
@@ -46,6 +48,14 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
   const playRef = useRef<HTMLButtonElement>(null);
   const centerHadFocus = useRef(false);
   const captionId = useId().replace(/[^a-zA-Z0-9_-]/g, '');
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    return getHotkeyCoordinator(root).subscribe(event => {
+      // Custom shortcuts announce only after their own guards and action succeed.
+      if (event.action && event.event.isTrusted) announceShortcut(root, event.event.key);
+    });
+  }, []);
 
   useEffect(() => {
     if (!keysOpen) return;

@@ -24,9 +24,11 @@ type DabblePlayerProps = {
   ownerTools?: boolean;
   painting?: Painting;
   sounds?: boolean;
+  defaultTrayOpen?: boolean;
+  onSoundPreferenceChange?: (optedIn: boolean) => void;
 };
 
-export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poster, broken = false, captions, paintable = true, ownerTools = false, painting, sounds = false }: DabblePlayerProps) {
+export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poster, broken = false, captions, paintable = true, ownerTools = false, painting, sounds = false, defaultTrayOpen = false, onSoundPreferenceChange }: DabblePlayerProps) {
   const [ready, setReady] = useState(false);
   const source = getPlayerSource(playbackId ? `https://stream.mux.com/${playbackId}.m3u8` : src, broken && ready);
   const muxSource = useMemo(() => ({
@@ -42,14 +44,17 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   const [controlsState, setControlsState] = useState({ visible: true, paused: true });
   const trayActivity = useCallback((active: boolean) => { canvasRef.current?.dispatchEvent(new CustomEvent('dabble-tray-activity', { detail: active })); }, []);
   const [soundChoice, setSoundChoice] = useState(sounds);
+  const [soundOptIn, setSoundOptIn] = useState(false);
   const automaticSound = useFeedback(canvasRef, soundChoice, paint.painting, paint.brush);
   useEffect(() => {
     if (!sounds) return;
-    try { setSoundChoice(localStorage.getItem('dabble-sounds') !== 'off'); } catch { /* Storage is optional. */ }
+    try { const saved = localStorage.getItem('dabble-sounds'); setSoundChoice(saved !== 'off'); setSoundOptIn(saved === 'on'); } catch { /* Storage is optional. */ }
   }, [sounds]);
+  useEffect(() => { onSoundPreferenceChange?.(soundChoice && soundOptIn); }, [soundChoice, soundOptIn, onSoundPreferenceChange]);
   const toggleSounds = () => {
     const next = !soundChoice;
     setSoundChoice(next);
+    setSoundOptIn(next);
     try { localStorage.setItem('dabble-sounds', next ? 'on' : 'off'); } catch { /* Storage is optional. */ }
   };
   const [frameWidth, setFrameWidth] = useState(12);
@@ -135,7 +140,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
         </VideoPlayer>
       </div>
     </div>
-    {paintable && <PaintTray paint={paint} src={src} ownerTools={ownerTools} {...(playbackId ? { playbackId } : {})} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} controlsState={controlsState} onActivity={trayActivity} />}
+    {paintable && <PaintTray defaultTrayOpen={defaultTrayOpen} paint={paint} src={src} ownerTools={ownerTools} {...(playbackId ? { playbackId } : {})} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} controlsState={controlsState} onActivity={trayActivity} />}
     </>
   );
 }

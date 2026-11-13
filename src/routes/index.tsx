@@ -5,6 +5,9 @@ import { PREVIEW_SIZES, effectivePreviewSize, visiblePreviewSizes, type PreviewS
 import { HandIcon } from '@/components/dabble/HandDrawings';
 import { PLAYER_KEYS, PAINT_KEYS } from '@/components/dabble/KeysPanel';
 import { DabbleLogo, BLOB_PATH } from '@/components/DabbleLogo';
+import { PaintedTitle } from '@/components/PaintedTitle';
+import { useKeycapFeedback } from '@/components/dabble/use-keycap-feedback';
+import { Button } from '@/components/ui/button';
 
 const PLAYBACK_ID = 'AAprZsIykh7T29gtsNk02YhBrQRHXTj14ZxbWdc498wA';
 const POSTER = `https://image.mux.com/${PLAYBACK_ID}/thumbnail.jpg?time=9&width=1280`;
@@ -107,7 +110,7 @@ function DeviceSwitch({ sizes, activeSize, onChoose }: { sizes: typeof PREVIEW_S
       }}>
       <span className="sr-only" id={labelId}>Preview size</span>
       {sizes.map(size => (
-        <button key={size.id} type="button" role="radio" aria-checked={activeSize === size.id}
+        <Button variant="ghost" key={size.id} type="button" role="radio" aria-checked={activeSize === size.id}
           tabIndex={activeSize === size.id ? 0 : -1} data-size={size.id} className="device-choice"
           onClick={() => onChoose(size.id)}>
           <span className="device-sketch" aria-hidden="true">
@@ -117,7 +120,7 @@ function DeviceSwitch({ sizes, activeSize, onChoose }: { sizes: typeof PREVIEW_S
           <span className="device-word" aria-hidden="true">{size.label}
             <svg className="device-underline" viewBox="0 0 60 6" preserveAspectRatio="none"><path d="M2 3.6c17-2.4 39-2.2 56 .4" /></svg>
           </span>
-        </button>
+        </Button>
       ))}
     </div>
   );
@@ -125,10 +128,11 @@ function DeviceSwitch({ sizes, activeSize, onChoose }: { sizes: typeof PREVIEW_S
 
 function DripDivider() {
   return (
-    <svg className="drip-divider" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
-      <path className="drip-wall" d="M0 0h1440v20H0Z M136 20c0 24 2 42 14 42s14-18 14-42Z M306 20c0 38 2 66 14 66s14-28 14-66Z M506 20c0 19 2 34 14 34s14-15 14-34Z M746 20c0 43 2 74 14 74s14-31 14-74Z M966 20c0 28 2 48 14 48s14-20 14-48Z M1166 20c0 35 2 60 14 60s14-25 14-60Z M1326 20c0 17 2 30 14 30s14-13 14-30Z" />
-      <path className="drip-teal" d="M626 20c0 32 2 55 14 55s14-23 14-55Z" />
-      <path className="drip-orange" d="M1066 20c0 22 2 38 14 38s14-16 14-38Z" />
+    <svg className="drip-divider" aria-hidden="true" height="96" width="100%">
+      <svg width="100%" height="26" viewBox="0 0 1440 26" preserveAspectRatio="none">
+        <path className="drip-wall" d="M0 0H1440V19C1300 23 1230 15 1100 19S890 24 720 19 530 16 390 20 160 23 0 19Z" />
+      </svg>
+      {[{ x: '8%', width: 8, length: 44 }, { x: '23%', width: 10, length: 70 }, { x: '36%', width: 6, length: 20, color: 'teal' }, { x: '57%', width: 9, length: 55 }, { x: '69%', width: 7, length: 32 }, { x: '83%', width: 8, length: 14, color: 'orange' }, { x: '95%', width: 10, length: 62 }].map(run => <svg key={run.x} x={run.x} y="17" width={run.width + 2} height={run.length + 3} viewBox={`0 0 ${run.width + 2} ${run.length + 3}`}><path className={`drip-${run.color ?? 'wall'}`} d={`M2 0H${run.width}L${run.width} ${run.length - 8}C${run.width + 3} ${run.length + 3} 0 ${run.length + 3} 1 ${run.length - 8}Z`} /></svg>)}
     </svg>
   );
 }
@@ -138,6 +142,10 @@ function Index() {
   const [previewSize, setPreviewSize] = useState<PreviewSize>('desktop');
   const [windowWidth, setWindowWidth] = useState(1024);
   const heroTitleId = useId();
+  const playerRef = useRef<HTMLDivElement>(null);
+  const [soundOptIn, setSoundOptIn] = useState(false);
+  const keycapFeedback = useKeycapFeedback(playerRef, soundOptIn);
+  const keyRows = (rows: string[][], offset: number) => rows.map(([key = '', action], index) => <div className="keys-row" key={key}><dt><kbd className={`keycap paint-tone-${(index + offset) % 5}`} data-dabbed={keycapFeedback.active.has(key) || undefined} onPointerEnter={event => { if (event.isTrusted && event.pointerType === 'mouse') keycapFeedback.playSound(); }}><svg className="keycap-blob" aria-hidden="true" viewBox="-17 -17 34 34" preserveAspectRatio="none"><path d={BLOB_PATH} /></svg><span>{key}</span></kbd></dt><dd>{action}</dd></div>);
   useEffect(() => {
     const measure = () => setWindowWidth(window.innerWidth);
     measure();
@@ -154,7 +162,7 @@ function Index() {
         <header className="landing-header">
           <DabbleLogo size={28} tone="paper" />
           <nav className="landing-nav" aria-label="Page sections">
-            {NAV_LINKS.map(link => <a key={link.href} href={link.href}>{link.label}</a>)}
+            {NAV_LINKS.map(link => <a key={link.href} href={link.href}><PaintedTitle>{link.label}</PaintedTitle></a>)}
           </nav>
         </header>
       </div>
@@ -162,24 +170,25 @@ function Index() {
         <div className="landing-wall">
           <section className="landing-hero" aria-labelledby={heroTitleId}>
             <p className="landing-pill">Video.js v10 skin</p>
-            <h1 id={heroTitleId} className="landing-title"><DabbleLogo size={windowWidth < 640 ? 56 : 96} tone="paper" animate /></h1>
+            <h1 id={heroTitleId} className="landing-title"><DabbleLogo size={windowWidth < 640 ? 64 : 110} tone="paper" animate /></h1>
             <p className="landing-tagline">A video player on a blank canvas. Press play, then pick up a brush and paint the frame.</p>
             {sizes.length > 0 && <DeviceSwitch sizes={sizes} activeSize={activeSize} onChoose={setPreviewSize} />}
-            <div className="preview-column" id="player" tabIndex={-1} style={{ maxWidth: columnWidth }}>
-              <DabblePlayer sounds playbackId={PLAYBACK_ID} thumbnailSampleTimes={SAMPLE_TIMES} poster={POSTER} broken={broken === '1'} captions={CAPTIONS} />
+            <div ref={playerRef} className="preview-column" id="player" tabIndex={-1} style={{ maxWidth: columnWidth }}>
+              <DabblePlayer defaultTrayOpen onSoundPreferenceChange={setSoundOptIn} sounds playbackId={PLAYBACK_ID} thumbnailSampleTimes={SAMPLE_TIMES} poster={POSTER} broken={broken === '1'} captions={CAPTIONS} />
             </div>
+            <p className="film-credit">Dab is an original short made for this demo. Video hosted on Mux.</p>
           </section>
           <section className="landing-keys" id="keys" aria-labelledby="keys-title">
             <div className="keys-card">
-              <h2 id="keys-title">Keyboard</h2>
+              <h2 id="keys-title"><PaintedTitle>Keyboard</PaintedTitle></h2>
               <div className="keys-grid">
                 <section className="keys-group keys-group--player" aria-label="Player">
                   <h3>Player</h3>
-                  <dl>{PLAYER_KEYS.map(([key, action]) => <div className="keys-row" key={key}><dt><kbd>{key}</kbd></dt><dd>{action}</dd></div>)}</dl>
+                  <dl>{keyRows(PLAYER_KEYS, 0)}</dl>
                 </section>
                 <section className="keys-group" aria-label="Painting">
                   <h3>Painting</h3>
-                  <dl>{PAINT_KEYS.map(([key, action]) => <div className="keys-row" key={key}><dt><kbd>{key}</kbd></dt><dd>{action}</dd></div>)}</dl>
+                  <dl>{keyRows(PAINT_KEYS, 2)}</dl>
                 </section>
               </div>
             </div>
@@ -189,7 +198,7 @@ function Index() {
         <div className="landing-paper">
           <section className="landing-section" id="access" aria-labelledby="access-title">
             <p className="landing-label">01 / Access</p>
-            <h2 id="access-title">Built for every viewer</h2>
+            <h2 id="access-title"><PaintedTitle>Built for every viewer</PaintedTitle></h2>
             <div className="access-grid">
               {ACCESS_CARDS.map(card => (
                 <article className="access-card" key={card.title}>
@@ -197,7 +206,7 @@ function Index() {
                     <svg viewBox="-17 -17 34 34" style={{ transform: `rotate(${card.rotate}deg)` }}><path d={BLOB_PATH} fill={card.color} /></svg>
                     <span className={`access-word${card.onDark ? ' access-word--paper' : ''}`}>{card.word}</span>
                   </span>
-                  <h3>{card.title}</h3>
+                  <h3><PaintedTitle>{card.title}</PaintedTitle></h3>
                   <p>{card.text}</p>
                 </article>
               ))}
@@ -205,11 +214,12 @@ function Index() {
           </section>
           <section className="landing-section" id="notes" aria-labelledby="notes-title">
             <p className="landing-label">02 / Notes</p>
-            <h2 id="notes-title">Why a canvas</h2>
+            <h2 id="notes-title"><PaintedTitle>Why a canvas</PaintedTitle></h2>
             <div className="notes-grid">
               <div className="notes-copy">
                 <p>Most player skins are finished before anyone presses play. Dabble starts blank on purpose. The video sits on a white stretched canvas, and the frame around it is yours to paint with four brushes inspired by four ways of painting.</p>
                 <p>Under the paint it is a plain Video.js v10 skin built from the standard components. Your painting is saved in your own browser, scales with the player, and steps aside completely in fullscreen.</p>
+                <p>The film is original too. Dab, the blank canvas who rolls through four colors and stays blank, was made for this page so the video and the player tell the same story.</p>
               </div>
               <aside className="notes-aside" aria-label="Colors and type">
                 <div className="notes-swatches">
@@ -228,16 +238,16 @@ function Index() {
           </section>
           <section className="landing-section" id="use" aria-labelledby="use-title">
             <p className="landing-label">03 / Use it</p>
-            <h2 id="use-title">Drop it in</h2>
+            <h2 id="use-title"><PaintedTitle>Drop it in</PaintedTitle></h2>
             <pre className="use-code"><code>{USAGE_CODE}</code></pre>
             <ul className="use-props">
-              {PROPS.map(([name, line]) => <li key={name}><code>{name}</code> — {line}</li>)}
+              {PROPS.map(([name, line]) => <li key={name}><code>{name}</code><span>{line}</span></li>)}
             </ul>
           </section>
         </div>
       </main>
       <footer className="landing-footer">
-        <DabbleLogo size={40} tone="ink" />
+        <DabbleLogo size={44} tone="ink" />
         <div className="landing-footer-note">
           <p>Built on Video.js v10.</p>
           <p>Made by Milena Webb for the Video.js v10 Skins Design Challenge, 2026.</p>

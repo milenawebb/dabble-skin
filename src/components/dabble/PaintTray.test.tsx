@@ -4,11 +4,23 @@ import { usePaint } from './use-paint';
 import { PaintTray } from './PaintTray';
 vi.mock('./video-palette', () => ({ sampleSource: () => () => {}, sampleVideo: () => null }));
 beforeEach(() => localStorage.clear());
-function Tray({ ownerTools = false }: { ownerTools?: boolean }) {
+function Tray({ ownerTools = false, defaultTrayOpen = false }: { ownerTools?: boolean; defaultTrayOpen?: boolean }) {
   const paint = usePaint({ current: null }, { current: null }, true, 'tray-test');
-  return <PaintTray paint={paint} src="tray-test" ownerTools={ownerTools} sounds={false} toggleSounds={() => {}} automaticSound={() => {}} controlsState={{visible:true,paused:true}} onActivity={() => {}} />;
+  return <PaintTray defaultTrayOpen={defaultTrayOpen} paint={paint} src="tray-test" ownerTools={ownerTools} sounds={false} toggleSounds={() => {}} automaticSound={() => {}} controlsState={{visible:true,paused:true}} onActivity={() => {}} />;
 }
 describe('tray state interactions', () => {
+  it('initial reveal leaves painting inactive and focus untouched, and can close and reopen', () => {
+    const previousFocus = document.activeElement;
+    const { container, rerender } = render(<Tray defaultTrayOpen />);
+    expect(container.querySelector('section')).toHaveAttribute('data-state', 'peek');
+    expect(document.activeElement).toBe(previousFocus);
+    rerender(<Tray defaultTrayOpen={false} />);
+    expect(container.querySelector('section')).toHaveAttribute('data-state', 'peek');
+    fireEvent.click(screen.getByRole('button', { name: 'Put the paints away' }));
+    expect(container.querySelector('section')).toHaveAttribute('data-state', 'tucked');
+    fireEvent.click(screen.getByRole('button', { name: 'Start painting' }));
+    expect(container.querySelector('section')).toHaveAttribute('data-state', 'pinned');
+  });
   it('reserves copying for ownerTools', () => {
     const { rerender } = render(<Tray />);
     fireEvent.click(screen.getByRole('button', {name:'Start painting'}));

@@ -1,6 +1,7 @@
 import { useHotkey } from '@videojs/react';
 import { useEffect, type RefObject } from 'react';
 import { blocksPaintingShortcut } from './painting-shortcuts';
+import { announceShortcut } from './page-feedback';
 
 // The landing page Keys card reads these same lists so the two never disagree.
 export const PLAYER_KEYS = [['Space or K', 'Play and pause'], ['M', 'Mute'], ['C', 'Captions'], ['F', 'Fullscreen'], ['← →', 'Back or forward 5 seconds'], ['↑ ↓', 'Volume'], ['?', 'Show these keys']];
@@ -12,6 +13,7 @@ export function KeysHotkey({ root, toggle, open }: { root: RefObject<HTMLDivElem
     if (blocksPaintingShortcut(target, false) && !open) return;
     if (!open && root.current?.querySelector('[aria-expanded="true"]')) return;
     toggle();
+    announceShortcut(root.current, '?');
   } });
   return null;
 }
