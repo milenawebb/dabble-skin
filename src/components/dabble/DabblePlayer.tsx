@@ -9,7 +9,7 @@ import { getDockSpace, getPlayerSource } from './skin-rules';
 import { paintFrameWidth } from './paint-rules';
 import { usePaint } from './use-paint';
 import { PaintTray } from './PaintTray';
-import type { Painting } from './painting-data';
+import type { Painting, Palette } from './painting-data';
 import { useFeedback } from './use-feedback';
 import { useBrushCursor } from './use-brush-cursor';
 import { PaintingGuide } from './PaintingGuide';
@@ -27,9 +27,10 @@ type DabblePlayerProps = {
   sounds?: boolean;
   defaultTrayOpen?: boolean;
   onSoundPreferenceChange?: (optedIn: boolean) => void;
+  onPaletteChange?: (palette: Palette) => void;
 };
 
-export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poster, broken = false, captions, paintable = true, ownerTools = false, painting, sounds = false, defaultTrayOpen = false, onSoundPreferenceChange }: DabblePlayerProps) {
+export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poster, broken = false, captions, paintable = true, ownerTools = false, painting, sounds = false, defaultTrayOpen = false, onSoundPreferenceChange, onPaletteChange }: DabblePlayerProps) {
   const [ready, setReady] = useState(false);
   const source = getPlayerSource(playbackId ? `https://stream.mux.com/${playbackId}.m3u8` : src, broken && ready);
   const muxSource = useMemo(() => ({
@@ -42,6 +43,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   const paintRef = useRef<HTMLCanvasElement>(null);
   const [trayOpen, setTrayOpen] = useState(defaultTrayOpen && paintable);
   const paint = usePaint(canvasRef, paintRef, paintable, src, painting, playbackId, thumbnailSampleTimes);
+  useEffect(() => { onPaletteChange?.(paint.palette); }, [paint.palette, onPaletteChange]);
   useBrushCursor(canvasRef, paintRef, paint.size, paint.palette[paint.color] ?? paint.palette[0], paint.brush);
   const [controlsState, setControlsState] = useState({ visible: true, paused: true });
   const trayActivity = useCallback((active: boolean) => { canvasRef.current?.dispatchEvent(new CustomEvent('dabble-tray-activity', { detail: active })); }, []);

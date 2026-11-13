@@ -8,6 +8,8 @@ import { DabbleLogo, BLOB_PATH } from '@/components/DabbleLogo';
 import { PaintedTitle } from '@/components/PaintedTitle';
 import { useKeycapFeedback } from '@/components/dabble/use-keycap-feedback';
 import { Button } from '@/components/ui/button';
+import { BrushSample } from '@/components/BrushSample';
+import { DEFAULT_PALETTE, type Palette } from '@/components/dabble/painting-data';
 
 const PLAYBACK_ID = 'AAprZsIykh7T29gtsNk02YhBrQRHXTj14ZxbWdc498wA';
 const POSTER = `https://image.mux.com/${PLAYBACK_ID}/thumbnail.jpg?time=9&width=1280`;
@@ -15,49 +17,24 @@ const SAMPLE_TIMES = [9, 14, 19, 23] as const;
 const CAPTIONS = { src: '/captions/dabble-dab.en.vtt', srcLang: 'en', label: 'English' };
 
 const NAV_LINKS = [
-  { href: '#player', label: 'Player' },
-  { href: '#keys', label: 'Keys' },
-  { href: '#access', label: 'Access' },
-  { href: '#notes', label: 'Notes' },
+  { href: '#brushes', label: 'The brushes' },
+  { href: '#open', label: 'Open to all' },
+  { href: '#developers', label: 'For developers' },
 ];
-
-const ACCESS_CARDS = [
-  {
-    word: 'Tab', color: '#0057FF', onDark: true, rotate: -14,
-    title: 'Keyboard first',
-    text: 'Every control is reachable with Tab and works with Space, Enter and the arrow keys. Escape closes any menu. A two-tone ring shows where you are.',
-  },
-  {
-    word: 'Aa', color: '#FFB800', onDark: false, rotate: 9,
-    title: 'Readable on any footage',
-    text: 'Controls sit on an opaque paper label and captions have their own outlined label, so they stay clear on bright or dark video and over any paint.',
-  },
-  {
-    word: '44', color: '#00D1B2', onDark: false, rotate: -7,
-    title: 'Room for a thumb',
-    text: 'On touch screens every button is at least 44 pixels. On phones the controls dock under the video in two rows and stay visible.',
-  },
-  {
-    word: 'Calm', color: '#FF2E93', onDark: false, rotate: 16,
-    title: 'Calm on request',
-    text: 'With reduced motion turned on, fades and slides switch off.',
-  },
-];
-
-const LOGO_SWATCHES = [
-  { color: '#2B5FC2', name: 'Blue' },
-  { color: '#E8973A', name: 'Orange' },
-  { color: '#6FE3D2', name: 'Mint' },
-  { color: '#5B2BE0', name: 'Purple' },
-  { color: '#E6B84F', name: 'Yellow' },
-];
-const PAINT_SWATCHES = [
-  { color: '#0057FF', name: 'Blue' },
-  { color: '#00B7FF', name: 'Sky' },
-  { color: '#00D1B2', name: 'Turquoise' },
-  { color: '#FFB800', name: 'Gold' },
-  { color: '#FF5A1F', name: 'Orange' },
-  { color: '#FF2E93', name: 'Pink' },
+const BRUSHES = [
+  { type: 'imp', name: 'Impressionist', line: 'Short dabs of broken color.' },
+  { type: 'cub', name: 'Cubist', line: 'Flat, angled facets.' },
+  { type: 'drip', name: 'Drip', line: 'Flicks, splashes and runs.' },
+  { type: 'rib', name: 'Ribbon', line: 'One long striped sweep.' },
+] as const;
+const OPEN_ITEMS = [
+  'Every control works with the keyboard. Escape closes any menu.',
+  'A two-tone focus ring shows where you are.',
+  'Controls sit on an opaque paper label, so they stay readable over any video and any paint.',
+  'Captions have their own outlined label.',
+  'Buttons are at least 44 pixels on touch screens.',
+  'On phones the controls dock under the video and stay visible.',
+  'With reduced motion on, fades and slides switch off.',
 ];
 
 const PROPS: Array<[string, string]> = [
@@ -125,18 +102,15 @@ function DeviceSwitch({ sizes, activeSize, onChoose }: { sizes: typeof PREVIEW_S
   );
 }
 
-function DripDivider() {
-  return (
-    <svg className="drip-divider" aria-hidden="true" height="96" width="100%">
-      <svg width="100%" height="26" viewBox="0 0 1440 26" preserveAspectRatio="none">
-        <path className="drip-wall" d="M0 0H1440V19C1300 23 1230 15 1100 19S890 24 720 19 530 16 390 20 160 23 0 19Z" />
-      </svg>
-      {[{ x: '8%', width: 8, length: 44 }, { x: '23%', width: 10, length: 70 }, { x: '36%', width: 6, length: 20, color: 'teal' }, { x: '57%', width: 9, length: 55 }, { x: '69%', width: 7, length: 32 }, { x: '83%', width: 8, length: 14, color: 'orange' }, { x: '95%', width: 10, length: 62 }].map(run => <svg key={run.x} x={run.x} y="17" width={run.width + 2} height={run.length + 3} viewBox={`0 0 ${run.width + 2} ${run.length + 3}`}><path className={`drip-${run.color ?? 'wall'}`} d={`M2 0H${run.width}L${run.width} ${run.length - 8}C${run.width + 3} ${run.length + 3} 0 ${run.length + 3} 1 ${run.length - 8}Z`} /></svg>)}
-    </svg>
-  );
-}
-
 function Index() {
+  const [palette, setPalette] = useState<Palette>(DEFAULT_PALETTE);
+  const tryBrush = (name: string) => {
+    const button = playerRef.current?.querySelector<HTMLButtonElement>(`button[aria-label="${name} brush"]`);
+    if (!button) return;
+    button.click();
+    playerRef.current?.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+    requestAnimationFrame(() => button.focus({ preventScroll: true }));
+  };
   const [previewSize, setPreviewSize] = useState<PreviewSize>('desktop');
   const [windowWidth, setWindowWidth] = useState(1024);
   const heroTitleId = useId();
@@ -167,85 +141,63 @@ function Index() {
       <main>
         <div className="landing-wall">
           <section className="landing-hero" aria-labelledby={heroTitleId}>
-            <p className="landing-pill">Video.js v10 skin</p>
             <h1 id={heroTitleId} className="landing-title"><DabbleLogo size={windowWidth < 640 ? 64 : 110} tone="paper" animate /></h1>
             <p className="landing-tagline">A video player on a canvas. Pick up a brush, paint the frame in your style, then press play.</p>
             {sizes.length > 0 && <DeviceSwitch sizes={sizes} activeSize={activeSize} onChoose={setPreviewSize} />}
             <div ref={playerRef} className="preview-column" id="player" tabIndex={-1} style={{ maxWidth: columnWidth }}>
-              <DabblePlayer defaultTrayOpen onSoundPreferenceChange={setSoundOptIn} sounds playbackId={PLAYBACK_ID} thumbnailSampleTimes={SAMPLE_TIMES} poster={POSTER} captions={CAPTIONS} />
+              <DabblePlayer onPaletteChange={setPalette} defaultTrayOpen onSoundPreferenceChange={setSoundOptIn} sounds playbackId={PLAYBACK_ID} thumbnailSampleTimes={SAMPLE_TIMES} poster={POSTER} captions={CAPTIONS} />
             </div>
             <p className="film-credit">Dab is an original short made for this demo. Video hosted on Mux.</p>
           </section>
-          <section className="landing-keys" id="keys" aria-labelledby="keys-title">
-            <div className="keys-card">
-              <h2 id="keys-title"><PaintedTitle>Keyboard</PaintedTitle></h2>
-              <div className="keys-grid">
-                <section className="keys-group keys-group--player" aria-label="Player">
-                  <h3>Player</h3>
-                  <dl>{keyRows(PLAYER_KEYS, 0)}</dl>
-                </section>
-                <section className="keys-group" aria-label="Painting">
-                  <h3>Painting</h3>
-                  <dl>{keyRows(PAINT_KEYS, 2)}</dl>
-                </section>
-              </div>
-            </div>
-          </section>
         </div>
-        <DripDivider />
-        <div className="landing-paper">
-          <section className="landing-section" id="access" aria-labelledby="access-title">
-            <p className="landing-label">01 / Access</p>
-            <h2 id="access-title"><PaintedTitle>Built for every viewer</PaintedTitle></h2>
-            <div className="access-grid">
-              {ACCESS_CARDS.map(card => (
-                <article className="access-card" key={card.title}>
-                  <span className="access-blob" aria-hidden="true">
-                    <svg viewBox="-17 -17 34 34" style={{ transform: `rotate(${card.rotate}deg)` }}><path d={BLOB_PATH} fill={card.color} /></svg>
-                    <span className={`access-word${card.onDark ? ' access-word--paper' : ''}`}>{card.word}</span>
-                  </span>
-                  <h3><PaintedTitle>{card.title}</PaintedTitle></h3>
-                  <p>{card.text}</p>
-                </article>
-              ))}
-            </div>
-          </section>
-          <section className="landing-section" id="notes" aria-labelledby="notes-title">
-            <p className="landing-label">02 / Notes</p>
-            <h2 id="notes-title"><PaintedTitle>Why a canvas</PaintedTitle></h2>
-            <div className="notes-grid">
-              <div className="notes-copy">
-                <p>Most player skins are finished before anyone presses play. Dabble starts blank on purpose. The video sits on a white stretched canvas, and the frame around it is yours to paint with four brushes inspired by four ways of painting.</p>
-                <p>Under the paint it is a plain Video.js v10 skin built from the standard components. Your painting is saved in your own browser, scales with the player, and steps aside completely in fullscreen.</p>
-                <p>The film is original too. Dab, the blank canvas who rolls through four colors and stays blank, was made for this page so the video and the player tell the same story.</p>
-              </div>
-              <aside className="notes-aside" aria-label="Colors and type">
-                <div className="notes-swatches">
-                  <h3>Logo</h3>
-                  <ul>{LOGO_SWATCHES.map(swatch => <li key={swatch.color}><span style={{ backgroundColor: swatch.color }} aria-hidden="true" />{swatch.name}</li>)}</ul>
-                  <h3>Paint</h3>
-                  <ul>{PAINT_SWATCHES.map(swatch => <li key={swatch.color}><span style={{ backgroundColor: swatch.color }} aria-hidden="true" />{swatch.name}</li>)}</ul>
-                </div>
-                <div className="notes-type">
-                  <p className="type-serif">Instrument Serif</p>
-                  <p className="type-sans">DM Sans</p>
-                  <p className="type-hand">Caveat</p>
-                </div>
-              </aside>
-            </div>
-          </section>
-          <section className="landing-section" id="use" aria-labelledby="use-title">
-            <p className="landing-label">03 / Use it</p>
-            <h2 id="use-title"><PaintedTitle>Drop it in</PaintedTitle></h2>
-            <pre className="use-code"><code>{USAGE_CODE}</code></pre>
-            <ul className="use-props">
-              {PROPS.map(([name, line]) => <li key={name}><code>{name}</code><span>{line}</span></li>)}
-            </ul>
-          </section>
-        </div>
+        <section className="gallery-section gallery-intro" aria-label="About the artwork">
+          <aside className="paper-piece museum-label" aria-label="Museum label">
+            <p className="museum-name">Dabble</p><p>2026</p><p>A skin for Video.js v10</p><p>Paper, ink, four brushes, six colors</p><p>Milena Webb</p>
+          </aside>
+          <article className="paper-piece artist-note">
+            <h2><PaintedTitle>Artist's note</PaintedTitle></h2>
+            <p>Most player skins are finished before anyone presses play. Dabble starts unfinished on purpose. The video sits on a white stretched canvas, and the frame around it is yours to paint.</p>
+            <p>Under the paint it is a plain Video.js v10 skin built from the standard components. Your painting is saved in your own browser, scales with the player, and steps aside completely in fullscreen.</p>
+            <p>The film is original too. Dab, the blank canvas who rolls through four colors and stays blank, was made for this page so the video and the player tell the same story.</p>
+          </article>
+        </section>
+        <section className="gallery-section" id="brushes" aria-labelledby="brushes-title">
+          <h2 id="brushes-title"><PaintedTitle>Four brushes</PaintedTitle></h2>
+          <div className="brush-gallery">
+            {BRUSHES.map((brush, index) => <article className={`paper-piece brush-swatch brush-swatch-${index}`} key={brush.type}>
+              <BrushSample brush={brush.type} name={brush.name} palette={palette} index={index} />
+              <h3><PaintedTitle>{brush.name}</PaintedTitle></h3>
+              <p>{brush.line}</p>
+              <Button variant="ghost" className="brush-try" aria-label={`Try ${brush.name} brush`} onClick={() => tryBrush(brush.name)}>Try it</Button>
+            </article>)}
+          </div>
+          <p className="gallery-caption">Named after ways of painting, not after painters.</p>
+        </section>
+        <section className="gallery-section" id="open" aria-labelledby="open-title">
+          <div className="paper-piece gallery-sign">
+            <h2 id="open-title"><PaintedTitle>Open to all</PaintedTitle></h2>
+            <ul className="open-checklist">{OPEN_ITEMS.map((line, index) => <li key={line}><svg className={`check-dab paint-tone-${index}`} aria-hidden="true" viewBox="-17 -17 34 34"><path d={BLOB_PATH} /></svg><span>{line}</span></li>)}</ul>
+          </div>
+        </section>
+        <section className="gallery-section gallery-keys" id="keys" aria-labelledby="keys-title">
+          <h2 id="keys-title"><PaintedTitle>Or use the keys</PaintedTitle></h2>
+          <dl className="loose-keys" aria-label="Player shortcuts">{keyRows(PLAYER_KEYS, 0)}</dl>
+          <svg className="keys-divider" aria-hidden="true" viewBox="0 0 1100 10" preserveAspectRatio="none"><path d="M2 5Q280 2 540 6T1098 4" /></svg>
+          <dl className="loose-keys" aria-label="Painting shortcuts">{keyRows(PAINT_KEYS, 2)}</dl>
+        </section>
+        <section className="gallery-section" id="developers" aria-labelledby="developers-title">
+          <h2 id="developers-title"><PaintedTitle>For developers</PaintedTitle></h2>
+          <div className="developer-pieces">
+            <article className="paper-piece viewer-note"><h3>For viewers</h3><p>Pick a brush and paint the frame.</p><p>Your painting is saved in your browser.</p><p>Clear it or undo it any time.</p></article>
+            <article className="paper-piece owner-note"><h3>For site owners</h3><p>Turn painting off with one setting.</p><p>Set the painting every visitor starts with.</p><p>Turn sounds on or off.</p></article>
+          </div>
+          <pre className="use-code"><code>{USAGE_CODE}</code></pre>
+          <ul className="use-props">{PROPS.map(([name, line]) => <li key={name}><code>{name}</code><span>{line}</span></li>)}</ul>
+        </section>
       </main>
       <footer className="landing-footer">
-        <DabbleLogo size={44} tone="ink" />
+        <svg className="footer-stroke" aria-hidden="true" viewBox="0 0 1100 30" preserveAspectRatio="none"><path d="M2 12L18 7L11 5Q270 1 530 8T1091 5L1085 12L1098 15L1088 20Q800 28 552 21T5 23L12 18Z" /></svg>
+        <DabbleLogo size={44} tone="paper" />
         <div className="landing-footer-note">
           <p>Built on Video.js v10. Apache License 2.0.</p>
           <p>Made by Milena Webb for the Video.js v10 Skins Design Challenge, 2026.</p>

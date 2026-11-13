@@ -1,5 +1,9 @@
 # Dabble
 
+## Gallery wall
+- [x] Rearrange the landing page into gallery paper pieces, live brush samples, access sign, loose keys and developer notes.
+- [x] Preserve hero interactions; verify all Try it actions, palette samples, accessibility modes and 360px layout; omit default-silence and CSS paint-palette claims.
+
 ## Single brush tag
 - [x] Replace duplicate/timed brush names with one selected/hovered/focused tag; preserve accessible names and other tooltips.
 - [x] Verify all four tag positions, hover/focus restoration, reduced-motion swaps and unchanged tray height at desktop, tablet and mobile sizes.
