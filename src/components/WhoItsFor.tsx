@@ -7,6 +7,7 @@ import still17 from '@/assets/use-cases/dab-17.asset.json';
 import still21 from '@/assets/use-cases/dab-21.asset.json';
 import still12 from '@/assets/use-cases/dab-12.asset.json';
 import still25 from '@/assets/use-cases/dab-25.asset.json';
+import still7 from '@/assets/use-cases/dab-7.asset.json';
 
 const uses: { title: string; image: string; text: string; brushes: Brush[]; palette: Palette; description: string }[] = [
   { title: "Art classes and kids' learning", image: still1.url, text: 'A lesson video that students can paint around while they watch. Each student keeps their own frame.', brushes: ['imp'], palette: ['#E83B61','#FFD23F','#25BFD1','#E83B61','#FFD23F','#25BFD1'], description: 'Example frame painted with the Impressionist brush in bright pink, yellow and cyan' },
@@ -14,6 +15,7 @@ const uses: { title: string; image: string; text: string; brushes: Brush[]; pale
   { title: 'Galleries and museums', image: still21.url, text: 'Exhibition films and artist talks, with a frame that invites people to make something too.', brushes: ['cub'], palette: ['#577D99','#9AB8C9','#718EA5','#577D99','#9AB8C9','#718EA5'], description: 'Example frame painted with the Cubist brush in muted blues' },
   { title: 'Craft and DIY tutorials', image: still12.url, text: 'Step-by-step videos for makers, where the player feels like the workbench.', brushes: ['drip'], palette: ['#DD3348','#F3C633','#DD3348','#F3C633','#DD3348','#F3C633'], description: 'Example frame painted with the Drip brush in red and yellow' },
   { title: "Children's authors and storytellers", image: still25.url, text: "Read-alongs and story trailers that end with the viewer's own picture.", brushes: ['rib','drip'], palette: ['#CEA6CF','#EF945D','#2E63BE','#57CFD0','#F5D53B','#CEA6CF'], description: 'Example frame painted with Ribbon and Drip brushes in the Dabble logo colors' },
+  { title: 'Musicians and music videos', image: still7.url, text: 'Music videos and album drops where fans paint along. Every scene gives them new colors.', brushes: ['imp','imp','imp','drip'], palette: ['#1762CB','#13B7B1','#10469D','#FFCE36','#1762CB','#13B7B1'], description: 'Example frame painted with the Impressionist brush and Drip splashes in bold wave blues and teal with a bright yellow accent' },
 ];
 
 function MiniPainting({ example, index, visible }: { example: typeof uses[number]; index: number; visible: boolean }) {
