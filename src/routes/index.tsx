@@ -169,7 +169,7 @@ function Index() {
           <section className="landing-hero" aria-labelledby={heroTitleId}>
             <p className="landing-pill">Video.js v10 skin</p>
             <h1 id={heroTitleId} className="landing-title"><DabbleLogo size={windowWidth < 640 ? 64 : 110} tone="paper" animate /></h1>
-            <p className="landing-tagline">A video player on a blank canvas. Press play, then pick up a brush and paint the frame.</p>
+            <p className="landing-tagline">A video player on a canvas. Pick up a brush, paint the frame in your style, then press play.</p>
             {sizes.length > 0 && <DeviceSwitch sizes={sizes} activeSize={activeSize} onChoose={setPreviewSize} />}
             <div ref={playerRef} className="preview-column" id="player" tabIndex={-1} style={{ maxWidth: columnWidth }}>
               <DabblePlayer defaultTrayOpen onSoundPreferenceChange={setSoundOptIn} sounds playbackId={PLAYBACK_ID} thumbnailSampleTimes={SAMPLE_TIMES} poster={POSTER} captions={CAPTIONS} />
