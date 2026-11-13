@@ -82,7 +82,7 @@ Override variables on the elements that use them. `--dabble-paper`, `--dabble-in
 - Every control works with the keyboard. Escape closes menus.
 - Two-tone focus rings show keyboard focus.
 - Opaque paper controls remain readable over video and paint.
-- On desktop and tablet the control bar sits inside the video, along its bottom edge, and hides after 2.5 seconds of idle while playing. It never covers the painted frame.
+- On desktop and tablet the control bar sits inside the video, along its bottom edge, and hides after 2 seconds of idle while playing. It never covers the painted frame.
 - Captions have an outlined paper label, with native fullscreen handover on iOS.
 - Touch controls have targets at least 44 pixels across.
 - Phone controls dock under the canvas and stay visible outside fullscreen.

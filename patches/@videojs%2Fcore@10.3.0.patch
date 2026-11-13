@@ -1,9 +1,6 @@
 diff --git a/dist/dev/dom/store/features/controls.js b/dist/dev/dom/store/features/controls.js
 --- a/dist/dev/dom/store/features/controls.js
 +++ b/dist/dev/dom/store/features/controls.js
-@@ -8 +8 @@
--const IDLE_DELAY = 2e3;
-+const IDLE_DELAY = 2500;
 @@ -47 +47 @@
 -			return controlsLockCount > 0 || userActive || media.paused || isRemotePlaybackConnected(media) || isRemotePlaybackConnecting(media);
 +			return controlsLockCount > 0 || userActive || media.paused || media.ended || isRemotePlaybackConnected(media) || isRemotePlaybackConnecting(media);
@@ -18,9 +15,6 @@ diff --git a/dist/dev/dom/store/features/controls.js b/dist/dev/dom/store/featur
 diff --git a/dist/default/dom/store/features/controls.js b/dist/default/dom/store/features/controls.js
 --- a/dist/default/dom/store/features/controls.js
 +++ b/dist/default/dom/store/features/controls.js
-@@ -8 +8 @@
--const IDLE_DELAY = 2e3;
-+const IDLE_DELAY = 2500;
 @@ -44 +44 @@
 -			return controlsLockCount > 0 || userActive || media.paused || isRemotePlaybackConnected(media) || isRemotePlaybackConnecting(media);
 +			return controlsLockCount > 0 || userActive || media.paused || media.ended || isRemotePlaybackConnected(media) || isRemotePlaybackConnecting(media);
