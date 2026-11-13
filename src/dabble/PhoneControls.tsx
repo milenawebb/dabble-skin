@@ -3,13 +3,14 @@ import { usePlayer } from '@videojs/react/video';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { DABBLE_PLAYBACK_RATES } from './skin-rules';
 import { HandIcon } from './HandDrawings';
-import { phonePlayInStrip } from './phone-control-rules';
+import { phonePlayInStrip, phoneSpeedBounds } from './phone-control-rules';
+import { Button } from './Button';
 
 export function PhoneControls() {
   const root = useRef<HTMLDivElement>(null);
   const [shortVideo, setShortVideo] = useState(true);
   const [speedOpen, setSpeedOpen] = useState(false);
-  const [speedBounds, setSpeedBounds] = useState({ left: 0, top: 0 });
+  const [speedBounds, setSpeedBounds] = useState({ left: 0, top: 0, width: 0, compact: false });
   const requestControlsLock = usePlayer(state => state.requestControlsLock);
   const toggleControls = usePlayer(state => state.toggleControls);
   useEffect(() => {
@@ -19,12 +20,21 @@ export function PhoneControls() {
     const measure = () => {
       const rect = player.getBoundingClientRect();
       setShortVideo(phonePlayInStrip(rect.height));
-      setSpeedBounds({ left: Math.max(rect.left + 2, rect.right - 222), top: rect.top + 45 });
+      setSpeedBounds(phoneSpeedBounds(player.querySelector('video')?.getBoundingClientRect() ?? rect));
     };
     measure();
     const observer = new ResizeObserver(measure); observer.observe(player);
     window.addEventListener('scroll', measure, true);
     return () => { observer.disconnect(); window.removeEventListener('scroll', measure, true); };
+  }, []);
+  useEffect(() => {
+    const player = root.current?.closest<HTMLElement>('.dabble-skin');
+    if (!player) return;
+    const pointer = () => { player.dataset['phonePointerFocus'] = ''; };
+    const keyboard = () => { delete player.dataset['phonePointerFocus']; };
+    player.addEventListener('pointerdown', pointer, true);
+    player.addEventListener('keydown', keyboard, true);
+    return () => { delete player.dataset['phonePointerFocus']; player.removeEventListener('pointerdown', pointer, true); player.removeEventListener('keydown', keyboard, true); };
   }, []);
   useEffect(() => {
     if (!speedOpen) return;
@@ -52,10 +62,10 @@ export function PhoneControls() {
   return <Controls.Root><Controls.Content ref={root} className="phone-video-controls">
     <span className="phone-video-tint" aria-hidden="true" />
     {!shortVideo && play}
-    <Controls.Group className="phone-video-top" aria-label="Playback controls">
+    <Controls.Group className="phone-video-top" data-speed-open={speedOpen || undefined} aria-label="Playback controls">
       <Menu.Root side="bottom" align="end" boundary="viewport" open={speedOpen} onOpenChange={setSpeedOpen}><PlaybackRateRadioGroup.Root rates={DABBLE_PLAYBACK_RATES} formatRate={rate => `${rate}x`}>
         <Menu.Trigger aria-label="Playback speed" className="dabble-button dabble-speed" render={<button type="button" />}><span className="dabble-blob" aria-hidden="true" /><PlaybackRateRadioGroup.Value aria-hidden="true" /></Menu.Trigger>
-        <Menu.Popup className="dabble-speed-menu phone-video-speed-menu" style={{ '--phone-speed-left': `${speedBounds.left}px`, '--phone-speed-top': `${speedBounds.top}px` } as CSSProperties}><Menu.Content><PlaybackRateRadioGroup.Options renderItem={(props, item) => <Menu.RadioItem {...props} key={item.value} className="dabble-speed-item"><span>{item.label}</span></Menu.RadioItem>} /></Menu.Content></Menu.Popup>
+        <Menu.Popup className="dabble-speed-menu phone-video-speed-menu" data-compact={speedBounds.compact || undefined} style={{ '--phone-speed-left': `${speedBounds.left}px`, '--phone-speed-top': `${speedBounds.top}px`, '--phone-speed-width': `${speedBounds.width}px` } as CSSProperties}><Menu.Content className="phone-speed-content"><Button variant="ghost" size="icon" className="phone-speed-close" aria-label="Close speed" onClick={() => setSpeedOpen(false)}><svg className="dabble-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 5 12 14M18 5 6 19" /></svg></Button><PlaybackRateRadioGroup.Options renderItem={(props, item) => <Menu.RadioItem {...props} key={item.value} className="dabble-speed-item"><span>{item.label}</span></Menu.RadioItem>} /></Menu.Content></Menu.Popup>
       </PlaybackRateRadioGroup.Root></Menu.Root>
       <CaptionsButton label="Captions" className="dabble-button dabble-captions" render={(props, state) => <button {...props} aria-pressed={state.subtitlesShowing}><span className="dabble-blob" aria-hidden="true" /><span aria-hidden="true">CC</span>{state.subtitlesShowing && <HandIcon kind="captions" className="dabble-cc-underline" />}</button>} />
       <MuteButton className="dabble-button dabble-mute" render={(props, state) => <button {...props}><span className="dabble-blob" aria-hidden="true" /><HandIcon kind={state.volumeLevel === 'off' ? 'muted' : 'volume'} /></button>} />

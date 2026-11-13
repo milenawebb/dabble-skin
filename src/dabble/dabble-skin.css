@@ -245,13 +245,17 @@
 .dabble-skin[data-phone-overlay] .phone-video-speed-menu {
   position: fixed !important; inset: var(--phone-speed-top) auto auto var(--phone-speed-left) !important;
   position-anchor: none !important; translate: none !important; transform: none !important;
-  width: 220px; max-width: 220px; padding: 0; border: 0; background: var(--dabble-clear);
+  width: var(--phone-speed-width); max-width: var(--phone-speed-width); padding: 0; border: 0; background: var(--dabble-clear);
   box-shadow: none; overflow: visible; z-index: 6;
 }
-.dabble-skin[data-phone-overlay] .phone-video-speed-menu [role="group"] { display: flex; width: 220px; }
+.dabble-skin[data-phone-overlay] .phone-video-speed-menu .phone-speed-content { display: flex; gap: 0; width: 100%; }
+.dabble-skin[data-phone-overlay] .phone-video-speed-menu [role="group"] { display: flex; flex: 1; min-width: 0; }
+.dabble-skin[data-phone-overlay] .phone-speed-close { flex: 0 0 44px; width: 44px; height: 44px; padding: 0; color: var(--dabble-ink); background: var(--dabble-paper); }
+.dabble-skin[data-phone-overlay] .phone-video-top[data-speed-open] .dabble-button { visibility: hidden; pointer-events: none; }
+.dabble-skin[data-phone-overlay] .phone-video-top[data-speed-open] .phone-video-speed-menu { visibility: visible; }
 .dabble-skin[data-phone-overlay] .phone-video-speed-menu .dabble-speed-item {
   position: relative; isolation: isolate; display: flex; align-items: center; justify-content: center;
-  flex: 0 0 44px; width: 44px; height: 44px; min-height: 44px; padding: 0;
+  flex: 1 1 0; width: 0; min-width: 0; height: 44px; min-height: 44px; padding: 0;
   font: 13px var(--dabble-ui-font); background: var(--dabble-clear); border: 0; border-radius: 0;
 }
 .dabble-skin[data-phone-overlay] .phone-video-speed-menu .dabble-speed-item::before {
@@ -260,6 +264,9 @@
 }
 .dabble-skin[data-phone-overlay] .phone-video-speed-menu .dabble-speed-item[aria-checked="true"] { color: var(--dabble-paper); }
 .dabble-skin[data-phone-overlay] .phone-video-speed-menu .dabble-speed-item[aria-checked="true"]::before { background: var(--dabble-ink); }
+.dabble-skin[data-phone-overlay] .phone-video-speed-menu[data-compact] .dabble-speed-item { font-size: 12px; }
+.dabble-skin[data-phone-overlay] .phone-video-speed-menu[data-compact] .dabble-speed-item::before { inset-inline: 0; }
+.dabble-skin[data-phone-overlay][data-phone-pointer-focus] .phone-video-controls :is(button, [role="menuitemradio"]):is(:focus, :active) { outline: none; box-shadow: none; }
 .dabble-skin[data-phone-overlay] .phone-video-controls button:not(:focus-visible),
 .dabble-skin[data-phone-overlay] .phone-video-speed-menu .dabble-speed-item:not(:focus-visible) { outline: none; box-shadow: none; }
 .dabble-skin[data-phone-overlay] .phone-video-speed-menu .dabble-speed-item:focus-visible { outline: 2px solid var(--dabble-ink); outline-offset: -3px; box-shadow: var(--dabble-focus-ring); }
