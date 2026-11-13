@@ -1,5 +1,9 @@
 # Dabble
 
+## Phone drawer and centralized sound gate
+- [x] Animate phone drawer with fixed equal-frame painting geometry and a moving bottom paint band.
+- [x] Gate every audio entry and stop active sources immediately when switched off; verified silent/off and active/on strokes, identical bottom paint pixels and fixed video bounds.
+
 ## Sound opt-in and shared control visibility
 - [x] Default every sound off and persist explicit music-button consent without early AudioContext activation.
 - [x] Share library 2.5-second idle and locks across phone/desktop; hide during painting without resizing the phone band.

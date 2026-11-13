@@ -6,6 +6,7 @@ import { backingRatio, initialPainting, pointSpacing, strokeSize, undoPainting }
 import { DEFAULT_PALETTE, loadPainting, savePainting, roundStroke, type Painting, type Palette } from './painting-data';
 import { sampleMux, sampleSource, sampleThumbnails, sampleVideo } from './video-palette';
 import { rememberFirstStroke } from './painting-discovery';
+import { paintingHeight } from './drawer-rules';
 
 // Hook-only modules have no React component refresh boundary. Reload on their
 // replacement rather than letting an existing player reuse incompatible slots.
@@ -70,6 +71,10 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
     const video = wrapper?.querySelector('video');
     if (!wrapper || !canvas || !video) return;
     const cache = document.createElement('canvas');
+    const bottom = document.createElement('canvas');
+    bottom.className = 'dabble-paint-bottom'; bottom.setAttribute('aria-hidden', 'true');
+    wrapper.appendChild(bottom);
+    const bottomCtx = bottom.getContext('2d');
     finished.current = cache;
     const visibleCtx = canvas.getContext('2d'), cacheCtx = cache.getContext('2d');
     if (!visibleCtx || !cacheCtx) return;
@@ -82,6 +87,12 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
       clear(visibleCtx);
       visibleCtx.drawImage(cache, 0, 0, cache.width, cache.height, 0, 0, g.W, g.H);
       if (active.current) renderStroke(visibleCtx, active.current, g);
+      if (wrapper.hasAttribute('data-phone') && bottomCtx) {
+        const ratio = backingRatio(window.devicePixelRatio);
+        bottom.width = canvas.width; bottom.height = Math.round(24 * ratio);
+        bottomCtx.clearRect(0, 0, bottom.width, bottom.height);
+        bottomCtx.drawImage(canvas, 0, canvas.height - bottom.height, canvas.width, bottom.height, 0, 0, bottom.width, bottom.height);
+      }
     };
     redraw.current = display;
     const rebuild = () => {
@@ -89,7 +100,9 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
       if (wrapper.querySelector('.dabble-skin:fullscreen')) return;
       const rect = wrapper.getBoundingClientRect(), v = video.getBoundingClientRect();
       if (rect.width <= 0 || rect.height <= 0) return;
-      const g = { W: rect.width, H: rect.height, vx: v.left - rect.left, vy: v.top - rect.top, vw: v.width, vh: v.height };
+      const phone = wrapper.hasAttribute('data-phone');
+      const g = { W: rect.width, H: paintingHeight(phone, rect.height, v.bottom - rect.top), vx: v.left - rect.left, vy: v.top - rect.top, vw: v.width, vh: v.height };
+      canvas.style.height = `${g.H}px`;
       geo.current = g;
       const ratio = backingRatio(window.devicePixelRatio);
       for (const surface of [canvas, cache]) {
@@ -154,6 +167,7 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
     canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
     canvas.addEventListener('lostpointercapture', end);
     return () => {
+      bottom.remove();
       clearTimeout(timer); observer.disconnect();
       window.removeEventListener('resize', schedule); document.removeEventListener('fullscreenchange', schedule);
       canvas.removeEventListener('pointerdown', start); canvas.removeEventListener('pointermove', move);

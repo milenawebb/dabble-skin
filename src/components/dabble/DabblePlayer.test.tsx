@@ -12,7 +12,7 @@ vi.mock('./use-paint', () => ({ usePaint: () => ({ size:20, palette:['#000000'],
 const feedback = vi.hoisted(() => vi.fn());
 const unlock = vi.hoisted(() => vi.fn());
 vi.mock('./use-feedback', () => ({ useFeedback: (...args: unknown[]) => { feedback(...args); return () => {}; } }));
-vi.mock('./sounds', () => ({ unlockSound: unlock }));
+vi.mock('./sounds', () => ({ unlockSound: unlock, setSoundsEnabled: vi.fn() }));
 vi.mock('./use-brush-cursor', () => ({ useBrushCursor: () => {} }));
 vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} });
 

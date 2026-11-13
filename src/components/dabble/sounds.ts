@@ -1,13 +1,27 @@
 import type { Brush } from './paint-engine';
 
 let ac: AudioContext | undefined;
+let soundsEnabled = false;
+const outputs = new Set<() => void>();
+export function setSoundsEnabled(enabled: boolean) {
+  soundsEnabled = enabled;
+  if (!enabled) { noiseBuf = undefined; outputs.forEach(stop => { try { stop(); } catch {} }); outputs.clear(); }
+}
+function registerOutput(context: AudioContext, gain: GainNode, source: AudioScheduledSourceNode, oscillator?: AudioScheduledSourceNode) {
+  const stop = () => { gain.gain.cancelScheduledValues(context.currentTime); gain.gain.value = 0; try { source.stop(); } catch {} try { oscillator?.stop(); } catch {} };
+  outputs.add(stop);
+  source.addEventListener?.('ended', () => outputs.delete(stop), { once: true });
+}
+
 export function unlockSound() {
+  if (!soundsEnabled) return;
   try {
     ac = ac || new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     if (ac.state === 'suspended') void ac.resume().catch(() => {});
   } catch { /* Optional audio never interrupts a gesture. */ }
 }
 export function swish(dur: number, f0: number, f1: number, vol: number, type: BiquadFilterType = 'bandpass') {
+  if (!soundsEnabled) return;
   try {
     ac = ac || new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     if (ac.state === 'suspended') void ac.resume().catch(() => {});
@@ -23,6 +37,7 @@ export function swish(dur: number, f0: number, f1: number, vol: number, type: Bi
     g.gain.exponentialRampToValueAtTime(vol, t + dur * 0.25);
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     src.connect(f); f.connect(g); g.connect(ac.destination);
+    registerOutput(ac, g, src);
     src.start(t); src.stop(t + dur);
   } catch { /* sound is optional, never throw */ }
 }
@@ -45,6 +60,7 @@ export function dragDue(now: number, last: number) { return now - last >= 60; }
 
 let noiseBuf: AudioBuffer | undefined;
 export function getNoise(ac: AudioContext) {
+  if (!soundsEnabled) throw new Error('Sounds disabled');
   if (!noiseBuf) {
     const n = ac.sampleRate * 2;
     const b = ac.createBuffer(1, n, ac.sampleRate);
@@ -70,6 +86,7 @@ export const VOICES = {
 } as const;
 
 export function startBrushVoice(ac: AudioContext, kind: keyof typeof VOICES) {
+  if (!soundsEnabled) throw new Error('Sounds disabled');
   const v = VOICES[kind];
   const src = ac.createBufferSource(), f = ac.createBiquadFilter();
   const fg = ac.createGain(), g = ac.createGain();
@@ -80,11 +97,13 @@ export function startBrushVoice(ac: AudioContext, kind: keyof typeof VOICES) {
   lfo.type = 'triangle'; lfo.frequency.value = v.hz; lg.gain.value = v.fl;
   lfo.connect(lg); lg.connect(fg.gain);
   src.connect(f); f.connect(fg); fg.connect(g); g.connect(ac.destination);
+  registerOutput(ac, g, src, lfo);
   src.start(0, Math.random() * 1.5); lfo.start();
   return { src, f, g, lfo, v };
 }
 
 export function followBrushVoice(ac: AudioContext, o: ReturnType<typeof startBrushVoice>, speed: number) {
+  if (!soundsEnabled) return;
   const t = ac.currentTime, k = Math.min(1, speed / 1.5);
   o.g.gain.cancelScheduledValues(t);
   o.g.gain.setTargetAtTime(o.v.g * Math.pow(k, 0.7), t, 0.035);
@@ -101,6 +120,7 @@ export function stopBrushVoice(ac: AudioContext, o: ReturnType<typeof startBrush
 }
 
 export function burst(ac: AudioContext, dur: number, f0: number, f1: number, vol: number, type: BiquadFilterType = 'bandpass') {
+  if (!soundsEnabled) return;
   const src = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(), t = ac.currentTime;
   src.buffer = getNoise(ac); src.loop = true;
   f.type = type; f.Q.value = 1;
@@ -109,6 +129,7 @@ export function burst(ac: AudioContext, dur: number, f0: number, f1: number, vol
   g.gain.exponentialRampToValueAtTime(vol, t + dur * 0.2);
   g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
   src.connect(f); f.connect(g); g.connect(ac.destination);
+  registerOutput(ac, g, src);
   src.start(t, Math.random() * 1.5); src.stop(t + dur + 0.02);
 }
 
@@ -128,6 +149,7 @@ export function createBrushSound() {
   return {
     start(kind: Brush, x: number, y: number, time: number) {
       stop(true);
+      if (!soundsEnabled) return;
       try {
         unlockSound();
         if (!ac) return;
@@ -140,6 +162,7 @@ export function createBrushSound() {
     },
     move(x: number, y: number, time: number) {
       try {
+        if (!soundsEnabled) { stop(true); return; }
         if (!active || !voice || !context) return;
         const moved = Math.hypot(x - last.x, y - last.y), dt = Math.max(1, time - last.time);
         speed = speed * 0.6 + (moved / dt) * 0.4; distance += moved; last = { x, y, time };

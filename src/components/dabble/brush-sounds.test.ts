@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createBrushSound, followBrushVoice, getNoise, startBrushVoice, stopBrushVoice, unlockSound } from './sounds';
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
+import { createBrushSound, followBrushVoice, getNoise, startBrushVoice, stopBrushVoice, unlockSound, setSoundsEnabled } from './sounds';
 
 function audioMock() {
   const param = () => ({ value: 0, cancelScheduledValues: vi.fn(), setTargetAtTime: vi.fn(), setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() });
@@ -19,9 +19,21 @@ function audioMock() {
   };
   return { context: context as unknown as AudioContext, sources, oscillators, gains };
 }
-afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+beforeEach(() => setSoundsEnabled(true));
+afterEach(() => { setSoundsEnabled(false); vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe('continuous brush sound', () => {
+  it('starts no audio nodes for a stroke with sounds off', () => {
+    setSoundsEnabled(false);
+    const constructor = vi.fn(); vi.stubGlobal('AudioContext', constructor);
+    const sound = createBrushSound(); sound.start('rib', 0, 0, 0); sound.move(90, 0, 20); sound.stop();
+    expect(constructor).not.toHaveBeenCalled();
+  });
+  it('zeros and stops running brush sources immediately when switched off', () => {
+    const mock = audioMock(); const voice = startBrushVoice(mock.context, 'rib');
+    setSoundsEnabled(false);
+    expect(voice.g.gain.value).toBe(0); expect(voice.src.stop).toHaveBeenCalledOnce(); expect(voice.lfo.stop).toHaveBeenCalledOnce();
+  });
   it('creates and reuses one two-second pink noise buffer', () => {
     const { context } = audioMock();
     const first = getNoise(context);

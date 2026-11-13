@@ -12,7 +12,7 @@ import { PaintTray } from './PaintTray';
 import type { Painting, Palette } from './painting-data';
 import { useFeedback } from './use-feedback';
 import { useBrushCursor } from './use-brush-cursor';
-import { unlockSound } from './sounds';
+import { setSoundsEnabled, unlockSound } from './sounds';
 import { PaintingGuide } from './PaintingGuide';
 
 type DabblePlayerProps = {
@@ -52,11 +52,12 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   const [soundOptIn, setSoundOptIn] = useState(false);
   const automaticSound = useFeedback(canvasRef, soundChoice, paint.painting, paint.brush);
   useEffect(() => {
-    try { const saved = localStorage.getItem('dabble-sounds'); setSoundChoice(saved === 'on'); setSoundOptIn(saved === 'on'); } catch { /* Storage is optional. */ }
+    try { const saved = localStorage.getItem('dabble-sounds'); setSoundsEnabled(saved === 'on'); setSoundChoice(saved === 'on'); setSoundOptIn(saved === 'on'); } catch { /* Storage is optional. */ }
   }, []);
   useEffect(() => { onSoundPreferenceChange?.(soundChoice && soundOptIn); }, [soundChoice, soundOptIn, onSoundPreferenceChange]);
   const toggleSounds = () => {
     const next = !soundChoice;
+    setSoundsEnabled(next);
     if (next) unlockSound();
     setSoundChoice(next);
     setSoundOptIn(next);
@@ -66,7 +67,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   const [canvasBox, setCanvasBox] = useState({ width: 0, left: 0, top: 0 });
   const [dockSpace, setDockSpace] = useState(0);
   const [metadata, setMetadata] = useState({ src: '', width: 0, height: 0 });
-  const stageInput = canvasBox.width > 0 ? { canvasWidth: canvasBox.width, canvasLeft: canvasBox.left, canvasTop: canvasBox.top, frame: paintFrameWidth(frameWidth, paint.painting && dockSpace === 0) } : undefined;
+  const stageInput = canvasBox.width > 0 ? { canvasWidth: canvasBox.width, canvasLeft: canvasBox.left, canvasTop: canvasBox.top, frame: paintFrameWidth(frameWidth, paint.painting && canvasBox.width >= 420) } : undefined;
   const layout = metadata.src === source
     ? getVideoLayout(metadata.width, metadata.height, stageInput)
     : getVideoLayout(0, 0, stageInput);
@@ -117,15 +118,15 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   }, []);
 
   const geometry = {
-    '--dabble-m': `${paintFrameWidth(frameWidth, paint.painting && dockSpace === 0)}px`,
-    '--dabble-dock-space': `${dockSpace}px`,
+    '--dabble-m': `${paintFrameWidth(frameWidth, paint.painting && canvasBox.width >= 420)}px`,
+    '--dabble-dock-space': `${canvasBox.width < 420 && !trayOpen && controlsState.visible ? dockSpace : 0}px`,
     '--dabble-aspect': layout.aspectRatio,
     ...(layout.stage ? { '--dabble-stage-width': `${layout.stage.width}px`, '--dabble-stage-height': `${layout.stage.height}px`, '--dabble-stage-left': `${layout.stage.left}px`, '--dabble-stage-top': `${layout.stage.top}px` } : {}),
   } as CSSProperties;
 
   return (
     <>
-    <div ref={canvasRef} className="dabble-canvas" data-painting={paint.painting || undefined} data-stroke-count={paint.count} data-portrait={layout.portrait} style={geometry}>
+    <div ref={canvasRef} className="dabble-canvas" data-painting={paint.painting || undefined} data-phone={canvasBox.width > 0 && canvasBox.width < 420 || undefined} data-stroke-count={paint.count} data-portrait={layout.portrait} style={geometry}>
       <canvas ref={paintRef} className="dabble-paint" aria-hidden="true" />
       {paintable && <PaintingGuide root={canvasRef} open={trayOpen} />}
       <div className="dabble-stage">
