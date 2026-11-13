@@ -38,7 +38,7 @@ use the editor.
 - Round video-stage size and screen position in the layout helper; use paper behind non-fullscreen media and black in fullscreen to prevent dark subpixel seams.
 - Delegate visibility timing and input actions to Video.js; preserve component-provided handlers and ARIA when rendering custom button content.
 - Compose player states with Poster, PlayButton, Gesture, BufferingIndicator, and ErrorDialog, and speed selection with Menu and PlaybackRateRadioGroup; library primitives own actions, focus, and controls locks.
-- Read custom captions from hidden tracks on every browser; the pinned text-track patch keeps library CC intent separate from native mode, allowing iPhone fullscreen handover and unreadable-cue fallback without duplicate captions.
+- Read custom captions from hidden tracks on every browser; preserve CC intent through the pinned text-track patch. On native WebKit fullscreen only, disable all scoped cue CSS and temporarily reset cue geometry, restoring it on exit so system captions retain safe native styling and placement.
 - Outline caption paper with three SVG parts and non-scaling strokes; fixed-width bristle ends prevent long lines from stretching their shape.
 - Derive unique tray color labels in palette.ts so resampling updates names.
 - Portal phone controls into a shared watching/painting slot and restore them inside the fullscreen Container; use a library controls lock only outside fullscreen to prevent phone idle hiding, and never alter canvas geometry on slot swaps.

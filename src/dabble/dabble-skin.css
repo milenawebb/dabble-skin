@@ -152,7 +152,7 @@
 .dabble-error-title { margin: 0 0 8px; font: 400 20px var(--dabble-label-font); }
 .dabble-error-description { margin: 0 0 14px; font: 400 14px/1.4 var(--dabble-ui-font); }
 .dabble-error-close { width: auto; height: auto; padding: 6px 16px; font: 500 14px var(--dabble-ui-font); background: var(--dabble-paper); border-radius: 48% 52% 45% 55% / 40% 55% 45% 60%; }
-.dabble-skin video::cue { color: var(--dabble-caption-text); background-color: var(--dabble-paper); font-family: var(--dabble-ui-font); font-weight: 500; font-size: clamp(14px, 2.2cqw, 20px); line-height: 1.35; text-shadow: none; }
+.dabble-skin.dabble-custom-cues video::cue { color: var(--dabble-caption-text); background-color: var(--dabble-paper); font-family: var(--dabble-ui-font); font-weight: 500; font-size: clamp(14px, 2.2cqw, 20px); line-height: 1.35; text-shadow: none; }
 .dabble-painted-captions { position: absolute; z-index: 2; width: max-content; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 5px; pointer-events: none; font: 500 clamp(15px, 2.4cqw, 20px)/1.35 var(--dabble-ui-font); color: var(--dabble-caption-text); text-align: center; }
 .dabble-caption-swipe { position: relative; isolation: isolate; max-width: 100%; padding: 5px 14px; border-radius: 3px 5px 4px 6px / 5px 3px 6px 4px; white-space: pre-line; overflow-wrap: anywhere; }
 .dabble-caption-shape { position: absolute; z-index: -1; inset: 0 -15px; filter: var(--dabble-caption-shadow); }

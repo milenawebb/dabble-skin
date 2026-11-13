@@ -23,11 +23,35 @@ export function PaintedCaptions({ rootRef, captionId, docked, barEnabled, phoneH
     document.head.append(style);
     const tracked = new Set<ManagedTrack>();
     const unreadable = new Set<ManagedTrack>();
+    const savedCueSettings = new Map<VTTCue, Pick<VTTCue, 'line' | 'position' | 'size' | 'align'>>();
+    const resetNativeCueSettings = (tracks: ManagedTrack[]) => {
+      for (const track of tracks.filter(track => track.__dabblePaintedCaption)) {
+        for (const cue of Array.from(track.cues ?? [])) {
+          const vtt = cue as VTTCue;
+          if (!('line' in vtt) || savedCueSettings.has(vtt)) continue;
+          savedCueSettings.set(vtt, { line: vtt.line, position: vtt.position, size: vtt.size, align: vtt.align });
+          try { Object.assign(vtt, { line: 'auto', position: 'auto', size: 100, align: 'center' }); } catch { /* Native cue setters are best effort. */ }
+        }
+      }
+    };
+    const restoreCueSettings = () => {
+      savedCueSettings.forEach((settings, cue) => { try { Object.assign(cue, settings); } catch { /* Keep fullscreen exit working. */ } });
+      savedCueSettings.clear();
+    };
     let custom = false;
     let frame = 0;
     let lastCSS = '';
     let lastCues = '';
     let updating = false;
+    const updateCueStyle = () => {
+      root.classList.toggle('dabble-custom-cues', !nativeFullscreen.current);
+      const tokens = getComputedStyle(root);
+      const forced = window.matchMedia('(forced-colors: active)').matches;
+      const color = custom ? 'transparent' : forced ? 'CanvasText' : tokens.getPropertyValue('--dabble-ink');
+      const background = custom ? 'transparent' : forced ? 'Canvas' : tokens.getPropertyValue('--dabble-paper');
+      const css = nativeFullscreen.current ? '' : `[data-caption-id="${captionId}"].dabble-custom-cues video::cue { color: ${color}; background-color: ${background}; font-family: ${tokens.getPropertyValue('--dabble-ui-font')}; font-weight: 500; font-size: ${Math.min(20, Math.max(15, root.getBoundingClientRect().width * .024))}px; line-height: 1.35; text-shadow: none; opacity: ${custom ? 0 : 1}; }`;
+      if (css !== lastCSS) { style.textContent = css; lastCSS = css; }
+    };
     const update = () => {
       if (updating) return;
       updating = true;
@@ -42,6 +66,7 @@ export function PaintedCaptions({ rootRef, captionId, docked, barEnabled, phoneH
             }
           }
         });
+        if (nativeFullscreen.current) resetNativeCueSettings(tracks);
         const selected = tracks.filter(track => track.__dabblePaintedCaption && track.__dabbleCaptionOn);
         // Hidden tracks must load before deciding that cue access is unavailable.
         for (const track of tracks.filter(track => track.__dabblePaintedCaption)) {
@@ -71,9 +96,10 @@ export function PaintedCaptions({ rootRef, captionId, docked, barEnabled, phoneH
         lastCues = ''; setCues([]);
       } finally { updating = false; }
       root.dataset['captionRenderer'] = custom ? 'painted' : 'native';
+      updateCueStyle();
     };
     const beginFullscreen = () => { nativeFullscreen.current = true; update(); };
-    const endFullscreen = () => { nativeFullscreen.current = false; update(); };
+    const endFullscreen = () => { nativeFullscreen.current = false; restoreCueSettings(); update(); };
     const measure = () => {
       const rootBox = root.getBoundingClientRect();
       const videoBox = fittedVideoRect(video.getBoundingClientRect(), video.videoWidth, video.videoHeight);
@@ -91,12 +117,7 @@ export function PaintedCaptions({ rootRef, captionId, docked, barEnabled, phoneH
       });
       const tooTall = boxes.some(box => box.top < videoBox.top + 8);
       layer.style.visibility = overlap || tooTall ? 'hidden' : 'visible';
-      const tokens = getComputedStyle(root);
-      const forced = window.matchMedia('(forced-colors: active)').matches;
-      const color = custom ? 'transparent' : forced ? 'CanvasText' : tokens.getPropertyValue('--dabble-ink');
-      const background = custom ? 'transparent' : forced ? 'Canvas' : tokens.getPropertyValue('--dabble-paper');
-      const css = `[data-caption-id="${captionId}"] video::cue { color: ${color}; background-color: ${background}; font-family: ${tokens.getPropertyValue('--dabble-ui-font')}; font-weight: 500; font-size: ${Math.min(20, Math.max(15, rootBox.width * .024))}px; line-height: 1.35; text-shadow: none; opacity: ${custom ? 0 : 1}; }`;
-      if (css !== lastCSS) { style.textContent = css; lastCSS = css; }
+      updateCueStyle();
       frame = requestAnimationFrame(measure);
     };
     update();
@@ -113,6 +134,8 @@ export function PaintedCaptions({ rootRef, captionId, docked, barEnabled, phoneH
     return () => {
       cancelAnimationFrame(frame);
       style.remove();
+      root.classList.remove('dabble-custom-cues');
+      restoreCueSettings();
       delete root.dataset['captionRenderer'];
       tracked.forEach(track => track.removeEventListener('cuechange', update));
       video.textTracks.removeEventListener('change', update);

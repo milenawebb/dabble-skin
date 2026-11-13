@@ -14,13 +14,13 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); document.body.innerHTML = ''; });
 
-function setup(activeCues: unknown) {
+function setup(activeCues: unknown, cues: unknown[] = []) {
   const root = document.createElement('div');
   root.dataset['captionId'] = 'test';
   const video = document.createElement('video');
   const bar = document.createElement('div');
   bar.className = 'dabble-bar';
-  const track = Object.assign(new EventTarget(), { kind: 'captions', mode: 'showing', activeCues, cues: [] });
+  const track = Object.assign(new EventTarget(), { kind: 'captions', mode: 'showing', activeCues, cues });
   const events = new EventTarget();
   const list = Object.assign([track], { addEventListener: events.addEventListener.bind(events), removeEventListener: events.removeEventListener.bind(events), dispatchEvent: events.dispatchEvent.bind(events) });
   Object.defineProperty(video, 'textTracks', { value: list });
@@ -89,5 +89,40 @@ describe('caption state and safety net', () => {
     expect(root.dataset['captionRenderer']).toBe('painted');
     act(() => { Object.assign(track, { __dabbleCaptionOn: false }); list.dispatchEvent(new Event('change')); video.dispatchEvent(new Event('webkitbeginfullscreen')); });
     expect(track.mode).toBe('disabled');
+  });
+  it('resets every cue to native defaults and restores exact geometry on exit', () => {
+    const first = { text: 'First', startTime: 1, endTime: 8, line: 98, position: 45, size: 80, align: 'start' };
+    const second = { text: 'Later', startTime: 12, endTime: 18, line: -1, position: 60, size: 90, align: 'end' };
+    const originals = [{ ...first }, { ...second }];
+    const { video, track, root, list } = setup([first], [first, second]);
+    act(() => { video.dispatchEvent(new Event('webkitbeginfullscreen')); });
+    for (const cue of [first, second]) expect(cue).toMatchObject({ line: 'auto', position: 'auto', size: 100, align: 'center' });
+    act(() => { list.dispatchEvent(new Event('change')); video.dispatchEvent(new Event('webkitbeginfullscreen')); });
+    act(() => { video.dispatchEvent(new Event('webkitendfullscreen')); });
+    expect([first, second]).toEqual(originals);
+    expect(track.mode).toBe('hidden');
+    expect(root.querySelector('.dabble-caption-swipe')?.textContent).toBe('First');
+  });
+  it('resets late-loaded cues and survives caption-effect reattachment during native fullscreen', () => {
+    const cue = { text: 'Cue', startTime: 1, endTime: 8, line: 98, position: 50, size: 70, align: 'end' };
+    const original = { ...cue };
+    const { video, track, props, view } = setup([cue]);
+    act(() => { video.dispatchEvent(new Event('webkitbeginfullscreen')); track.cues.push(cue); video.dispatchEvent(new Event('load')); });
+    expect(cue).toMatchObject({ line: 'auto', position: 'auto', size: 100, align: 'center' });
+    view.rerender(<PaintedCaptions {...props} barEnabled={false} />);
+    expect(cue).toMatchObject({ line: 'auto', position: 'auto', size: 100, align: 'center' });
+    expect(track.mode).toBe('showing');
+    act(() => { video.dispatchEvent(new Event('webkitendfullscreen')); });
+    expect(cue).toEqual(original);
+    expect(track.mode).toBe('hidden');
+  });
+  it('leaves cue positions and painted rendering alone for container fullscreen', () => {
+    const cue = { text: 'Cue', startTime: 1, endTime: 8, line: 98, position: 50, size: 70, align: 'end' };
+    const original = { ...cue };
+    const { root, track } = setup([cue], [cue]);
+    act(() => { document.dispatchEvent(new Event('fullscreenchange')); });
+    expect(cue).toEqual(original);
+    expect(track.mode).toBe('hidden');
+    expect(root.dataset['captionRenderer']).toBe('painted');
   });
 });
