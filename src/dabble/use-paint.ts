@@ -27,6 +27,7 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
   const [undoCount, setUndoCount] = useState(0);
   const persist = useRef<() => void>(() => {});
   const stopSampling = useRef<() => void>(() => {});
+  const releasePaintingTouch = useRef<() => void>(() => {});
   const [sampleMessage, setSampleMessage] = useState('');
   const [count, setCount] = useState(strokes.current.length);
   const geo = useRef<Geo | null>(null);
@@ -111,8 +112,34 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
       return [(event.clientX - r.left) / g.W, (event.clientY - r.top) / g.H];
     };
     let restoreScroll: (() => void) | undefined;
-    const blockTouch = (event: TouchEvent) => { if (restoreScroll) event.preventDefault(); };
-    const releaseScroll = () => { restoreScroll?.(); restoreScroll = undefined; };
+    let paintingTouch: number | null = null;
+    const releaseScroll = () => { restoreScroll?.(); restoreScroll = undefined; paintingTouch = null; };
+    releasePaintingTouch.current = releaseScroll;
+    const lockScroll = () => {
+      if (restoreScroll) return;
+      const targets = [document.documentElement, document.body];
+      const saved = targets.map(target => ({ value: target.style.getPropertyValue('overscroll-behavior'), priority: target.style.getPropertyPriority('overscroll-behavior') }));
+      targets.forEach(target => target.style.setProperty('overscroll-behavior', 'none', 'important'));
+      restoreScroll = () => {
+        targets.forEach((target, index) => { const previous = saved[index]; if (previous?.value) target.style.setProperty('overscroll-behavior', previous.value, previous.priority); else target.style.removeProperty('overscroll-behavior'); });
+      };
+    };
+    // Cancel Safari's scrolling gesture at its start, not only after it moves.
+    // Touch events retain their starting target even after leaving the canvas.
+    const startTouch = (event: TouchEvent) => {
+      if (!wrapper.hasAttribute('data-phone') || !settings.current.painting || !geo.current || event.target !== canvas || paintingTouch !== null) return;
+      const touch = event.changedTouches[0];
+      if (!touch || !paletteRef.current[settings.current.color]) return;
+      paintingTouch = touch.identifier;
+      lockScroll();
+      event.preventDefault();
+    };
+    const blockTouch = (event: TouchEvent) => {
+      if (paintingTouch !== null && Array.from(event.changedTouches).some(touch => touch.identifier === paintingTouch)) event.preventDefault();
+    };
+    const endTouch = (event: TouchEvent) => {
+      if (Array.from(event.changedTouches).some(touch => touch.identifier === paintingTouch)) releaseScroll();
+    };
     const start = (event: PointerEvent) => {
       const g = geo.current, options = settings.current;
       if (!options.painting || !g || pointer.current !== null || event.button !== 0) return;
@@ -122,16 +149,7 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
       touched.current = true;
       pointer.current = event.pointerId;
       canvas.setPointerCapture(event.pointerId);
-      if (wrapper.hasAttribute('data-phone')) {
-        const targets = [document.documentElement, document.body];
-        const saved = targets.map(target => ({ value: target.style.getPropertyValue('overscroll-behavior'), priority: target.style.getPropertyPriority('overscroll-behavior') }));
-        targets.forEach(target => target.style.setProperty('overscroll-behavior', 'none', 'important'));
-        document.addEventListener('touchmove', blockTouch, { passive: false });
-        restoreScroll = () => {
-          targets.forEach((target, index) => { const previous = saved[index]; if (previous?.value) target.style.setProperty('overscroll-behavior', previous.value, previous.priority); else target.style.removeProperty('overscroll-behavior'); });
-          document.removeEventListener('touchmove', blockTouch);
-        };
-      }
+      if (wrapper.hasAttribute('data-phone') && event.pointerType === 'touch') lockScroll();
       active.current = { type: options.brush, seed: Math.floor(Math.random() * 2147483647), pal: [...paletteRef.current], color: selected, size: strokeSize(options.size, event.pointerType, event.pressure), pts: [point(event, g)] };
       display();
     };
@@ -162,13 +180,20 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
     canvas.addEventListener('pointerdown', start); canvas.addEventListener('pointermove', move);
     canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
     canvas.addEventListener('lostpointercapture', end);
+    canvas.addEventListener('touchstart', startTouch, { passive: false });
+    canvas.addEventListener('touchmove', blockTouch, { passive: false });
+    canvas.addEventListener('touchend', endTouch);
+    canvas.addEventListener('touchcancel', endTouch);
     return () => {
       releaseScroll();
+      releasePaintingTouch.current = () => {};
       clearTimeout(timer); observer.disconnect();
       window.removeEventListener('resize', schedule); document.removeEventListener('fullscreenchange', schedule);
       canvas.removeEventListener('pointerdown', start); canvas.removeEventListener('pointermove', move);
       canvas.removeEventListener('pointerup', end); canvas.removeEventListener('pointercancel', end);
       canvas.removeEventListener('lostpointercapture', end);
+      canvas.removeEventListener('touchstart', startTouch); canvas.removeEventListener('touchmove', blockTouch);
+      canvas.removeEventListener('touchend', endTouch); canvas.removeEventListener('touchcancel', endTouch);
       active.current = null; pointer.current = null; finished.current = null;
     };
   }, [wrapperRef, paintRef]);
@@ -201,6 +226,7 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
     clear: () => {
       if (!strokes.current.length) return;
       stopSampling.current();
+      releasePaintingTouch.current();
       active.current = null;
       if (pointer.current !== null && paintRef.current?.hasPointerCapture(pointer.current)) paintRef.current.releasePointerCapture(pointer.current);
       pointer.current = null;

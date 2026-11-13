@@ -66,16 +66,23 @@ it.each([320, 390])('blocks touch scrolling only during a captured phone stroke 
   fireEvent.click(screen.getByRole('button', { name: 'Start painting' }));
   const canvas = container.querySelector('.dabble-paint');
   if (!canvas) throw new Error('Missing painting layer');
+  const touch = (type: string) => {
+    const event = new Event(type, { bubbles: true, cancelable: true });
+    Object.defineProperty(event, 'changedTouches', { value: [{ identifier: 1 }] });
+    canvas.dispatchEvent(event); return event;
+  };
   fireEvent.pointerDown(canvas, { button: 0, clientX: 5, clientY: 5 });
   expect(capture).toHaveBeenCalledOnce();
+  expect(touch('touchstart').defaultPrevented).toBe(true);
   expect(setStyle).toHaveBeenCalledWith('overscroll-behavior', 'none', 'important');
-  const activeMove = new Event('touchmove', { cancelable: true }); document.dispatchEvent(activeMove);
-  expect(activeMove.defaultPrevented).toBe(true);
+  expect(touch('touchmove').defaultPrevented).toBe(true);
+  const outsideMove = new Event('touchmove', { cancelable: true }); document.dispatchEvent(outsideMove);
+  expect(outsideMove.defaultPrevented).toBe(false);
   fireEvent.pointerMove(canvas, { clientX: width + 30, clientY: 20 });
   fireEvent.pointerUp(canvas);
+  touch('touchend');
   expect(setStyle).toHaveBeenCalledWith('overscroll-behavior', 'contain', '');
-  const freeMove = new Event('touchmove', { cancelable: true }); document.dispatchEvent(freeMove);
-  expect(freeMove.defaultPrevented).toBe(false);
+  expect(touch('touchmove').defaultPrevented).toBe(false);
   document.documentElement.style.removeProperty('overscroll-behavior');
 });
 

@@ -8,6 +8,85 @@ vi.mock('./paint-engine', () => ({ renderStroke: vi.fn() }));
 vi.mock('./video-palette', () => ({ sampleSource: () => () => {}, sampleVideo: sampling.live, sampleThumbnails: sampling.thumbnail }));
 beforeEach(() => localStorage.clear());
 
+describe('phone painting touch isolation', () => {
+  function setup(phone = true) {
+    // jsdom's older CSS parser drops overscroll-behavior; model that property
+    // so restoration assertions exercise values and priorities, not parser support.
+    for (const target of [document.documentElement, document.body]) {
+      const values = new Map<string, { value: string; priority: string }>();
+      vi.spyOn(target.style, 'setProperty').mockImplementation((name, value, priority) => { values.set(name, { value: value ?? '', priority: priority ?? '' }); });
+      vi.spyOn(target.style, 'getPropertyValue').mockImplementation(name => values.get(name)?.value ?? '');
+      vi.spyOn(target.style, 'getPropertyPriority').mockImplementation(name => values.get(name)?.priority ?? '');
+      vi.spyOn(target.style, 'removeProperty').mockImplementation(name => { const value = values.get(name)?.value ?? ''; values.delete(name); return value; });
+    }
+    vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} });
+    const ctx = { save() {}, restore() {}, setTransform() {}, clearRect() {}, drawImage() {} };
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(ctx as unknown as CanvasRenderingContext2D);
+    const wrapper = document.createElement('div'), canvas = document.createElement('canvas'), video = document.createElement('video');
+    if (phone) wrapper.setAttribute('data-phone', '');
+    wrapper.append(canvas, video); document.body.append(wrapper);
+    vi.spyOn(wrapper, 'getBoundingClientRect').mockReturnValue({ width: 300, height: 200, left: 0, top: 0 } as DOMRect);
+    vi.spyOn(video, 'getBoundingClientRect').mockReturnValue({ width: 250, height: 150, left: 25, top: 25 } as DOMRect);
+    const hook = renderHook(() => usePaint({ current: wrapper }, { current: canvas }, true, 'phone-touch'));
+    act(() => hook.result.current.setPainting(true));
+    const touch = (type: string, target: Element = canvas) => {
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      Object.defineProperty(event, 'changedTouches', { value: [{ identifier: 7 }] });
+      target.dispatchEvent(event); return event;
+    };
+    const cleanup = () => { hook.unmount(); wrapper.remove(); vi.restoreAllMocks(); vi.unstubAllGlobals(); };
+    return { hook, canvas, video, touch, cleanup };
+  }
+
+  it('cancels touchstart and every move on the phone frame and restores prior overscroll on lift', () => {
+    const { touch, cleanup } = setup();
+    document.documentElement.style.setProperty('overscroll-behavior', 'contain', 'important');
+    try {
+      expect(touch('touchstart').defaultPrevented).toBe(true);
+      expect(document.documentElement.style.getPropertyValue('overscroll-behavior')).toBe('none');
+      expect(document.body.style.getPropertyValue('overscroll-behavior')).toBe('none');
+      expect(touch('touchmove').defaultPrevented).toBe(true);
+      expect(touch('touchmove').defaultPrevented).toBe(true);
+      touch('touchend');
+      expect(document.documentElement.style.getPropertyValue('overscroll-behavior')).toBe('contain');
+      expect(document.documentElement.style.getPropertyPriority('overscroll-behavior')).toBe('important');
+      expect(document.body.style.getPropertyValue('overscroll-behavior')).toBe('');
+      expect(touch('touchmove').defaultPrevented).toBe(false);
+    } finally { cleanup(); document.documentElement.style.removeProperty('overscroll-behavior'); }
+  });
+
+  it('does not cancel touches starting on video controls or elsewhere, even during a frame touch', () => {
+    const { canvas, video, touch, cleanup } = setup();
+    const control = document.createElement('button'); video.append(control);
+    try {
+      expect(touch('touchstart', control).defaultPrevented).toBe(false);
+      expect(touch('touchmove', document.body).defaultPrevented).toBe(false);
+      touch('touchstart', canvas);
+      expect(touch('touchmove', control).defaultPrevented).toBe(false);
+      touch('touchcancel');
+      expect(document.body.style.getPropertyValue('overscroll-behavior')).toBe('');
+    } finally { cleanup(); }
+  });
+
+  it('releases scroll protection on clear and unmount', () => {
+    const { hook, touch, cleanup } = setup();
+    touch('touchstart');
+    act(() => hook.result.current.clear());
+    expect(document.body.style.getPropertyValue('overscroll-behavior')).toBe('');
+    touch('touchstart'); cleanup();
+    expect(document.documentElement.style.getPropertyValue('overscroll-behavior')).toBe('');
+  });
+
+  it('leaves desktop and tablet touch handling unchanged', () => {
+    const { touch, cleanup } = setup(false);
+    try {
+      expect(touch('touchstart').defaultPrevented).toBe(false);
+      expect(touch('touchmove').defaultPrevented).toBe(false);
+      expect(document.body.style.getPropertyValue('overscroll-behavior')).toBe('');
+    } finally { cleanup(); }
+  });
+});
+
 it('sizes the paint backing store from the frame on repeated resizes, never from its previous bitmap', () => {
   let resize = () => {};
   vi.stubGlobal('ResizeObserver', class { constructor(callback: () => void) { resize = callback; } observe() {} disconnect() {} });

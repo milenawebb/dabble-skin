@@ -114,6 +114,12 @@
 .dabble-canvas[data-phone] .dabble-stage { left: 0; top: 0; width: 100%; height: auto; }
 .dabble-plaque-space { flex: none; pointer-events: none; }
 .dabble-canvas[data-phone] .dabble-paint { clip-path: inset(0); }
+.dabble-canvas[data-phone][data-painting] .dabble-paint {
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
 
 @media (forced-colors: active) {
   .dabble-canvas { forced-color-adjust: none; outline: 1px solid CanvasText; }
