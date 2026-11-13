@@ -1,5 +1,8 @@
 # Dabble
 
+## Keycap refresh recovery
+- [x] Prevent stale keycap-hook state reuse and pre-optimize Lucide to avoid replacing shared React chunks; verified live refresh, saved paintings, playback and touch feedback with no runtime errors.
+
 ## Real-phone fixes
 - [x] Restrict preview switch to 900px+, simplify header and museum label, prepare three shared GitHub controls.
 - [ ] Activate and verify the three GitHub destinations: waiting for the user's repository URL.

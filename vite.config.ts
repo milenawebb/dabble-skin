@@ -14,7 +14,7 @@ export default defineConfig({
     optimizeDeps: {
       // Discover the streaming entry before hydration, not mid-session when its
       // shared React chunks would otherwise be replaced by late optimization.
-      include: ['@videojs/react/media/mux-video'],
+      include: ['@videojs/react/media/mux-video', 'lucide-react'],
     },
   },
   tanstackStart: {

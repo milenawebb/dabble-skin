@@ -17,3 +17,21 @@ it('keeps decorative pointer paint for 800ms without invoking a player action', 
   unmount();
   vi.useRealTimers();
 });
+
+it('cleans up feedback on remount and stays usable when sound preference changes', () => {
+  vi.useFakeTimers();
+  const player = { current: document.createElement('div') };
+  const first = renderHook(() => useKeycapFeedback(player, false));
+  act(() => first.result.current.dab('P'));
+  first.unmount();
+  expect(vi.getTimerCount()).toBe(0);
+  const next = renderHook(({ optedIn }) => useKeycapFeedback(player, optedIn), { initialProps: { optedIn: false } });
+  expect(next.result.current.active.size).toBe(0);
+  next.rerender({ optedIn: true });
+  act(() => next.result.current.dab('P'));
+  expect(next.result.current.active.has('P')).toBe(true);
+  act(() => vi.advanceTimersByTime(800));
+  expect(next.result.current.active.size).toBe(0);
+  next.unmount();
+  vi.useRealTimers();
+});

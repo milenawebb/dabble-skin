@@ -49,7 +49,7 @@ use the editor.
 - Use playbackId as painting identity and export it for Mux sources, so paintings never leak between source identities.
 - Disable HLS subtitle formats when an explicit captions file is supplied; do not add Mux analytics, and disclose native-HLS track limitations rather than altering manifests.
 - Remount the player for the deliberate broken-source test so media feature subscriptions attach to the replacement adapter.
-- Pre-optimize the Mux React media entry in Vite to avoid late dependency discovery replacing shared React chunks during a preview session.
+- Pre-optimize the Mux React media entry and Lucide in Vite to avoid late dependency discovery replacing shared React chunks during a preview session.
 - Use VolumePopover with a MuteButton trigger and vertical VolumeSlider only for hover-capable players at least 420px wide; hold the library controls lock while its popup is open.
 - Keep optional Web Audio and activation feedback in a wrapper-level hook with native state listeners and captured trusted gestures, so Video.js actions and brush rendering stay untouched.
 - Keep continuous brush audio in a dedicated wrapper hook using the shared gesture-created AudioContext; supplied voice math stays in sounds, with explicit stroke, mute, visibility, and unmount teardown.
@@ -61,6 +61,7 @@ use the editor.
 - Keep the Keys popover inside the Video.js Container with a controls lock and a focusable keyboard fallback when its responsive trigger is hidden.
 
 ## Demo presentation
+- Self-accept keycap-hook development updates with a full reload so changed hook layouts cannot reuse stale route state or React dispatchers.
 - Share one optional repository URL across all three GitHub controls; leave controls inactive until supplied to avoid guessed destinations.
 - Observe title visibility once and replay decoration on hover; keycap pointer feedback never invokes player actions.
 - Keep the shelf layout stable inside a measured-height clipping wrapper and synchronize paper/tools transitions to avoid empty closing frames.

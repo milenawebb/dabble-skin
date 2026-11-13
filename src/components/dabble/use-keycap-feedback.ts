@@ -1,6 +1,13 @@
+// @refresh reset
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import { SHORTCUT_EVENT, keycapFor, keycapSoundAllowed } from './page-feedback';
 import { SOUND, swish, unlockSound } from './sounds';
+
+// Hook-only modules cannot safely preserve consumer state when their hook layout changes.
+// Reload like the painting hook, preserving browser-saved paintings and sound preferences.
+if (import.meta.hot) {
+  import.meta.hot.accept(() => window.location.reload());
+}
 
 export function useKeycapFeedback(player: RefObject<HTMLDivElement | null>, optedIn: boolean) {
   const [active, setActive] = useState<Set<string>>(new Set());
