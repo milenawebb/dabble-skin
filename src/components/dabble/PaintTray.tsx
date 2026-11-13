@@ -25,12 +25,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
   const id = useId();
   const [copied, setCopied] = useState(false);
   const [snippet, setSnippet] = useState('');
-  const [confirmReset, setConfirmReset] = useState(false);
-  const keepPainting = useRef<HTMLButtonElement>(null);
-  const resetButton = useRef<HTMLButtonElement>(null);
-  const resetTitle = useId();
-  const closeReset = () => { setConfirmReset(false); resetButton.current?.focus(); };
-  useEffect(() => { if (confirmReset) keepPainting.current?.focus(); }, [confirmReset]);
+  const [clearMessage, setClearMessage] = useState('');
   const [peeking, setPeeking] = useState(defaultTrayOpen);
   const [initiallyOpen, setInitiallyOpen] = useState(defaultTrayOpen);
   const [hoverCapable, setHoverCapable] = useState(false);
@@ -79,7 +74,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
     onPointerLeave={() => { hovering.current = false; suppressPeek.current = false; scheduleTuck(); if (!root.current?.contains(document.activeElement)) onActivity(false); }}
     onFocusCapture={() => { reveal(); onActivity(true); }}
     onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) { suppressPeek.current = false; scheduleTuck(); if (!hovering.current) onActivity(false); } }}
-    onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); if (confirmReset) closeReset(); else tuck(); } }}>
+    onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); tuck(); } }}>
     <div className="tray-shelf">
       <Tool modeRef={mode} label={paint.painting || (initiallyOpen && open) ? 'Put the paints away' : 'Start painting'} className="tray-mode tray-circle" expanded={open} onClick={() => { if (paint.painting || (initiallyOpen && open)) tuck(); else pin(() => {}); }}><HandIcon kind="brush" /></Tool>
       <span className="tray-divider tray-divider-one tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
@@ -97,11 +92,11 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
         {BRUSH_SIZES.map(({ label, value, scale }) => <Tool key={value} label={label} className="tray-size" pressed={paint.size === value} onClick={() => pin(() => paint.setSize(value))}><PaintBlob selected={paint.size === value} scale={scale} /></Tool>)}
       </div>
       <div className="tray-actions">
-        {iconTool('Undo', 'undo', paint.undo, paint.count === 0)}
+        {iconTool('Undo', 'undo', paint.undo, !paint.canUndo)}
         {iconTool('Paint it for me', 'wand', () => { paint.automatic(); automaticSound(); })}
-        <Tool modeRef={resetButton} label="Start over" className="tray-reveal tray-circle" hidden={!open} onClick={() => setConfirmReset(true)}><HandIcon kind="clear" /></Tool>
         {ownerTools && iconTool('Copy painting code', 'copy', copy)}
         <Tool label={sounds ? 'Sounds on' : 'Sounds off'} className="tray-circle tray-reveal" hidden={!open} pressed={sounds} onClick={toggleSounds}><HandIcon kind={sounds ? 'sounds-on' : 'sounds-off'} /></Tool>
+        <span className="tray-item tray-blank tray-reveal" inert={!open || undefined}><Tooltip><TooltipTrigger asChild><Button variant="ghost" aria-label="Blank canvas" aria-disabled={paint.count === 0} onClick={() => { if (!paint.count) return; paint.clear(); setClearMessage('Canvas cleared. Undo to bring it back.'); }}><svg className="tray-tag" viewBox="0 0 140 40" preserveAspectRatio="none" aria-hidden="true"><path d="M3 3L48 2L88 4L137 2L138 19L136 37L92 38L45 36L2 38L3 20Z" vectorEffect="non-scaling-stroke" /></svg><HandIcon kind="clear" /><span className="tray-blank-text">Blank canvas</span></Button></TooltipTrigger><TooltipContent className="tray-tooltip-label">Blank canvas</TooltipContent></Tooltip></span>
       </div>
       </div>
     </div>
@@ -116,13 +111,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
       </g>
       <path className="tray-wood-outline" d="M2 3C120 1 420 4 678 2L677 15C460 17 160 14 3 16Z" fill="none" strokeWidth="1.5" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
     </svg>
-    {confirmReset && <div className="tray-reset-label" role="dialog" aria-labelledby={resetTitle} onKeyDown={event => {
-      if (event.key !== 'Tab') return;
-      const buttons = Array.from(event.currentTarget.querySelectorAll('button'));
-      const first = buttons[0], last = buttons.at(-1);
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
-    }}><span id={resetTitle}>Start over?</span><div><Button variant="outline" onClick={() => { paint.startOver(); closeReset(); }}>Yes, start over</Button><Button ref={keepPainting} variant="outline" onClick={closeReset}>Keep painting</Button></div></div>}
+    <span className="sr-only" role="status" aria-live="polite">{paint.count === 0 ? clearMessage : ''}</span>
     {ownerTools && <span className="tray-copy-status" role="status">{copied ? 'Copied' : ''}</span>}
     {ownerTools && snippet && <div className="paint-copy-fallback" inert={!open || undefined} hidden={!open}><label htmlFor={`${id}-code`}>Painting code</label><textarea id={`${id}-code`} readOnly value={snippet} onFocus={event => event.currentTarget.select()} /></div>}
   </section></TooltipProvider>;

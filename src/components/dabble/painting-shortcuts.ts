@@ -1,6 +1,7 @@
 import { BRUSH_SIZES } from './tray-rules';
 
-export function paintingShortcutLabel(key: string, painting: boolean, size: number): string | undefined {
+export function paintingShortcutLabel(key: string, painting: boolean, size: number, trayOpen = painting): string | undefined {
+  if (key === 'shift+backspace' || key === 'shift+delete') return trayOpen ? 'Blank canvas' : undefined;
   if (key === 'p') return painting ? 'Stop painting' : 'Start painting';
   if (key === 'ctrl+z' || key === 'meta+z') return 'Undo';
   if (!painting) return;

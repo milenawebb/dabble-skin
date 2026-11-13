@@ -44,7 +44,7 @@ use the editor.
 - Pass native caption tracks through DabblePlayer props and keep sample VTT files in public/captions so the actual player exercises captions without injected test tracks.
 - Keep the supplied brush engine a math-preserving TypeScript port; isolate interaction and tray UI from renderStroke so reference rendering remains reproducible.
 - Store paintings as versioned seeded normalized strokes, rounded on completion and persisted per video source in optional browser storage; use offscreen canvases only as disposable rendering caches.
-- Resolve saved viewer paintings before supplied starting paintings; retain a cloned starting baseline for confirmed tray resets and gate code copying through ownerTools to keep viewer and owner actions separate.
+- Resolve saved viewer paintings before supplied starting paintings; store session-only stroke snapshots for immediate clearing and one-step undo and gate code copying through ownerTools to keep viewer and owner actions separate.
 - Keep palette math reference-identical; sample Mux scene thumbnails (duration fractions or explicit overrides), retain hidden-video sampling for plain sources, and fall back to current-time thumbnails when live pixel reads fail; preserve each stroke's palette.
 - Use playbackId as painting identity and export it for Mux sources, so paintings never leak between source identities.
 - Disable HLS subtitle formats when an explicit captions file is supplied; do not add Mux analytics, and disclose native-HLS track limitations rather than altering manifests.

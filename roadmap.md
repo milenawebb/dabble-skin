@@ -1,5 +1,10 @@
 # Dabble
 
+## Lighter starter and Blank canvas
+- [x] Replace default painting with six fixed-seed corner strokes in three footage colors.
+- [x] Replace reset confirmation with immediate Blank canvas, one-step undo and open-tray clearing shortcuts.
+- [x] Verify saved/owner precedence, reload behavior and appearance at 1100, 768 and 390px.
+
 ## Contest audit
 - [x] Keep opening controls visible; enforce 1.8-second idle and immediate leave after playback, including paused/ended cycles.
 - [x] Audit and fix player states, fullscreen, responsive/keyboard/contrast/touch/reduced-motion behavior without redesign; Chrome checks and 183 tests passed.

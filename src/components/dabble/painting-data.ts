@@ -1,5 +1,5 @@
 import type { Stroke } from './paint-engine';
-import { PAINT_PALETTE, INITIAL_SEED } from './paint-rules';
+import { PAINT_PALETTE, initialPainting } from './paint-rules';
 
 export type Palette = [string, string, string, string, string, string];
 export type Painting = { version: 1; palette: Palette; strokes: Stroke[] };
@@ -7,7 +7,7 @@ export function isPalette(value: unknown): value is Palette {
   return Array.isArray(value) && value.length === 6 && value.every(c => typeof c === 'string' && /^#[0-9a-f]{6}$/i.test(c));
 }
 export const DEFAULT_PALETTE: Palette = [PAINT_PALETTE[0] ?? '', PAINT_PALETTE[1] ?? '', PAINT_PALETTE[2] ?? '', PAINT_PALETTE[3] ?? '', PAINT_PALETTE[4] ?? '', PAINT_PALETTE[5] ?? ''];
-export function newPainting(): Painting { return {version:1, palette:[...DEFAULT_PALETTE], strokes:[{type:'auto-rib',seed:INITIAL_SEED,pal:[...DEFAULT_PALETTE]}]}; }
+export function newPainting(): Painting { return {version:1, palette:[...DEFAULT_PALETTE], strokes:initialPainting()}; }
 export function roundStroke(stroke: Stroke): Stroke {
   if (!('pts' in stroke)) return {...stroke, pal:[...stroke.pal]};
   const round = (n: number) => Math.round(n * 10000) / 10000;

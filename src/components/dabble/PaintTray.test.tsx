@@ -28,30 +28,7 @@ describe('tray state interactions', () => {
     rerender(<Tray ownerTools />);
     expect(screen.getByRole('button', {name:'Copy painting code'})).toBeEnabled();
   });
-  it('requires confirmation, focuses Keep painting, and Escape preserves strokes', () => {
-    const { container } = render(<Tray />);
-    fireEvent.click(screen.getByRole('button', {name:'Start painting'}));
-    fireEvent.click(screen.getByRole('button', {name:'Paint it for me'}));
-    fireEvent.click(screen.getByRole('button', {name:'Start over'}));
-    expect(screen.getByRole('button', {name:'Keep painting'})).toHaveFocus();
-    fireEvent.keyDown(screen.getByRole('button', {name:'Keep painting'}), {key:'Escape'});
-    expect(screen.queryByRole('dialog')).toBeNull();
-    expect(screen.getByRole('button', {name:'Start over'})).toHaveFocus();
-    expect(container.querySelector('section')).toHaveAttribute('data-state','pinned');
-    expect(JSON.parse(localStorage.getItem('dabble-painting:v1:tray-test') ?? '{}').strokes).toHaveLength(2);
-  });
-  it('Keep painting cancels and Yes restores the starting painting', () => {
-    render(<Tray />);
-    fireEvent.click(screen.getByRole('button', {name:'Start painting'}));
-    fireEvent.click(screen.getByRole('button', {name:'Paint it for me'}));
-    fireEvent.click(screen.getByRole('button', {name:'Start over'}));
-    fireEvent.click(screen.getByRole('button', {name:'Keep painting'}));
-    expect(JSON.parse(localStorage.getItem('dabble-painting:v1:tray-test') ?? '{}').strokes).toHaveLength(2);
-    fireEvent.click(screen.getByRole('button', {name:'Start over'}));
-    fireEvent.click(screen.getByRole('button', {name:'Yes, start over'}));
-    expect(JSON.parse(localStorage.getItem('dabble-painting:v1:tray-test') ?? '{}').strokes).toHaveLength(1);
-    expect(screen.queryByRole('dialog')).toBeNull();
-  });
+  it('clears immediately and Undo restores all strokes in one step', () => { render(<Tray defaultTrayOpen />); const clear=screen.getByRole('button',{name:'Blank canvas'}); fireEvent.click(screen.getByRole('button',{name:'Paint it for me'})); const saved=localStorage.getItem('dabble-painting:v1:tray-test'); fireEvent.click(clear); expect(JSON.parse(localStorage.getItem('dabble-painting:v1:tray-test') ?? '{}').strokes).toEqual([]); expect(clear).toHaveAttribute('aria-disabled','true'); clear.focus(); expect(clear).toHaveFocus(); fireEvent.click(screen.getByRole('button',{name:'Undo'})); expect(localStorage.getItem('dabble-painting:v1:tray-test')).toBe(saved); });
   it('opens on activation and Escape stops painting, tucks tools, and returns focus', () => {
     const {container} = render(<Tray />);
     expect(container.querySelector('section')).toHaveAttribute('data-state', 'tucked');

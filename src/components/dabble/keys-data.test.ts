@@ -7,7 +7,7 @@ describe('shared keyboard shortcut data', () => {
     expect(PLAYER_KEYS.map(([key]) => key)).toEqual(['Space or K', 'M', 'C', 'F', '← →', '↑ ↓', '?']);
   });
   it('lists every painting shortcut', () => {
-    expect(PAINT_KEYS.map(([key]) => key)).toEqual(['P', '1 2 3 4', '[ ]', 'Ctrl or Cmd + Z']);
+    expect(PAINT_KEYS.map(([key]) => key)).toEqual(['P', '1 2 3 4', '[ ]', 'Ctrl or Cmd + Z', 'Shift + Backspace or Delete']);
   });
   it('gives every shortcut an action', () => {
     for (const [key, action] of [...PLAYER_KEYS, ...PAINT_KEYS]) {

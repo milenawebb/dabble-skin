@@ -5,7 +5,7 @@ import { announceShortcut } from './page-feedback';
 
 // The landing page Keys card reads these same lists so the two never disagree.
 export const PLAYER_KEYS = [['Space or K', 'Play and pause'], ['M', 'Mute'], ['C', 'Captions'], ['F', 'Fullscreen'], ['← →', 'Back or forward 5 seconds'], ['↑ ↓', 'Volume'], ['?', 'Show these keys']];
-export const PAINT_KEYS = [['P', 'Start or stop painting'], ['1 2 3 4', 'Choose a brush'], ['[ ]', 'Brush size'], ['Ctrl or Cmd + Z', 'Undo']];
+export const PAINT_KEYS = [['P', 'Start or stop painting'], ['1 2 3 4', 'Choose a brush'], ['[ ]', 'Brush size'], ['Ctrl or Cmd + Z', 'Undo'], ['Shift + Backspace or Delete', 'Blank canvas']];
 
 export function KeysHotkey({ root, toggle, open }: { root: RefObject<HTMLDivElement | null>; toggle: () => void; open: boolean }) {
   useHotkey({ keys: '?', target: 'document', repeatable: false, onActivate: event => {

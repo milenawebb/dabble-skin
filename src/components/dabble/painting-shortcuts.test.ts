@@ -29,3 +29,4 @@ describe('painting shortcuts', () => {
     expect(blocksPaintingShortcut(document.createElement('button'), false)).toBe(false);
   });
 });
+it.each(['shift+backspace','shift+delete'])('%s clears only with an open tray', key=>{ expect(paintingShortcutLabel(key,false,20,true)).toBe('Blank canvas'); expect(paintingShortcutLabel(key,true,20,false)).toBeUndefined(); });

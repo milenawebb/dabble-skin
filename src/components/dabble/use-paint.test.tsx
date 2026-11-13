@@ -18,8 +18,8 @@ describe('paint hook lifecycle', () => {
     expect(next.result.current.getPainting()).toEqual(saved);
     act(() => next.result.current.setPainting(true));
     expect(next.result.current.painting).toBe(true);
-    act(() => next.result.current.startOver());
-    expect(next.result.current.getPainting()).toEqual(supplied);
+    act(() => next.result.current.clear());
+    expect(next.result.current.count).toBe(0); act(() => next.result.current.undo()); expect(next.result.current.getPainting()).toEqual(saved);
   });
   it('keeps hook order stable when tools and supplied paintings change', () => {
     const wrapper = {current:null}, canvas = {current:null};
@@ -29,7 +29,7 @@ describe('paint hook lifecycle', () => {
     expect(result.current.painting).toBe(true);
     rerender({enabled:false,supplied:newPainting()});
     expect(result.current.painting).toBe(false);
-    expect(result.current.count).toBe(1);
+    expect(result.current.count).toBe(6);
     rerender({enabled:true,supplied:undefined});
     expect(result.current.brush).toBe('rib');
     expect(result.current.palette).toHaveLength(6);
@@ -43,8 +43,8 @@ describe('viewer starting painting', () => {
     const { result } = renderHook(() => usePaint({current:null}, {current:null}, true, 'first-visit', supplied));
     expect(result.current.getPainting()).toEqual(supplied);
     act(() => result.current.automatic());
-    expect(result.current.count).toBe(2);
-    expect(supplied.strokes).toHaveLength(1);
+    expect(result.current.count).toBe(7);
+    expect(supplied.strokes).toHaveLength(6);
   });
   it('uses the built-in painting when no owner painting is supplied', () => {
     const { result } = renderHook(() => usePaint({current:null}, {current:null}, true, 'built-in'));
@@ -62,15 +62,14 @@ describe('viewer starting painting', () => {
     savePainting('reset-owner', newPainting());
     const { result } = renderHook(() => usePaint({current:null}, {current:null}, true, 'reset-owner', supplied));
     act(() => result.current.automatic());
-    act(() => result.current.startOver());
-    expect(result.current.getPainting()).toEqual(supplied);
-    expect(loadPainting('reset-owner')).toEqual(supplied);
+    act(() => result.current.clear());
+    expect(result.current.count).toBe(0); expect(loadPainting('reset-owner')?.strokes).toEqual([]);
   });
   it('start over restores the built-in stroke rather than an empty frame', () => {
     const { result } = renderHook(() => usePaint({current:null}, {current:null}, true, 'reset-built-in'));
     act(() => result.current.automatic());
-    act(() => result.current.startOver());
-    expect(result.current.getPainting()).toEqual(newPainting());
-    expect(loadPainting('reset-built-in')).toEqual(newPainting());
+    act(() => result.current.clear());
+    expect(result.current.count).toBe(0); expect(loadPainting('reset-built-in')?.strokes).toEqual([]); act(() => result.current.undo()); expect(result.current.count).toBe(7);
   });
 });
+it('saves blank canvas and does not restore clear history after reload', () => { const first=renderHook(()=>usePaint({current:null},{current:null},true,'blank-reload')); act(()=>first.result.current.clear()); first.unmount(); const next=renderHook(()=>usePaint({current:null},{current:null},true,'blank-reload')); expect(next.result.current.count).toBe(0); expect(next.result.current.canUndo).toBe(false); act(()=>next.result.current.undo()); expect(next.result.current.count).toBe(0); });
