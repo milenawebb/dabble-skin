@@ -138,12 +138,25 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
     let releaseFocus: (() => void) | undefined;
     const enter = (event: PointerEvent) => { if (event.pointerType !== 'touch') releaseHover ??= requestControlsLock(); };
     const leave = () => { releaseHover?.(); releaseHover = undefined; };
-    const focus = () => { releaseFocus ??= requestControlsLock(); };
+    // Only keyboard focus holds the bar; mouse clicks leave focus without keeping it visible.
+    const focus = (event: FocusEvent) => { if (event.target instanceof Element && event.target.matches(':focus-visible')) releaseFocus ??= requestControlsLock(); };
     const blur = (event: FocusEvent) => { if (!(event.relatedTarget instanceof Node) || !bar.contains(event.relatedTarget)) { releaseFocus?.(); releaseFocus = undefined; } };
     bar.addEventListener('pointerenter', enter); bar.addEventListener('pointerleave', leave);
     bar.addEventListener('focusin', focus); bar.addEventListener('focusout', blur);
     return () => { leave(); releaseFocus?.(); bar.removeEventListener('pointerenter', enter); bar.removeEventListener('pointerleave', leave); bar.removeEventListener('focusin', focus); bar.removeEventListener('focusout', blur); };
   }, [requestControlsLock, phoneHost, fullscreenActive]);
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root || phoneHost) return;
+    // Video.js only restarts its idle timer on leave; hide at once instead. Locks (menus, keyboard focus) still win.
+    const leave = (event: PointerEvent) => {
+      if (event.pointerType === 'touch' || (event.relatedTarget instanceof Node && root.contains(event.relatedTarget))) return;
+      const video = root.querySelector('video');
+      if (video && !video.paused && !video.ended) toggleControls(false);
+    };
+    root.addEventListener('pointerleave', leave);
+    return () => root.removeEventListener('pointerleave', leave);
+  }, [phoneHost, toggleControls]);
   useEffect(() => { if (!painting) toggleControls(true); }, [painting, toggleControls]);
 
   useEffect(() => {
