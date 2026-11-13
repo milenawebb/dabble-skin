@@ -14,7 +14,7 @@ The skin lives in `src/dabble/`. The demo landing page lives outside that folder
 
 ## Use it
 
-This is a React 19 player using `@videojs/react` 10.3.0 and its packaged video preset. The folder includes its own buttons, frame styles, painting, captions, sounds and tests. Keep the Video.js patch in `patches/` and the `patchedDependencies` entry in `package.json`: it preserves caption intent and controls visibility.
+This is a React 19 player using `@videojs/react` 10.3.0 and its packaged video preset. The folder includes its own buttons, frame styles, painting, captions, sounds and tests. The skin relies on a small patch to `@videojs/core` 10.3.0 in `patches/`, applied automatically by Bun through the `patchedDependencies` entry in `package.json`. It keeps the control bar visible while the video is paused or ended, hides it at once when the pointer leaves the player, and preserves caption intent. Keep both the patch and the `patchedDependencies` entry.
 
 ```tsx
 import { DabblePlayer, type DabblePlayerProps } from './src/dabble';
