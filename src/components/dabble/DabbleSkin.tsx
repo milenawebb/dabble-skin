@@ -15,6 +15,7 @@ import { getHotkeyCoordinator } from '@videojs/core/dom';
 import { announceShortcut } from './page-feedback';
 import { updateFullscreenOrientation } from './fullscreen-orientation';
 import { createPortal } from 'react-dom';
+import { STROKE_RETURN_DELAY, suppressPaintingControls } from './stroke-controls';
 
 function Blob() { return <span className="dabble-blob" aria-hidden="true" />; }
 
@@ -54,6 +55,25 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
   const hasError = usePlayer((state) => Boolean(state.error));
   const toggleControls = usePlayer((state) => state.toggleControls);
   const requestControlsLock = usePlayer((state) => state.requestControlsLock);
+  const [strokeHold, setStrokeHold] = useState(false);
+  const hideForPainting = suppressPaintingControls(playerWidth, fullscreenActive, painting, strokeHold);
+  useEffect(() => {
+    const canvas = rootRef.current?.closest<HTMLElement>('.dabble-canvas');
+    if (!canvas || playerWidth < 420 || fullscreenActive) { setStrokeHold(false); return; }
+    let pointer: number | undefined;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const down = (event: PointerEvent) => {
+      if (event.button !== 0 || !(event.target instanceof Element) || !event.target.matches('.dabble-paint') || !canvas.hasAttribute('data-painting') || canvas.hasAttribute('data-picking')) return;
+      pointer = event.pointerId; clearTimeout(timer); setStrokeHold(true);
+    };
+    const end = (event: PointerEvent) => {
+      if (pointer === undefined || event.pointerId !== pointer) return;
+      pointer = undefined;
+      timer = setTimeout(() => { setStrokeHold(false); toggleControls(true); }, STROKE_RETURN_DELAY);
+    };
+    canvas.addEventListener('pointerdown', down); canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end); canvas.addEventListener('lostpointercapture', end);
+    return () => { clearTimeout(timer); canvas.removeEventListener('pointerdown', down); canvas.removeEventListener('pointerup', end); canvas.removeEventListener('pointercancel', end); canvas.removeEventListener('lostpointercapture', end); };
+  }, [playerWidth, fullscreenActive, toggleControls]);
   // A permanent library lock disables phone idle hiding, but not fullscreen auto-hide.
   useEffect(() => phoneHost && !fullscreenActive ? requestControlsLock() : undefined, [phoneHost, fullscreenActive, requestControlsLock]);
   const centerVisible = showCenterPlay(started, ended, painting, paused) && !hasError;
@@ -95,7 +115,7 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
   useEffect(() => { onControlsState?.({ visible: controlsVisible, paused }); }, [controlsVisible, paused, onControlsState]);
   useEffect(() => {
     const canvas = rootRef.current?.closest('.dabble-canvas');
-    if (!canvas) return;
+    if (!canvas || fullscreenActive) return;
     let release: (() => void) | undefined;
     const activity = (event: Event) => {
       const active = (event as CustomEvent<boolean>).detail;
@@ -104,7 +124,7 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
     };
     canvas.addEventListener('dabble-tray-activity', activity);
     return () => { canvas.removeEventListener('dabble-tray-activity', activity); release?.(); };
-  }, [requestControlsLock]);
+  }, [requestControlsLock, fullscreenActive]);
 
   useEffect(() => {
     return volumeOpen || keysOpen ? requestControlsLock() : undefined;
@@ -192,9 +212,9 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
   </Controls.Content></Controls.Root>;
 
   return (
-    <Container ref={rootRef} tabIndex={-1} aria-label="Dabble video player" style={colors} className="dabble-skin" data-size={size} data-painting={painting || undefined} data-docked={docked || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined} data-bar-visible={(!painting && controlsVisible) || undefined} onPointerDownCapture={event => {
+    <Container ref={rootRef} tabIndex={-1} aria-label="Dabble video player" style={colors} className="dabble-skin" data-size={size} data-painting={painting || undefined} data-stroke-hold={strokeHold && !fullscreenActive || undefined} data-docked={docked || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined} data-bar-visible={(!hideForPainting && controlsVisible) || undefined} onPointerDownCapture={event => {
       // Pausing reveals Play under the finger before the compatibility click.
-      paintingVideoTouch.current = painting && event.pointerType === 'touch' && event.target instanceof HTMLVideoElement;
+      paintingVideoTouch.current = event.pointerType === 'touch' && event.target instanceof HTMLVideoElement;
     }} onClickCapture={event => {
       if (!paintingVideoTouch.current) return;
       paintingVideoTouch.current = false;
@@ -202,7 +222,7 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
     }}>
       {children}
       {!hasError && <Poster.Root className="dabble-poster"><Poster.Image /></Poster.Root>}
-      <PaintedCaptions phoneHost={phoneHost ?? null} rootRef={rootRef} captionId={captionId} docked={docked} barEnabled={!painting} />
+      <PaintedCaptions phoneHost={phoneHost ?? null} rootRef={rootRef} captionId={captionId} docked={docked} barEnabled={!hideForPainting} />
       <Gesture type="tap" action={controlsVisible || painting ? "togglePaused" : "toggleControls"} />
       <PlayButton ref={centerRef} hidden={!centerVisible} label={ended ? 'Replay' : paused ? 'Play' : 'Pause'} className="dabble-button dabble-play dabble-center-play" render={(props) => <button {...props} onFocus={(event) => { props.onFocus?.(event); centerHadFocus.current = event.currentTarget.matches(':focus-visible'); }} onBlur={(event) => { props.onBlur?.(event); if (event.relatedTarget) centerHadFocus.current = false; }}><Blob /><Icon kind={ended ? 'replay' : paused ? 'play' : 'pause'} /></button>} />
       <BufferingIndicator className="dabble-loading" render={(props, state) => <div {...props} role="status" aria-live="polite">{state.visible && <><span className="dabble-loading-disc" aria-hidden="true"><span /></span><span className="dabble-loading-label">Loading</span></>}</div>} />

@@ -129,7 +129,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
     onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) { suppressPeek.current = false; scheduleTuck(); if (!hovering.current) onActivity(false); } }}
     onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); tuck(); } }}>
     <div className="tray-fold"><div ref={shelf} className="tray-shelf">
-      <Tool modeRef={mode} label={paint.painting || (initiallyOpen && open) ? 'Put the paints away' : 'Start painting'} className="tray-mode tray-circle" expanded={open} onClick={() => { if (paint.painting || (initiallyOpen && open)) tuck(); else pin(() => {}); }}><HandIcon kind="brush" /></Tool>
+      <span className="tray-mode-space" aria-hidden="true" />
       <span className="tray-divider tray-divider-one tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
       <div className="tray-colors tray-reveal" role="group" aria-label="Paint color" inert={!open || undefined}>
         {paint.palette.map((hex, index) => <Tool key={index} label={colorNames[index] ?? `${colorName(hex)} paint`} pressed={paint.color === index} className="tray-color" style={{ '--pot-color': hex } as CSSProperties} onClick={() => pin(() => paint.setColor(index))}><PaintBlob selected={paint.color === index} angle={BLOB_ROTATIONS[index] ?? 0} scale={paint.color === index ? 1.18 : 1} /></Tool>)}
@@ -155,6 +155,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
       </div>
       </div>
     </div></div>
+    <Button ref={mode} variant="ghost" className="tray-ledge-mode" aria-label={open ? 'Done painting' : 'Start painting'} aria-expanded={open} onClick={() => { if (open) tuck(); else pin(() => {}); }}><HandIcon kind={open ? 'check' : 'brush'} /><span>{open ? 'Done' : 'Paint the frame'}</span></Button>
     <span ref={brushLabel} className="tray-brush-name" data-visible={open && labelVisible || undefined} aria-hidden="true">{brushes.find(brush => brush.type === shownBrush)?.label.replace(' brush', '')}</span>
     <svg className="tray-ledge" viewBox="0 0 680 18" preserveAspectRatio="none" width="100%" height="18" aria-hidden="true">
       <path className="tray-wood" d="M2 3C120 1 420 4 678 2L677 15C460 17 160 14 3 16Z" />

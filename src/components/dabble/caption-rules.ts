@@ -13,6 +13,12 @@ export function captionBottom(video: CaptionRect, barTop: number, barVisible: bo
   return barVisible && !docked && barTop < bottom ? barTop - 10 : bottom - Math.max(8, video.height * .06);
 }
 
+export function measuredCaptionBottom(video: CaptionRect, bar: { top: number; height: number }, visible: boolean) {
+  const bottom = video.top + video.height;
+  const resting = bottom - 8;
+  return visible ? Math.min(resting - 2, bar.top - 10) : resting;
+}
+
 export function captionsOverlap(caption: CaptionRect, panel: CaptionRect) {
   // Include the 16px bristle tips, not just the text block.
   return caption.left - 16 < panel.left + panel.width && caption.left + caption.width + 16 > panel.left && caption.top < panel.top + panel.height && caption.top + caption.height > panel.top;

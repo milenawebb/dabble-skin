@@ -30,8 +30,8 @@ export function getPlaqueSpace(width: number, barHeight: number) {
 
 export const DABBLE_PLAYBACK_RATES = [0.5, 1, 1.25, 1.5, 2] as const;
 
-export function showCenterPlay(started: boolean, ended: boolean, painting = false, paused = false) {
-  return !started || ended || (painting && paused);
+export function showCenterPlay(started: boolean, ended: boolean, _painting = false, paused = false) {
+  return !started || ended || paused;
 }
 
 export function getCaptionLine(overlap: number, videoHeight: number, controlsVisible: boolean) {

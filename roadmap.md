@@ -1,5 +1,10 @@
 # Dabble
 
+## Desktop and tablet visibility restoration
+- [x] Restore normal controls with the tray open and in fullscreen; suppress only during strokes and for one second afterward.
+- [x] Keep ledge invitation visible, unify paused center Play, and measure upward caption clearance without changing phone slots or color picking.
+- [x] Repeat the ten-item desktop/tablet Chromium check and verify unchanged phone layout, persistent plaque, slot swap and tap-to-pause.
+
 ## Pick custom paint from the video
 - [x] Replace the system picker with shared video pick mode and swirled eyedropper button.
 - [x] Verify exact-spot live/fallback pixels, keyboard movement, cancellation, and unchanged playback/painting during picks in Chromium.

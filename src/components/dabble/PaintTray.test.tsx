@@ -16,7 +16,7 @@ describe('tray state interactions', () => {
     expect(document.activeElement).toBe(previousFocus);
     rerender(<Tray defaultTrayOpen={false} />);
     expect(container.querySelector('section')).toHaveAttribute('data-state', 'peek');
-    fireEvent.click(screen.getByRole('button', { name: 'Put the paints away' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Done painting' }));
     expect(container.querySelector('section')).toHaveAttribute('data-state', 'tucked');
     fireEvent.click(screen.getByRole('button', { name: 'Start painting' }));
     expect(container.querySelector('section')).toHaveAttribute('data-state', 'pinned');
@@ -45,10 +45,10 @@ describe('tray state interactions', () => {
     const {container} = render(<Tray />);
     fireEvent.pointerEnter(screen.getByRole('region', {name:'Paint tools'}));
     expect(container.querySelector('section')).toHaveAttribute('data-state','peek');
-    expect(screen.getByRole('button', {name:'Start painting'})).toHaveAttribute('aria-expanded','true');
-    fireEvent.click(container.querySelectorAll('.tray-color button')[2] ?? screen.getByRole('button', {name:'Start painting'}));
+    expect(screen.getByRole('button', {name:'Done painting'})).toHaveAttribute('aria-expanded','true');
+    fireEvent.click(container.querySelectorAll('.tray-color button')[2] ?? screen.getByRole('button', {name:'Done painting'}));
     expect(container.querySelector('section')).toHaveAttribute('data-state','pinned');
-    expect(screen.getByRole('button', {name:'Put the paints away'})).toHaveAttribute('aria-expanded','true');
+    expect(screen.getByRole('button', {name:'Done painting'})).toHaveAttribute('aria-expanded','true');
     window.matchMedia = original;
   });
   it('leaving a hover-only peek waits 600ms', () => {

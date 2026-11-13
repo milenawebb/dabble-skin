@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { usePlayer } from '@videojs/react/video';
-import { captionBottom, captionsOverlap, fittedVideoRect, plainCueText } from './caption-rules';
+import { captionBottom, measuredCaptionBottom, captionsOverlap, fittedVideoRect, plainCueText } from './caption-rules';
 
 type ManagedTrack = TextTrack & { __dabblePaintedCaption?: boolean; __dabbleCaptionOn?: boolean };
 
@@ -78,7 +78,8 @@ export function PaintedCaptions({ rootRef, captionId, docked, barEnabled, phoneH
       const rootBox = root.getBoundingClientRect();
       const videoBox = fittedVideoRect(video.getBoundingClientRect(), video.videoWidth, video.videoHeight);
       const barShowing = barEnabled && (controlsVisible || Boolean(bar.querySelector(':focus-visible')) || docked);
-      const bottom = captionBottom(videoBox, bar.getBoundingClientRect().top, barShowing, docked);
+      const barBox = bar.getBoundingClientRect();
+      const bottom = docked ? captionBottom(videoBox, barBox.top, barShowing, true) : measuredCaptionBottom(videoBox, barBox, barShowing);
       layer.style.left = `${videoBox.left + videoBox.width / 2 - rootBox.left}px`;
       layer.style.bottom = `${rootBox.bottom - bottom}px`;
       layer.style.maxWidth = `${Math.max(0, Math.min(videoBox.width * .86, videoBox.width - 48))}px`;

@@ -38,7 +38,12 @@
 .tray-reveal { transition: opacity .3s ease; }
 .paint-tray[data-state="tucked"] .tray-reveal { opacity: 0; pointer-events: none; }
 .tray-mode { transition: opacity .45s, transform .45s; }
-.paint-tray[data-state="tucked"]:not([data-paused]):not([data-visible]):not(:focus-within) .tray-mode { opacity: 0; transform: translateY(6px); }
+.paint-tray .tray-ledge-mode { position: absolute; bottom: 2px; left: 12px; z-index: 9; width: max-content; height: 44px; padding: 0 4px; gap: 8px; background: none; color: var(--landing-wall-dim); font: 20px/1 'Caveat', cursive; }
+.tray-ledge-mode .dabble-icon { width: 32px; height: 32px; padding: 5px; border: 1.5px solid var(--dabble-ink); border-radius: 47% 53% 50% 50%; background: var(--dabble-paper); color: var(--dabble-ink); }
+.paint-tray:not([data-state="tucked"]) { padding-bottom: 44px; }
+.tray-mode-space { width: 36px; }
+@container (max-width: 899px) { .tray-mode-space { position: absolute; left: 16px; top: 10px; } }
+@media (forced-colors: active) { .paint-tray .tray-ledge-mode { color: CanvasText; } }
 .tray-tooltip, .tray-note { position: absolute; z-index: 8; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); width: max-content; max-width: 180px; padding: 4px 7px; border: 1px solid var(--dabble-ink); border-radius: 3px 2px 4px 2px; background: var(--dabble-paper); color: var(--dabble-ink); font: 12px/1.35 var(--dabble-ui-font); pointer-events: none; text-align: center; white-space: normal; }
 .tray-tooltip { display: none; visibility: hidden; opacity: 0; }
 .tray-item:hover .tray-tooltip, .tray-item:focus-within .tray-tooltip { display: block; opacity: 1; visibility: visible; }

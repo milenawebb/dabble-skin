@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { captionBottom, captionsOverlap, fittedVideoRect, plainCueText } from './caption-rules';
+import { captionBottom, measuredCaptionBottom, captionsOverlap, fittedVideoRect, plainCueText } from './caption-rules';
 
 const video = { left: 0, top: 0, width: 800, height: 450 };
+it('moves desktop captions up even with a barely overlapping bar', () => { expect(measuredCaptionBottom(video,{top:445,height:48},true)).toBe(435); expect(measuredCaptionBottom(video,{top:445,height:48},false)).toBe(442); });
+it('clears a taller tablet bar by ten pixels', () => { expect(measuredCaptionBottom(video,{top:400,height:72},true)).toBe(390); });
+it('keeps fullscreen captions inside letterboxed video with controls below it', () => { expect(measuredCaptionBottom(video,{top:700,height:48},true)).toBe(440); });
 describe('caption clearance', () => {
   it('clears visible overlay controls by 10px', () => { expect(captionBottom(video, 400, true, false)).toBe(390); });
   it('keeps exactly 10px even when the bar barely overlaps the video', () => { expect(captionBottom(video, 445, true, false)).toBe(435); });
