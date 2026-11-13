@@ -26,8 +26,16 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
   const [clearMessage, setClearMessage] = useState('');
   const [open, setOpen] = useState(defaultTrayOpen);
   const root = useRef<HTMLElement>(null);
+  const [trayWidth, setTrayWidth] = useState(width);
   const mode = useRef<HTMLButtonElement>(null);
   const shelf = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const tray = root.current;
+    if (!tray) return;
+    const measure = () => setTrayWidth(tray.getBoundingClientRect().width);
+    const observer = new ResizeObserver(measure); observer.observe(tray); measure();
+    return () => observer.disconnect();
+  }, []);
   useEffect(() => {
     const content = shelf.current;
     const tray = root.current;
@@ -52,13 +60,14 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
   const color = paint.palette[paint.color] ?? paint.palette[0];
   const colorNames = paintColorNames(paint.palette);
   const iconTool = (label: string, icon: HandIconKind, action: () => void, disabled = false) => <Tool label={label} className="tray-reveal tray-circle" hidden={!open} disabled={disabled} onClick={action}><HandIcon kind={icon} /></Tool>;
-  return <section ref={root} className="paint-tray" aria-label="Paint tools" data-state={open ? "open" : "closed"} data-compact={width <= 1000 || undefined} data-two-zone={twoZoneTray(width) || undefined} data-visible={controlsState.visible || undefined} data-paused={controlsState.paused || undefined} style={{ '--tray-color': color } as CSSProperties}
+  return <section ref={root} className="paint-tray" aria-label="Paint tools" data-state={open ? "open" : "closed"} data-grouped={trayWidth >= 420 || undefined} data-compact={trayWidth < 1192 || undefined} data-two-zone={twoZoneTray(trayWidth) || undefined} data-visible={controlsState.visible || undefined} data-paused={controlsState.paused || undefined} style={{ '--tray-color': color } as CSSProperties}
     onPointerEnter={() => onActivity(true)}
     onPointerLeave={() => { if (!root.current?.contains(document.activeElement)) onActivity(false); }}
     onFocusCapture={() => onActivity(true)}
     onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) onActivity(false); }}
     onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close(); } }}>
     <div className="tray-fold"><div ref={shelf} className="tray-shelf">
+      <div className="tray-content">
       <span className="tray-mode-space" aria-hidden="true" />
       <span className="tray-divider tray-divider-one tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
       <div className="tray-colors tray-reveal" role="group" aria-label="Paint color" inert={!open || undefined}>
@@ -83,6 +92,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
         {ownerTools && iconTool('Copy painting code', 'copy', copy)}
         <Tool label={sounds ? 'Turn sounds off' : 'Turn sounds on'} className="tray-circle tray-reveal" hidden={!open} pressed={sounds} onClick={toggleSounds}><HandIcon kind={sounds ? 'sounds-on' : 'sounds-off'} /></Tool>
         <span className="tray-item tray-blank tray-reveal" inert={!open || undefined}><Button variant="ghost" aria-label="Blank canvas" aria-disabled={paint.count === 0} onClick={() => { if (!paint.count) return; paint.clear(); setClearMessage('Canvas cleared. Undo to bring it back.'); }}><svg className="tray-tag" viewBox="0 0 140 40" preserveAspectRatio="none" aria-hidden="true"><path d="M3 3L48 2L88 4L137 2L138 19L136 37L92 38L45 36L2 38L3 20Z" vectorEffect="non-scaling-stroke" /></svg><HandIcon kind="clear" /><span className="tray-blank-text">Blank canvas</span></Button></span>
+      </div>
       </div>
       </div>
     </div></div>

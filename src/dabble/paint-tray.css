@@ -221,3 +221,29 @@
 @container (min-width: 800px) { .paint-tray[data-two-zone] .tray-blank > button { width: max-content; padding: 0 16px; } .paint-tray[data-two-zone] .tray-blank-text { display: inline; } }
 .paint-tray[data-compact]:not([data-two-zone]) .tray-blank > button { width: 44px; padding: 0; }
 .paint-tray[data-compact]:not([data-two-zone]) .tray-blank-text { display: none; }
+
+/* Fixed-size centered tools; the full paper shelf may continue to grow. */
+.tray-content { display: contents; }
+.paint-tray[data-grouped] .tray-shelf { display: block; height: auto; min-height: 0; padding: 48px 12px 12px; }
+.paint-tray[data-grouped] .tray-content { display: grid; width: max-content; max-width: 1170px; margin-inline: auto; grid-template-columns: max-content max-content max-content max-content; align-items: end; gap: 28px; }
+.paint-tray[data-grouped] .tray-mode-space,
+.paint-tray[data-grouped] .tray-sample,
+.paint-tray[data-grouped] .tray-divider { display: none; }
+.paint-tray[data-grouped] .tray-equipment { display: contents; }
+.paint-tray[data-grouped] :is(.tray-colors, .tray-brushes, .tray-sizes, .tray-actions) { display: flex; width: max-content; min-width: 0; height: auto; gap: 12px; margin: 0; padding: 0; flex: none; justify-content: center; justify-self: center; grid-area: auto; overflow: visible; }
+.paint-tray[data-grouped] .tray-item { flex: none; }
+.paint-tray[data-grouped] .tray-actions { column-gap: 12px; }
+.paint-tray[data-grouped] .tray-blank { margin-left: 16px; }
+.paint-tray[data-grouped]:not([data-compact]) .tray-blank > button { width: max-content; padding: 0 16px; }
+.paint-tray[data-grouped]:not([data-compact]) .tray-blank-text { display: inline; }
+.paint-tray[data-grouped][data-two-zone] .tray-content { grid-template-columns: max-content max-content max-content; grid-template-areas: 'brushes colors colors' 'brushes sizes actions'; gap: 28px; }
+.paint-tray[data-grouped][data-two-zone] .tray-brushes { grid-area: brushes; }
+.paint-tray[data-grouped][data-two-zone] .tray-colors { grid-area: colors; justify-self: start; }
+.paint-tray[data-grouped][data-two-zone] .tray-sizes { grid-area: sizes; justify-self: start; }
+.paint-tray[data-grouped][data-two-zone] .tray-actions { grid-area: actions; justify-self: start; }
+.paint-tray[data-grouped][data-compact]:not([data-two-zone]) .tray-content { grid-template-columns: max-content max-content; grid-template-areas: 'colors colors' 'brushes sizes' 'actions actions'; gap: 28px; }
+.paint-tray[data-grouped][data-compact]:not([data-two-zone]) .tray-colors { grid-area: colors; }
+.paint-tray[data-grouped][data-compact]:not([data-two-zone]) .tray-brushes { grid-area: brushes; }
+.paint-tray[data-grouped][data-compact]:not([data-two-zone]) .tray-sizes { grid-area: sizes; }
+.paint-tray[data-grouped][data-compact]:not([data-two-zone]) .tray-actions { grid-area: actions; }
+.paint-tray[data-grouped][data-two-zone] .tray-shelf { padding-inline: 8px; }

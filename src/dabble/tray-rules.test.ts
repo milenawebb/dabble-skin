@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { BRUSH_SIZES, cursorDiameter, brushCursor, twoZoneTray } from './tray-rules';
 describe('tray interaction rules', () => {
   it('uses three tablet rows below 670px', () => { expect(twoZoneTray(669)).toBe(false); expect(twoZoneTray(480)).toBe(false); expect(twoZoneTray(600)).toBe(false); });
-  it('uses two zones from 670 through 1000px only', () => { expect(twoZoneTray(670)).toBe(true); expect(twoZoneTray(756)).toBe(true); expect(twoZoneTray(900)).toBe(true); expect(twoZoneTray(1000)).toBe(true); expect(twoZoneTray(1001)).toBe(false); expect(twoZoneTray(390)).toBe(false); });
+  it('keeps two zones until fixed-size contents and gaps fit', () => { expect(twoZoneTray(670)).toBe(true); expect(twoZoneTray(800)).toBe(true); expect(twoZoneTray(1000)).toBe(true); expect(twoZoneTray(1191)).toBe(true); expect(twoZoneTray(1192)).toBe(false); expect(twoZoneTray(1200)).toBe(false); expect(twoZoneTray(1600)).toBe(false); expect(twoZoneTray(2000)).toBe(false); expect(twoZoneTray(390)).toBe(false); });
   it('maps Small to size 10', () => { expect(BRUSH_SIZES[0].value).toBe(10); });
   it('maps Medium to the existing default size 20', () => { expect(BRUSH_SIZES[1].value).toBe(20); });
   it('maps Large to size 34', () => { expect(BRUSH_SIZES[2].value).toBe(34); });
