@@ -5,14 +5,17 @@ describe('canvas frame widths', () => {
   it('uses five percent at 560px and above', () => {
     expect(getFrameWidth(560)).toBe(28);
     expect(getFrameWidth(860)).toBe(43);
+    expect(getFrameWidth(1100)).toBe(55);
   });
-  it('uses 20px from 420px through 559px', () => {
-    expect(getFrameWidth(420)).toBe(20);
-    expect(getFrameWidth(559)).toBe(20);
+  it('uses 24px from 420px through 559px', () => {
+    expect(getFrameWidth(420)).toBe(24);
+    expect(getFrameWidth(480)).toBe(24);
+    expect(getFrameWidth(559)).toBe(24);
   });
-  it('uses 12px below 420px', () => {
-    expect(getFrameWidth(419)).toBe(12);
-    expect(getFrameWidth(358)).toBe(12);
+  it('uses 24px below 420px', () => {
+    expect(getFrameWidth(419)).toBe(24);
+    expect(getFrameWidth(390)).toBe(24);
+    expect(getFrameWidth(358)).toBe(24);
   });
 });
 

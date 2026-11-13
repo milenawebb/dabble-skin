@@ -205,13 +205,13 @@
 .landing-wall { background: var(--landing-wall); color: var(--dabble-paper); --canvas-shadow: var(--canvas-shadow-dark-wall); }
 .skip-link { position: absolute; left: 16px; top: 12px; z-index: 20; padding: 10px 16px; background: var(--dabble-paper); color: var(--dabble-ink); border: 1.5px solid var(--dabble-ink); border-radius: 10px 14px 11px 15px / 15px 11px 16px 12px; font: 500 14px var(--dabble-ui-font); transform: translateY(-300%); }
 .skip-link:focus-visible { transform: none; outline: 2px solid var(--dabble-ink); outline-offset: 3px; }
-.landing-header { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 16px; max-width: 1100px; margin-inline: auto; padding: 26px 24px 6px; color: var(--dabble-paper); }
+.landing-header { height: 0; margin: 0; padding: 0; }
 .landing-nav { display: flex; gap: 22px; flex-wrap: wrap; }
 .landing-nav a { color: var(--dabble-paper); text-decoration: none; font: 500 15px var(--dabble-ui-font); padding: 6px 2px; }
 .landing-nav { --title-paint: var(--dabble-paper); }
 .landing-nav a:focus-visible { outline: 2px solid var(--dabble-paper); outline-offset: 3px; }
 .landing-hero { max-width: 1100px; margin-inline: auto; padding: 56px 16px 64px; text-align: center; }
-.landing-title { margin: 18px 0 0; }
+.landing-title { margin: 0; line-height: 0; }
 .landing-tagline { max-width: 600px; margin: 14px auto 0; color: var(--dabble-paper); font: 400 26px/1.3 'Instrument Serif', serif; }
 .film-credit { margin: 18px auto 0; font: 500 20px/1.3 Caveat, cursive; color: var(--landing-wall-dim); }
 .painted-title { position: relative; display: inline; }
@@ -226,7 +226,10 @@
 .github-icon:focus-visible, .github-text:focus-visible { outline: 2px solid var(--dabble-paper); outline-offset: 4px; box-shadow: var(--dabble-focus-ring); }
 .github-text { margin-top: 32px; min-height: 44px; padding: 0; color: var(--dabble-paper); text-decoration: underline; text-underline-offset: 4px; }
 .github-text:hover { background: none; }
-@media (max-width: 899px) { .preview-column { margin-top: 30px; } }
+.github-museum { color: var(--dabble-ink); margin-top: 8px; gap: 8px; font-size: 13px; max-width: 100%; white-space: normal; text-align: left; }
+.github-museum > svg { flex-shrink: 0; width: 20px; height: 20px; }
+.github-museum:focus-visible { outline-color: var(--dabble-ink); }
+@media (max-width: 899px) { .preview-column { margin-top: 24px; } }
 .paint-tone-0 { --key-paint: var(--logo-lilac); }
 .paint-tone-1 { --key-paint: var(--logo-orange); }
 .paint-tone-2 { --key-paint: var(--logo-blue); }
@@ -263,7 +266,7 @@
 .keys-row dt { flex: 0 0 auto; }
 .keys-row dd { margin: 0; color: var(--landing-wall-dim); font-size: 14px; }
 .keys-row kbd { display: inline-block; padding: 4px 9px; background: var(--dabble-paper); color: var(--dabble-ink); border-radius: 7px 9px 6px 8px / 8px 6px 9px 7px; font: 500 13px var(--dabble-ui-font); box-shadow: var(--gallery-key-shadow); }
-.gallery-section { max-width: 1100px; width: calc(100% - 48px); margin: 120px auto 0; scroll-margin-top: 32px; }
+.gallery-section { max-width: 1100px; width: calc(100% - 48px); margin: 96px auto 0; scroll-margin-top: 32px; }
 .gallery-section h2 { margin: 0 0 32px; font: 400 40px/1.15 'Instrument Serif', serif; color: var(--dabble-paper); }
 .paper-piece { position: relative; isolation: isolate; padding: 30px; color: var(--dabble-ink); transform: rotate(var(--paper-tilt, .3deg)); }
 .paper-piece::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--dabble-paper); border: 1.5px solid var(--dabble-ink); border-radius: 4px 7px 3px 6px / 6px 3px 7px 4px; box-shadow: var(--gallery-paper-shadow); }
@@ -273,8 +276,8 @@
 .paper-piece p:last-child { margin-bottom: 0; }
 .gallery-intro { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 40px; align-items: start; margin-top: 28px; }
 .museum-label { --paper-tilt: -.5deg; padding: 26px; }
-.museum-label p { font-size: 14px; margin-bottom: 8px; }
-.museum-label .museum-name { font: 400 26px 'Instrument Serif', serif; margin-bottom: 16px; }
+.museum-label p { font-size: 14px; line-height: 1.45; margin-bottom: 4px; }
+.museum-label .museum-name { font: 400 26px 'Instrument Serif', serif; margin-bottom: 8px; }
 .artist-note { --paper-tilt: .4deg; }
 .brush-gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
 .brush-swatch { padding: 18px 20px 20px; }
@@ -304,7 +307,7 @@
 .use-props { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 22px 40px; font-size: 14px; line-height: 1.6; color: var(--landing-wall-dim); }
 .use-props li { display: grid; grid-template-columns: 96px minmax(0,1fr); gap: 12px; overflow-wrap: anywhere; }
 .use-props code { font: 500 13px ui-monospace, monospace; color: var(--dabble-paper); }
-.landing-footer { position: relative; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px; max-width: 1100px; width: calc(100% - 48px); margin: 120px auto 0; padding: 56px 0 36px; }
+.landing-footer { position: relative; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px; max-width: 1100px; width: calc(100% - 48px); margin: 96px auto 0; padding: 56px 0 36px; }
 .footer-stroke { position: absolute; top: 0; left: 0; width: 100%; height: 20px; fill: var(--landing-teal); }
 .landing-footer-note { text-align: right; font-size: 13px; line-height: 1.6; color: var(--landing-wall-dim); }
 .landing-footer-note p { margin: 0; }
@@ -315,21 +318,22 @@
   .gallery-intro { grid-template-columns: 260px minmax(0,1fr); gap: 24px; }
 }
 @media (max-width: 639px) {
-  .landing-tagline { font-size: 20px; }
-  .landing-hero { padding-top: 40px; }
+  .landing-tagline { font-size: 20px; margin-top: 12px; }
+  .landing-hero { padding-top: 32px; padding-bottom: 0; }
   .landing-nav { gap: 16px; }
   .landing-nav a { font-size: 13px; }
-  .gallery-section { width: calc(100% - 40px); margin-top: 72px; }
-  .gallery-intro { grid-template-columns: 1fr; margin-top: 8px; gap: 28px; }
+  .gallery-section { width: calc(100% - 40px); margin-top: 56px; }
+  .gallery-intro { grid-template-columns: 1fr; margin-top: 48px; gap: 56px; }
   .museum-label { max-width: 300px; }
   .gallery-section h2 { font-size: 34px; }
   .brush-gallery, .developer-pieces, .open-checklist, .use-props { grid-template-columns: 1fr; }
+  .brush-gallery, .developer-pieces { row-gap: 56px; }
   .paper-piece { padding: 24px; }
   .brush-swatch p { min-height: 0; }
   .brush-sample { height: 150px; }
   .loose-keys { gap: 20px; }
   .keys-row { flex-wrap: wrap; }
-  .landing-footer { width: calc(100% - 40px); margin-top: 72px; }
+  .landing-footer { width: calc(100% - 40px); margin-top: 56px; }
   .landing-footer-note { text-align: left; }
 }
 @media (pointer: coarse) {

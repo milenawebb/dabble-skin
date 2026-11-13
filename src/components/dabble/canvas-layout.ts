@@ -1,7 +1,6 @@
 export function getFrameWidth(playerWidth: number): number {
   if (playerWidth >= 560) return playerWidth * 0.05;
-  if (playerWidth >= 420) return 20;
-  return 12;
+  return 24;
 }
 
 export function getVideoLayout(width: number, height: number, stage?: { canvasWidth: number; canvasLeft: number; canvasTop: number; frame: number }): { aspectRatio: number; portrait: boolean; stage?: { width: number; height: number; left: number; top: number } } {

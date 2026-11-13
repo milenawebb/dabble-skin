@@ -61,7 +61,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
     setSoundOptIn(next);
     try { localStorage.setItem('dabble-sounds', next ? 'on' : 'off'); } catch { /* Storage is optional. */ }
   };
-  const [frameWidth, setFrameWidth] = useState(12);
+  const [frameWidth, setFrameWidth] = useState(() => getFrameWidth(0));
   const [canvasBox, setCanvasBox] = useState({ width: 0, left: 0, top: 0 });
   const [dockSpace, setDockSpace] = useState(0);
   const [metadata, setMetadata] = useState({ src: '', width: 0, height: 0 });

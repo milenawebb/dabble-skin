@@ -1,5 +1,9 @@
 # Dabble
 
+## Compact gallery and wider phone frame
+- [x] Move the header GitHub control to the museum label and tighten phone/desktop spacing; shared repository URL remains pending below.
+- [x] Use 24px below 560px and 5% above; verified visible starter paint, 24px below phone bar, long two-line captions, painting and page fit at 390/1280px; 197 tests passed.
+
 ## Keycap refresh recovery
 - [x] Prevent stale keycap-hook state reuse and pre-optimize Lucide to avoid replacing shared React chunks; verified live refresh, saved paintings, playback and touch feedback with no runtime errors.
 

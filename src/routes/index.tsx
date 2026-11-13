@@ -19,11 +19,11 @@ const CAPTIONS = { src: '/captions/dabble-dab.en.vtt', srcLang: 'en', label: 'En
 
 // Add the repository URL here when it is available. Never send visitors to a guessed repo.
 const REPO_URL: string = '';
-function GitHubLink({ text = false }: { text?: boolean }) {
-  const content = text ? 'View the code on GitHub' : <><svg className="github-blob" aria-hidden="true" viewBox="-17 -17 34 34"><path d={BLOB_PATH} /></svg><Github aria-hidden="true" size={24} /></>;
-  const className = text ? 'github-text' : 'github-icon';
-  const label = 'Dabble on GitHub (opens in a new tab)';
-  return REPO_URL ? <Button asChild variant="ghost" className={className}><a href={REPO_URL} target="_blank" rel="noopener noreferrer" aria-label={text ? undefined : label}>{content}</a></Button> : <Button variant="ghost" className={className} aria-disabled="true" aria-label={text ? undefined : label}>{content}</Button>;
+function GitHubLink({ text = false, museum = false }: { text?: boolean; museum?: boolean }) {
+  const content = text || museum ? <>{museum && <Github aria-hidden="true" size={20} />}<span>View the code on GitHub</span></> : <><svg className="github-blob" aria-hidden="true" viewBox="-17 -17 34 34"><path d={BLOB_PATH} /></svg><Github aria-hidden="true" size={24} /></>;
+  const className = museum ? 'github-text github-museum' : text ? 'github-text' : 'github-icon';
+  const label = text || museum ? 'View the code on GitHub (opens in a new tab)' : 'Dabble on GitHub (opens in a new tab)';
+  return REPO_URL ? <Button asChild variant="ghost" className={className}><a href={REPO_URL} target="_blank" rel="noopener noreferrer" aria-label={label}>{content}</a></Button> : <Button variant="ghost" className={className} aria-disabled="true" aria-label={label}>{content}</Button>;
 }
 const BRUSHES = [
   { type: 'imp', name: 'Impressionist', line: 'Short dabs of broken color.' },
@@ -138,12 +138,7 @@ function Index() {
   const columnWidth = PREVIEW_SIZES.find(size => size.id === activeSize)?.width ?? 1100;
   return (
     <div className="landing">
-      <a className="skip-link" href="#player">Skip to player</a>
-      <div className="landing-wall">
-        <header className="landing-header">
-          <GitHubLink />
-        </header>
-      </div>
+      <header className="landing-header"><a className="skip-link" href="#player">Skip to player</a></header>
       <main>
         <div className="landing-wall">
           <section className="landing-hero" aria-labelledby={heroTitleId}>
@@ -159,6 +154,7 @@ function Index() {
         <section className="gallery-section gallery-intro" aria-label="About the artwork">
           <aside className="paper-piece museum-label" aria-label="Museum label">
             <p className="museum-name">Dabble</p><p>2026</p><p>A skin for Video.js v10</p><p>Paper, ink, four brushes, six colors</p>
+            <GitHubLink museum />
           </aside>
           <article className="paper-piece artist-note">
             <h2><PaintedTitle>Artist's note</PaintedTitle></h2>
