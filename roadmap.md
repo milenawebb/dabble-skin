@@ -1,5 +1,12 @@
 # Dabble
 
+## Demo preview sizes and tucked shelf
+- [x] Collapse the tucked tray shelf to the brush button on the ledge, animating growth with reduced-motion instant switching.
+- [x] Rename the mode button Start painting / Put the paints away with aria-expanded.
+- [x] Audit responsive rules: all player/tray rules already use player width (container queries, ResizeObserver, cqw); no viewport rules to convert.
+- [x] Add Desktop/Tablet/Mobile preview-size radiogroup with arrow keys, window-fit hiding, and animated column width without remounting the player.
+- [x] Verify ledge gap, phone layout at Mobile size, playback/painting continuity across tabs, and tab hiding at narrow windows.
+
 ## Paint color names
 - [x] Derive English HSL color names and distinguish duplicates by lightness, then number.
 - [x] Use names for paint tooltips and accessible labels, retaining pressed state, sampler and size names.

@@ -13,9 +13,9 @@ const brushes: { label: string; type: Brush }[] = [
   { label: 'Impressionist brush', type: 'imp' }, { label: 'Cubist brush', type: 'cub' },
   { label: 'Drip brush', type: 'drip' }, { label: 'Ribbon brush', type: 'rib' },
 ];
-function Tool({ label, children, className = '', pressed, disabled, onClick, modeRef, hidden = false, style, note }: { label: string; children: ReactNode; className?: string; pressed?: boolean; disabled?: boolean; onClick: () => void; modeRef?: React.Ref<HTMLButtonElement>; hidden?: boolean; style?: CSSProperties; note?: string }) {
+function Tool({ label, children, className = '', pressed, expanded, disabled, onClick, modeRef, hidden = false, style, note }: { label: string; children: ReactNode; className?: string; pressed?: boolean; expanded?: boolean; disabled?: boolean; onClick: () => void; modeRef?: React.Ref<HTMLButtonElement>; hidden?: boolean; style?: CSSProperties; note?: string }) {
   return <span className={`tray-item ${className}`} inert={hidden || undefined}>
-    <Tooltip><TooltipTrigger asChild><Button ref={modeRef} variant="ghost" size="icon" aria-label={label} aria-pressed={pressed} disabled={disabled} onClick={onClick} style={style}>{children}</Button></TooltipTrigger>
+    <Tooltip><TooltipTrigger asChild><Button ref={modeRef} variant="ghost" size="icon" aria-label={label} aria-pressed={pressed} aria-expanded={expanded} disabled={disabled} onClick={onClick} style={style}>{children}</Button></TooltipTrigger>
       {!note && <TooltipContent className="tray-tooltip-label" side="top" collisionPadding={8}>{label}</TooltipContent>}
     </Tooltip>
     {note && <span className="tray-note" role="status">{note}</span>}
@@ -79,7 +79,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, sounds, 
     onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) { suppressPeek.current = false; scheduleTuck(); if (!hovering.current) onActivity(false); } }}
     onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); if (confirmReset) closeReset(); else tuck(); } }}>
     <div className="tray-shelf">
-      <Tool modeRef={mode} label={paint.painting ? 'Stop painting' : 'Start painting'} className="tray-mode tray-circle" pressed={paint.painting} onClick={() => { if (paint.painting) tuck(); else pin(() => {}); }}><HandIcon kind="brush" /></Tool>
+      <Tool modeRef={mode} label={paint.painting ? 'Put the paints away' : 'Start painting'} className="tray-mode tray-circle" expanded={open} onClick={() => { if (paint.painting) tuck(); else pin(() => {}); }}><HandIcon kind="brush" /></Tool>
       <span className="tray-divider tray-divider-one tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
       <div className="tray-colors tray-reveal" role="group" aria-label="Paint color" inert={!open || undefined}>
         {paint.palette.map((hex, index) => <Tool key={index} label={colorNames[index] ?? `${colorName(hex)} paint`} pressed={paint.color === index} className="tray-color" style={{ '--pot-color': hex } as CSSProperties} onClick={() => pin(() => paint.setColor(index))}><PaintBlob selected={paint.color === index} angle={BLOB_ROTATIONS[index] ?? 0} scale={paint.color === index ? 1.18 : 1} /></Tool>)}
@@ -102,18 +102,18 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, sounds, 
         <Tool label={sounds ? 'Sounds on' : 'Sounds off'} className="tray-circle tray-reveal" hidden={!open} pressed={sounds} onClick={toggleSounds}><HandIcon kind={sounds ? 'sounds-on' : 'sounds-off'} /></Tool>
       </div>
       </div>
-      <svg className="tray-ledge" viewBox="0 0 680 18" preserveAspectRatio="none" width="100%" height="18" aria-hidden="true">
-        <path className="tray-wood" d="M2 3C120 1 420 4 678 2L677 15C460 17 160 14 3 16Z" />
-        <path className="tray-wood-shade" d="M4 12.5C160 11 460 14 676 12L677 15C460 17 160 14 3 16Z" />
-        <g className="tray-wood-grain" fill="none" strokeOpacity=".6" strokeWidth="1" strokeLinecap="round" vectorEffect="non-scaling-stroke">
-          <path d="M14 6C90 5 150 8 230 6" vectorEffect="non-scaling-stroke" />
-          <path d="M250 9C330 7 420 10 520 8" vectorEffect="non-scaling-stroke" />
-          <path d="M430 5C500 4 580 7 664 5" vectorEffect="non-scaling-stroke" />
-          <path d="M60 10C110 9 150 11 196 10" vectorEffect="non-scaling-stroke" />
-        </g>
-        <path className="tray-wood-outline" d="M2 3C120 1 420 4 678 2L677 15C460 17 160 14 3 16Z" fill="none" strokeWidth="1.5" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
-      </svg>
     </div>
+    <svg className="tray-ledge" viewBox="0 0 680 18" preserveAspectRatio="none" width="100%" height="18" aria-hidden="true">
+      <path className="tray-wood" d="M2 3C120 1 420 4 678 2L677 15C460 17 160 14 3 16Z" />
+      <path className="tray-wood-shade" d="M4 12.5C160 11 460 14 676 12L677 15C460 17 160 14 3 16Z" />
+      <g className="tray-wood-grain" fill="none" strokeOpacity=".6" strokeWidth="1" strokeLinecap="round" vectorEffect="non-scaling-stroke">
+        <path d="M14 6C90 5 150 8 230 6" vectorEffect="non-scaling-stroke" />
+        <path d="M250 9C330 7 420 10 520 8" vectorEffect="non-scaling-stroke" />
+        <path d="M430 5C500 4 580 7 664 5" vectorEffect="non-scaling-stroke" />
+        <path d="M60 10C110 9 150 11 196 10" vectorEffect="non-scaling-stroke" />
+      </g>
+      <path className="tray-wood-outline" d="M2 3C120 1 420 4 678 2L677 15C460 17 160 14 3 16Z" fill="none" strokeWidth="1.5" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+    </svg>
     {confirmReset && <div className="tray-reset-label" role="dialog" aria-labelledby={resetTitle} onKeyDown={event => {
       if (event.key !== 'Tab') return;
       const buttons = Array.from(event.currentTarget.querySelectorAll('button'));

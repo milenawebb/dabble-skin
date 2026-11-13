@@ -210,12 +210,20 @@
 .wall-swatch > span { display: block; width: 28px; height: 28px; border: 1.5px solid var(--wall-ink); border-radius: inherit; background: var(--swatch-fill); }
 .wall-swatch[aria-pressed="true"] > span { outline: 1.5px solid var(--wall-ink); outline-offset: 3px; }
 .wall-switcher .wall-swatch:focus-visible { outline: 2px solid var(--wall-ink); outline-offset: 6px; }
+.preview-size { display: flex; align-items: center; gap: 8px; }
+.preview-size > span { margin-right: 4px; }
+.preview-size-tab { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 4px 14px; border: 1.5px solid var(--wall-ink); border-radius: 12px 16px 11px 15px / 15px 11px 16px 12px; background: var(--dabble-paper); color: var(--dabble-ink); font: 500 14px var(--dabble-ui-font); cursor: pointer; }
+.preview-size-tab .dabble-icon { width: 16px; height: 16px; }
+.preview-size-tab[aria-checked="true"] { background: var(--dabble-ink); color: var(--dabble-paper); }
+.preview-size-tab:focus-visible { outline: 2px solid var(--wall-ink); outline-offset: 3px; box-shadow: var(--dabble-focus-ring); }
+.preview-column { margin-inline: auto; transition: max-width .35s ease; }
 @media (pointer: coarse) {
   .wall-switcher { gap: 2px; }
   .wall-switcher .wall-swatch { width: 44px; height: 44px; }
+  .preview-size-tab { min-height: 44px; }
 }
-@media (prefers-reduced-motion: reduce) { .dabble-demo { transition: none; } }
-@media (forced-colors: active) { .dabble-demo { color: CanvasText; background: Canvas; } .wall-swatch > span { border-color: CanvasText; } .wall-swatch[aria-pressed="true"] > span { outline-color: Highlight; } }
+@media (prefers-reduced-motion: reduce) { .dabble-demo, .preview-column { transition: none; } }
+@media (forced-colors: active) { .dabble-demo { color: CanvasText; background: Canvas; } .wall-swatch > span { border-color: CanvasText; } .wall-swatch[aria-pressed="true"] > span { outline-color: Highlight; } .preview-size-tab { border-color: CanvasText; color: CanvasText; background: Canvas; } .preview-size-tab[aria-checked="true"] { background: Highlight; color: HighlightText; } .preview-size-tab:focus-visible { outline-color: CanvasText; } }
 
 .dabble-paint {
   position: absolute;

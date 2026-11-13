@@ -1,17 +1,19 @@
-.paint-tray { position: relative; width: calc(100% - 12px); max-width: 860px; margin: 26px 12px 18px auto; color: var(--dabble-ink); font-family: var(--dabble-ui-font); container-type: inline-size; }
+.paint-tray { position: relative; width: calc(100% - 12px); max-width: 860px; margin: 26px 12px 18px auto; color: var(--dabble-ink); font-family: var(--dabble-ui-font); container-type: inline-size; transition: margin-top .3s ease; }
+.paint-tray[data-state="tucked"] { margin-top: 16px; }
 .tray-reset-label { position: absolute; z-index: 9; right: 8px; bottom: 12px; width: max-content; max-width: calc(100% - 16px); padding: 10px 12px; border: 1.5px solid var(--dabble-ink); border-radius: 3px 5px 4px 6px; background: var(--dabble-paper); color: var(--dabble-ink); font: 500 13px/1.35 var(--dabble-ui-font); }
 .tray-reset-label > div { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .tray-reset-label button { min-height: 44px; background: var(--dabble-paper); color: var(--dabble-ink); border-color: var(--dabble-ink); font: inherit; }
-.tray-shelf { position: relative; display: grid; grid-template-columns: 32px 4px minmax(0, 6fr) 32px 4px minmax(0, 4fr) 4px minmax(0, 3fr) minmax(0, 5fr); align-items: end; gap: 4px; height: 122px; padding: 10px 14px 0; }
-.tray-shelf::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--dabble-paper); border: 1.5px solid var(--dabble-ink); border-bottom: 0; border-radius: 14px 10px 0 0 / 10px 15px 0 0; }
+.tray-shelf { position: relative; display: grid; grid-template-columns: 32px 4px minmax(0, 6fr) 32px 4px minmax(0, 4fr) 4px minmax(0, 3fr) minmax(0, 5fr); align-items: end; gap: 4px; height: 122px; padding: 10px 14px 0; transition: height .3s ease; }
+.tray-shelf::before { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--dabble-paper); border: 1.5px solid var(--dabble-ink); border-bottom: 0; border-radius: 14px 10px 0 0 / 10px 15px 0 0; transition: visibility .3s; }
 .tray-shelf { isolation: isolate; }
+.paint-tray[data-state="tucked"] .tray-shelf { height: 54px; overflow: hidden; align-content: end; }
 .paint-tray[data-state="tucked"] .tray-shelf::before { visibility: hidden; }
 .tray-item { position: relative; display: inline-flex; align-items: end; justify-content: center; min-width: 0; }
 .tray-equipment { display: contents; }
 .paint-tray .tray-item > button { position: relative; isolation: isolate; flex: 0 0 auto; width: 32px; height: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 0; background: none; color: var(--dabble-ink); box-shadow: none; transition: none; }
 .paint-tray .tray-item > button svg { width: 22px; height: 22px; }
 .paint-tray .tray-circle > button { height: 32px; min-height: 32px; border: 1.5px solid var(--dabble-ink); border-radius: 47% 53% 50% 50% / 52% 46% 54% 48%; background: var(--dabble-paper); margin-block: 6px; }
-.paint-tray .tray-mode > button[aria-pressed="true"] { background: var(--dabble-ink); color: var(--dabble-paper); }
+.paint-tray .tray-mode > button[aria-expanded="true"] { background: var(--dabble-ink); color: var(--dabble-paper); }
 .paint-tray .tray-sample > button { border-style: dashed; }
 .paint-tray .tray-colors .tray-blob, .paint-tray .tray-sizes .tray-blob { width: 38px; height: 38px; overflow: visible; }
 .tray-blob-body, .tray-tip { fill: var(--pot-color, var(--tray-color)); }
@@ -55,6 +57,7 @@
 }
 @container (min-width: 560px) and (max-width: 699px) {
   .tray-shelf { grid-template-columns: 140px 96px minmax(0, 1fr); grid-template-areas: 'colors colors colors' 'brushes sizes actions'; height: auto; min-height: 162px; gap: 14px 4px; }
+  .paint-tray[data-state="tucked"] .tray-shelf { min-height: 54px; }
   .tray-mode { position: absolute; left: 14px; top: 10px; }
   .tray-sample { position: absolute; right: 14px; top: 10px; }
   .tray-colors { grid-area: colors; width: calc(100% - 88px); justify-self: center; height: 44px; }
@@ -101,8 +104,8 @@
   .paint-tray .tray-item > button { width: 44px; min-width: 44px; min-height: 44px; }
   .paint-tray .tray-circle > button { border: 0; background: none; height: 44px; margin-block: 0; }
   .paint-tray .tray-circle > button::before { content: ''; position: absolute; inset: 6px; border: 1.5px solid var(--dabble-ink); border-radius: 47% 53% 50% 50% / 52% 46% 54% 48%; background: var(--dabble-paper); z-index: -1; }
-  .paint-tray .tray-mode > button[aria-pressed="true"] { background: none; }
-  .paint-tray .tray-mode > button[aria-pressed="true"]::before { background: var(--dabble-ink); }
+  .paint-tray .tray-mode > button[aria-expanded="true"] { background: none; }
+  .paint-tray .tray-mode > button[aria-expanded="true"]::before { background: var(--dabble-ink); }
   .paint-tray .tray-sample > button::before { border-style: dashed; }
   .tray-shelf { column-gap: 0; grid-template-columns: 44px 0 minmax(264px, 6fr) 44px 0 minmax(176px, 4fr) 0 minmax(132px, 3fr) minmax(220px, 5fr); }
   .paint-tray .tray-item { flex-shrink: 0; }
@@ -139,7 +142,7 @@
 @media (pointer: fine) { .dabble-canvas[data-painting] .dabble-paint { cursor: var(--dabble-brush-cursor, crosshair); } }
 @media (pointer: coarse) { .dabble-canvas[data-painting] .dabble-paint { cursor: auto; } }
 @media (prefers-reduced-motion: reduce) {
-  .tray-reveal, .tray-mode, .paint-tray .tray-brush .tray-brush-drawing { transition: none; }
+  .tray-reveal, .tray-mode, .paint-tray .tray-brush .tray-brush-drawing, .paint-tray, .tray-shelf, .tray-shelf::before { transition: none; }
 }
 @media (forced-colors: active) {
   .paint-tray { color: CanvasText; }

@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { DabblePlayer } from "@/components/dabble/DabblePlayer";
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { WALLS, WALL_STORAGE_KEY, readWall, type Wall } from '@/components/dabble/wall-rules';
+import { PREVIEW_SIZES, effectivePreviewSize, visiblePreviewSizes, type PreviewSize } from '@/components/dabble/preview-rules';
+import { HandIcon } from '@/components/dabble/HandDrawings';
 
 const PLAYBACK_ID = 'AAprZsIykh7T29gtsNk02YhBrQRHXTj14ZxbWdc498wA';
 const POSTER = `https://image.mux.com/${PLAYBACK_ID}/thumbnail.jpg?time=9&width=1280`;
@@ -29,12 +31,32 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { broken } = Route.useSearch();
   const [wall, setWall] = useState<Wall>('gallery');
+  const [previewSize, setPreviewSize] = useState<PreviewSize>('desktop');
+  const [windowWidth, setWindowWidth] = useState(1024);
+  const previewLabelId = useId();
+  const previewGroup = useRef<HTMLDivElement>(null);
   useEffect(() => {
     try { setWall(readWall(localStorage.getItem(WALL_STORAGE_KEY))); } catch { /* Wall storage is optional. */ }
+  }, []);
+  useEffect(() => {
+    const measure = () => setWindowWidth(window.innerWidth);
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
   }, []);
   const chooseWall = (next: Wall) => {
     setWall(next);
     try { localStorage.setItem(WALL_STORAGE_KEY, next); } catch { /* Wall storage is optional. */ }
+  };
+  const sizes = visiblePreviewSizes(windowWidth);
+  const activeSize = effectivePreviewSize(previewSize, windowWidth);
+  const columnWidth = PREVIEW_SIZES.find(size => size.id === activeSize)?.width ?? 860;
+  const movePreview = (direction: 1 | -1) => {
+    const index = sizes.findIndex(size => size.id === activeSize);
+    const next = sizes[(index + direction + sizes.length) % sizes.length];
+    if (!next) return;
+    setPreviewSize(next.id);
+    previewGroup.current?.querySelector<HTMLButtonElement>(`[data-size="${next.id}"]`)?.focus();
   };
   return (
     <main className="dabble-demo min-h-screen px-4 py-10 sm:px-6" data-wall={wall}>
@@ -44,12 +66,20 @@ function Index() {
         <h1 className="text-xl font-semibold">Dabble</h1>
         <p className="mt-2 text-sm">Paint the frame around your video.</p>
         </div>
+        {sizes.length > 0 && <div className="preview-size" role="radiogroup" aria-labelledby={previewLabelId} ref={previewGroup}
+          onKeyDown={event => {
+            if (event.key === 'ArrowRight' || event.key === 'ArrowDown') { event.preventDefault(); movePreview(1); }
+            else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') { event.preventDefault(); movePreview(-1); }
+          }}>
+          <span className="text-sm" id={previewLabelId}>Preview size</span>
+          {sizes.map(size => <button key={size.id} type="button" role="radio" aria-checked={activeSize === size.id} tabIndex={activeSize === size.id ? 0 : -1} data-size={size.id} className="preview-size-tab" onClick={() => setPreviewSize(size.id)}><HandIcon kind={size.icon} />{size.label}</button>)}
+        </div>}
         <div className="wall-switcher" role="group" aria-label="Wall">
           <span className="text-sm">Wall</span>
           {WALLS.map(choice => <Button key={choice.id} variant="ghost" size="icon" className="wall-swatch" data-wall={choice.id} aria-label={choice.label} title={choice.label} aria-pressed={wall === choice.id} onClick={() => chooseWall(choice.id)}><span aria-hidden="true" /></Button>)}
         </div>
         </div>
-        <div className="mt-6 w-full">
+        <div className="preview-column mt-6 w-full" style={{ maxWidth: columnWidth }}>
           <DabblePlayer sounds playbackId={PLAYBACK_ID} thumbnailSampleTimes={SAMPLE_TIMES} poster={POSTER} broken={broken === '1'} captions={CAPTIONS} />
         </div>
       </div>
