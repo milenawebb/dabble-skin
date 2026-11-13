@@ -206,3 +206,18 @@
 .paint-tray .tray-circle > button { width: 44px; height: 44px; margin-block: 0; }
 .paint-tray[data-compact] .tray-blank > button { width: max-content; padding: 0 16px; }
 .paint-tray[data-compact] .tray-blank-text { display: inline; }
+
+/* Tablet zones are keyed to measured player width, not the window. */
+.paint-tray[data-two-zone] .tray-shelf { grid-template-columns: max-content 4px max-content max-content; grid-template-rows: 44px 44px; grid-template-areas: 'brushes divider colors colors' 'brushes divider sizes actions'; justify-content: center; align-items: end; gap: 12px; padding: 48px 12px 12px; }
+.paint-tray[data-two-zone] .tray-equipment { display: contents; }
+.paint-tray[data-two-zone] .tray-brushes { grid-area: brushes; height: 100px; align-self: end; }
+.paint-tray[data-two-zone] .tray-colors { justify-self: start; justify-content: flex-start; }
+.paint-tray[data-two-zone] .tray-sizes { justify-self: start; }
+.paint-tray[data-two-zone] .tray-actions { justify-self: start; margin-left: 12px; }
+.paint-tray[data-two-zone] .tray-divider-two { display: block; grid-area: divider; height: 96px; align-self: end; margin: 0; }
+.paint-tray[data-two-zone] .tray-divider-two svg { height: 96px; }
+.paint-tray[data-two-zone] .tray-blank > button { width: 44px; padding: 0; }
+.paint-tray[data-two-zone] .tray-blank-text { display: none; }
+@container (min-width: 800px) { .paint-tray[data-two-zone] .tray-blank > button { width: max-content; padding: 0 16px; } .paint-tray[data-two-zone] .tray-blank-text { display: inline; } }
+.paint-tray[data-compact]:not([data-two-zone]) .tray-blank > button { width: 44px; padding: 0; }
+.paint-tray[data-compact]:not([data-two-zone]) .tray-blank-text { display: none; }

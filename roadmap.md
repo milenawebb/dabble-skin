@@ -1,9 +1,9 @@
 # Dabble
 
 ## Tablet two-zone tray
-- [ ] Replace compact tablet rows with upright brushes on the left and two left-aligned tool rows on the right; preserve desktop and phone.
-- [ ] Resolve narrow-width fit: four 44px brushes and seven 44px paints with 12px item gaps plus divider/group gaps need at least 644px before tray padding.
-- [ ] Verify 480/600/756/900px targets, label clearance and centered groups; previous tray height at 756px was 324px (280px paper shelf).
+- [x] Replace compact tablet rows with upright brushes on the left and two left-aligned tool rows on the right; preserve desktop and phone.
+- [x] Use phone-style three rows for tablet widths below 670px without the phone slot swap; use two side-by-side zones from 670px through 1000px.
+- [x] Chromium checks at 480/600/670/756/900px confirm 44px targets and all four labels above their brushes; 21 tests pass. At 756px tray height is 204px versus 324px before (paper shelf 160px versus 280px).
 
 ## Restore scene colors
 - [x] Remove pick mode and custom paint; share one-press palette sampling and staggered refill feedback across trays.

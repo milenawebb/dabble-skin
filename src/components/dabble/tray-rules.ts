@@ -1,5 +1,7 @@
 import type { Brush } from './paint-engine';
 
+export function twoZoneTray(width: number) { return width >= 670 && width <= 1000; }
+
 export const BRUSH_SIZES = [{ label: 'Small brush', value: 10, scale: 0.45 }, { label: 'Medium brush', value: 20, scale: 0.72 }, { label: 'Large brush', value: 34, scale: 1.05 }] as const;
 export function cursorDiameter(size: number, width: number, brush: Brush) {
   // Match the engine's normalized size and nominal brush footprint, not its random outlying marks.

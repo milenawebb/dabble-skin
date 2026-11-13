@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import type { Brush } from './paint-engine';
 import type { usePaint } from './use-paint';
 import { BLOB_ROTATIONS, BrushDrawing, HandIcon, PaintBlob, type HandIconKind } from './HandDrawings';
-import { BRUSH_SIZES } from './tray-rules';
+import { BRUSH_SIZES, twoZoneTray } from './tray-rules';
 import './paint-tray.css';
 import { MixPaintInput } from './MixPaintInput';
 
@@ -52,7 +52,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, width = 
   const color = paint.palette[paint.color] ?? paint.palette[0];
   const colorNames = paintColorNames(paint.palette);
   const iconTool = (label: string, icon: HandIconKind, action: () => void, disabled = false) => <Tool label={label} className="tray-reveal tray-circle" hidden={!open} disabled={disabled} onClick={action}><HandIcon kind={icon} /></Tool>;
-  return <section ref={root} className="paint-tray" aria-label="Paint tools" data-state={open ? "open" : "closed"} data-compact={width <= 1000 || undefined} data-visible={controlsState.visible || undefined} data-paused={controlsState.paused || undefined} style={{ '--tray-color': color } as CSSProperties}
+  return <section ref={root} className="paint-tray" aria-label="Paint tools" data-state={open ? "open" : "closed"} data-compact={width <= 1000 || undefined} data-two-zone={twoZoneTray(width) || undefined} data-visible={controlsState.visible || undefined} data-paused={controlsState.paused || undefined} style={{ '--tray-color': color } as CSSProperties}
     onPointerEnter={() => onActivity(true)}
     onPointerLeave={() => { if (!root.current?.contains(document.activeElement)) onActivity(false); }}
     onFocusCapture={() => onActivity(true)}
@@ -66,7 +66,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, width = 
         <span className="tray-item tray-custom"><MixPaintInput palette={paint.palette} onRefresh={paint.sampleFrame} /></span>
       </div>
       <span className="tray-sample" aria-hidden="true" />
-      <span className="tray-divider tray-divider-two tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
+      <span className="tray-divider tray-divider-two tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32" preserveAspectRatio="none"><path d="M2 1c-1 9 1 20-.5 30" vectorEffect="non-scaling-stroke" /></svg></span>
       <div className="tray-equipment">
       <div className="tray-brushes tray-reveal" role="group" aria-label="Brush" inert={!open || undefined}>
         {brushes.map(({ label, type }) => <span key={type} className="tray-item tray-brush" data-brush={type}>
