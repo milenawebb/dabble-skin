@@ -1,5 +1,10 @@
 # Dabble
 
+## Tablet two-zone tray
+- [ ] Replace compact tablet rows with upright brushes on the left and two left-aligned tool rows on the right; preserve desktop and phone.
+- [ ] Resolve narrow-width fit: four 44px brushes and seven 44px paints with 12px item gaps plus divider/group gaps need at least 644px before tray padding.
+- [ ] Verify 480/600/756/900px targets, label clearance and centered groups; previous tray height at 756px was 324px (280px paper shelf).
+
 ## Restore scene colors
 - [x] Remove pick mode and custom paint; share one-press palette sampling and staggered refill feedback across trays.
 - [x] Verify selected slot, stroke colors and persistence in regression tests; 232 tests pass. Chromium produced three distinct live wave/flower/sunset palettes, continued playing on refresh, and exercised current-time CORS fallback on desktop and 390px. Physical iPhone sampling remains unverified.
