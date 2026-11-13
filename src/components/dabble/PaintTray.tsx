@@ -23,7 +23,7 @@ function Tool({ label, children, className = '', pressed, expanded, disabled, on
     {note && <span className="tray-note" role="status">{note}</span>}
   </span>;
 }
-export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultTrayOpen = false, sounds, toggleSounds, automaticSound, controlsState, onActivity, onOpenChange }: { paint: ReturnType<typeof usePaint>; src: string; playbackId?: string; ownerTools?: boolean; defaultTrayOpen?: boolean; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; controlsState: { visible: boolean; paused: boolean }; onActivity: (active: boolean) => void; onOpenChange?: (open: boolean) => void }) {
+export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultTrayOpen = false, sounds, toggleSounds, automaticSound, controlsState, onActivity, onOpenChange, picking = false, togglePick = () => {} }: { paint: ReturnType<typeof usePaint>; src: string; playbackId?: string; ownerTools?: boolean; defaultTrayOpen?: boolean; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; controlsState: { visible: boolean; paused: boolean }; onActivity: (active: boolean) => void; onOpenChange?: (open: boolean) => void; picking?: boolean; togglePick?: () => void }) {
   const id = useId();
   const [copied, setCopied] = useState(false);
   const [snippet, setSnippet] = useState('');
@@ -134,7 +134,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
       <div className="tray-colors tray-reveal" role="group" aria-label="Paint color" inert={!open || undefined}>
         {paint.palette.map((hex, index) => <Tool key={index} label={colorNames[index] ?? `${colorName(hex)} paint`} pressed={paint.color === index} className="tray-color" style={{ '--pot-color': hex } as CSSProperties} onClick={() => pin(() => paint.setColor(index))}><PaintBlob selected={paint.color === index} angle={BLOB_ROTATIONS[index] ?? 0} scale={paint.color === index ? 1.18 : 1} /></Tool>)}
       </div>
-      <span className="tray-item tray-sample tray-custom tray-reveal" inert={!open || undefined}><MixPaintInput palette={paint.palette} customColor={paint.customColor} selected={paint.color === -1} onPick={color => pin(() => paint.chooseCustomColor(color))} /></span>
+      <span className="tray-item tray-sample tray-custom tray-reveal" inert={!open || undefined}><MixPaintInput palette={paint.palette} customColor={paint.customColor} selected={paint.color === -1} picking={picking} onToggle={togglePick} /></span>
       <span className="tray-divider tray-divider-two tray-reveal" aria-hidden="true"><svg viewBox="0 0 4 32"><path d="M2 1c-1 9 1 20-.5 30" /></svg></span>
       <div className="tray-equipment">
       <div className="tray-brushes tray-reveal" role="group" aria-label="Brush" inert={!open || undefined}>

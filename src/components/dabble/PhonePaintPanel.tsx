@@ -10,7 +10,7 @@ import './phone-panel.css';
 import { MixPaintInput } from './MixPaintInput';
 
 const brushes = [{ type: 'imp', name: 'Impressionist' }, { type: 'cub', name: 'Cubist' }, { type: 'drip', name: 'Drip' }, { type: 'rib', name: 'Ribbon' }] as const;
-export function PhonePaintPanel({ paint, width, setHost, sounds, toggleSounds, automaticSound, onActivity }: { paint: ReturnType<typeof usePaint>; width: number; setHost: (host: HTMLDivElement | null) => void; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; onActivity: (active: boolean) => void }) {
+export function PhonePaintPanel({ paint, width, setHost, sounds, toggleSounds, automaticSound, onActivity, picking = false, togglePick = () => {} }: { paint: ReturnType<typeof usePaint>; width: number; setHost: (host: HTMLDivElement | null) => void; sounds: boolean; toggleSounds: () => void; automaticSound: () => void; onActivity: (active: boolean) => void; picking?: boolean; togglePick?: () => void }) {
   const mode = useRef<HTMLButtonElement>(null);
   const [hoveredBrush, setHoveredBrush] = useState<typeof paint.brush | null>(null);
   const [focusedBrush, setFocusedBrush] = useState<typeof paint.brush | null>(null);
@@ -25,7 +25,7 @@ export function PhonePaintPanel({ paint, width, setHost, sounds, toggleSounds, a
       <div className="phone-paint-panel" inert={!paint.painting || undefined}>
         <div className="phone-tool-row phone-colors" role="group" aria-label="Paint color">
           {paint.palette.map((color, i) => <Button key={i} variant="ghost" size="icon" aria-label={names[i]} title={names[i]} aria-pressed={paint.color === i} onClick={() => paint.setColor(i)} style={{ '--pot-color': color } as CSSProperties}><PaintBlob selected={paint.color === i} /></Button>)}
-          <MixPaintInput palette={paint.palette} customColor={paint.customColor} selected={paint.color === -1} onPick={paint.chooseCustomColor} />
+          <MixPaintInput palette={paint.palette} customColor={paint.customColor} selected={paint.color === -1} picking={picking} onToggle={togglePick} />
         </div>
         <div className="phone-tool-row phone-brushes" role="group" aria-label="Brush and size">
           <span className="phone-brush-name" aria-hidden="true" style={{ '--phone-label-index': labelIndex } as CSSProperties}><span key={labelBrush}>{brushes.find(item => item.type === labelBrush)?.name}</span></span>

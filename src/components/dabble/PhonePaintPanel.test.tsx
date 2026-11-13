@@ -35,11 +35,10 @@ it('offers independent small, medium and large selections', () => {
     }
   }
 });
-it('selects live custom paint and sampled paint replaces it', () => {
+it('offers video picking without changing the active sampled paint', () => {
   const { container } = render(<Panel />);
   fireEvent.click(screen.getByRole('button', { name: 'Start painting' }));
-  fireEvent.input(screen.getByLabelText('Mix your own color'), { target: { value: '#123456' } });
-  expect(container.querySelector('.mix-paint')).toHaveAttribute('data-selected');
+  fireEvent.click(screen.getByRole('button', { name: 'Pick a color from the video' }));
   const sampledPaint = container.querySelector('.phone-colors button');
   if (!sampledPaint) throw new Error('Missing sampled paint');
   fireEvent.click(sampledPaint);

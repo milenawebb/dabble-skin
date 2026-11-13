@@ -67,4 +67,4 @@ use the editor.
 - Observe title visibility once and replay decoration on hover; keycap pointer feedback never invokes player actions.
 - Keep the shelf layout stable inside a measured-height clipping wrapper and synchronize paper/tools transitions to avoid empty closing frames.
 - Keep custom paint separate from the six sampled colors and record it as each stroke's color so palette math and saved strokes stay unchanged.
-- Share a full-target native color input across phone and desktop trays, with pointer-transparent swirl artwork; direct trusted taps avoid iOS proxy-picker restrictions.
+- Share video picking across trays; capture pick gestures before playback/paint and use exact-spot live pixels with CORS Mux thumbnail fallback.

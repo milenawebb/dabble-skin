@@ -1,0 +1,9 @@
+.video-pick-guide { position: absolute; inset: 0; z-index: 9; pointer-events: none; }
+.video-pick-tag { position: absolute; transform: translate(-50%, -50%); white-space: nowrap; padding: 1px 7px; color: var(--dabble-ink); background: var(--dabble-paper); border: 1.5px solid var(--dabble-ink); border-radius: 3px 2px 4px 2px; font: 20px/1.1 'Caveat', cursive; }
+.video-pick-preview { position: absolute; transform: translate(-50%, -50%); width: 26px; height: 26px; border: 2px solid var(--dabble-paper); outline: 1px solid var(--dabble-ink); border-radius: 50%; background: var(--pick-preview-color); }
+.video-pick-preview svg { width: 100%; height: 100%; fill: none; stroke: var(--dabble-ink); stroke-width: 1.5; }
+.video-pick-preview:not([data-keyboard]) { translate: 20px -20px; }
+.dabble-canvas[data-picking] video, .dabble-canvas[data-picking] .dabble-skin { cursor: crosshair; }
+.dabble-canvas[data-picking] .painting-guide { visibility: hidden; }
+.dabble-canvas[data-picking] .dabble-center-play { visibility: hidden; pointer-events: none; }
+@media (forced-colors: active) { .video-pick-tag { color: CanvasText; background: Canvas; border-color: CanvasText; } .video-pick-preview { outline-color: CanvasText; border-color: Canvas; } }

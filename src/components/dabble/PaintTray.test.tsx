@@ -61,11 +61,8 @@ describe('tray state interactions', () => {
     window.matchMedia=original;vi.useRealTimers();
   });
 });
-it('a picked custom paint becomes selected and selecting a sampled paint deselects it', () => {
+it('offers video picking without changing the six sampled colors', () => {
   const {container} = render(<Tray defaultTrayOpen />);
-  fireEvent.change(container.querySelector('input[type="color"]') ?? document.createElement('input'), {target:{value:'#123456'}});
-  const custom = container.querySelector('.mix-paint');
-  expect(custom).toHaveAttribute('data-selected');
-  fireEvent.click(container.querySelector('.tray-color button') ?? document.createElement('button'));
-  expect(custom).not.toHaveAttribute('data-selected');
+  fireEvent.click(screen.getByRole('button', { name: 'Pick a color from the video' }));
+  expect(container.querySelectorAll('.tray-color button')).toHaveLength(6);
 });

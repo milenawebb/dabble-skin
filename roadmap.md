@@ -1,5 +1,10 @@
 # Dabble
 
+## Pick custom paint from the video
+- [x] Replace the system picker with shared video pick mode and swirled eyedropper button.
+- [x] Verify exact-spot live/fallback pixels, keyboard movement, cancellation, and unchanged playback/painting during picks in Chromium.
+- [x] Check desktop and 390px touch views; live frames and forced CORS thumbnail fallback work in both. WebKit crashes, so physical iPhone behavior is unverified.
+
 ## Painting playback and direct custom color picker
 - [x] Hide the center button during painting playback, retaining tap-to-pause and paused/replay states; suppress the touch compatibility click that otherwise hits the newly revealed Play button.
 - [x] Replace both indirect color pickers with a full-target native input and permanent swirled artwork; verify live/final selection and keyboard access.
