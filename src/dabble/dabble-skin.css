@@ -28,9 +28,9 @@
 .dabble-bar {
   position: absolute;
   z-index: 3;
-  left: 6px;
-  right: 6px;
-  bottom: calc(var(--dabble-m) * -1 + 6px);
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
