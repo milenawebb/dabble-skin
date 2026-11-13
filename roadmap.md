@@ -1,5 +1,10 @@
 # Dabble
 
+## Painting discovery
+- [x] Add timed border guidance, persisted first-stroke completion and video-drag reminders without changing click playback.
+- [x] Add timed/selected brush-name tags without increasing tray height.
+- [x] Verify painting, reload, video clicks and responsive labels.
+
 ## Lighter starter and Blank canvas
 - [x] Replace default painting with six fixed-seed corner strokes in three footage colors.
 - [x] Replace reset confirmation with immediate Blank canvas, one-step undo and open-tray clearing shortcuts.

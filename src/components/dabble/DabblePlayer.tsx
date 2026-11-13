@@ -12,6 +12,7 @@ import { PaintTray } from './PaintTray';
 import type { Painting } from './painting-data';
 import { useFeedback } from './use-feedback';
 import { useBrushCursor } from './use-brush-cursor';
+import { PaintingGuide } from './PaintingGuide';
 
 type DabblePlayerProps = {
   src?: string;
@@ -39,6 +40,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   const canvasRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const paintRef = useRef<HTMLCanvasElement>(null);
+  const [trayOpen, setTrayOpen] = useState(defaultTrayOpen && paintable);
   const paint = usePaint(canvasRef, paintRef, paintable, src, painting, playbackId, thumbnailSampleTimes);
   useBrushCursor(canvasRef, paintRef, paint.size, paint.palette[paint.color] ?? paint.palette[0], paint.brush);
   const [controlsState, setControlsState] = useState({ visible: true, paused: true });
@@ -122,6 +124,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
     <>
     <div ref={canvasRef} className="dabble-canvas" data-painting={paint.painting || undefined} data-stroke-count={paint.count} data-portrait={layout.portrait} style={geometry}>
       <canvas ref={paintRef} className="dabble-paint" aria-hidden="true" />
+      {paintable && <PaintingGuide root={canvasRef} open={trayOpen} />}
       <div className="dabble-stage">
         <VideoPlayer key={broken && ready ? 'broken' : 'normal'} poster={poster}>
           <DabbleSkin paintable={paintable} brushSize={paint.size} painting={paint.painting} palette={paint.palette} onControlsState={setControlsState}>
@@ -140,7 +143,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
         </VideoPlayer>
       </div>
     </div>
-    {paintable && <PaintTray defaultTrayOpen={defaultTrayOpen} paint={paint} src={src} ownerTools={ownerTools} {...(playbackId ? { playbackId } : {})} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} controlsState={controlsState} onActivity={trayActivity} />}
+    {paintable && <PaintTray onOpenChange={setTrayOpen} defaultTrayOpen={defaultTrayOpen} paint={paint} src={src} ownerTools={ownerTools} {...(playbackId ? { playbackId } : {})} sounds={soundChoice} toggleSounds={toggleSounds} automaticSound={automaticSound} controlsState={controlsState} onActivity={trayActivity} />}
     </>
   );
 }

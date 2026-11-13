@@ -4,3 +4,4 @@
 - Publish decorative shortcut feedback through the existing Video.js coordinator and guarded custom actions; page listeners never run player actions.
 - Gate page keycap audio on an explicit sound preference and a trusted page gesture; offering player sounds is not itself opt-in consent.
 - Self-accept painting-hook development updates with a full page reload so hook-layout edits cannot reuse incompatible React state slots; saved strokes restore normally.
+- Keep discovery overlays pointer-transparent outside the player; observe tray openings and actual manual strokes separately from saved paintings, and leave Video.js tap actions untouched.

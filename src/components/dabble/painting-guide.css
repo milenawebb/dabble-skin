@@ -1,0 +1,12 @@
+.painting-guide { position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0; transition: opacity .2s; }
+.painting-guide[data-visible] { opacity: 1; }
+.painting-guide-outline { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: var(--dabble-ink); stroke-width: 1.5; stroke-dasharray: 7 4 3 5 10 4; opacity: .6; }
+.painting-guide-outline path { vector-effect: non-scaling-stroke; }
+.painting-guide-tag { position: absolute; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100% - 12px); padding: 1px 10px; border: 1.5px solid var(--dabble-ink); border-radius: 3px 6px 2px 5px; background: var(--dabble-paper); color: var(--dabble-ink); font: 500 20px/1.1 Caveat, cursive; }
+.painting-guide-short { display: none; }
+.painting-guide[data-small] .painting-guide-long { display: none; }
+.painting-guide[data-small] .painting-guide-short { display: inline; }
+.painting-guide-outline[data-flash] { animation: border-nudge .6s ease-out; }
+@keyframes border-nudge { 0%,100% { opacity: .6; } 45% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .painting-guide { transition: none; } .painting-guide-outline[data-flash] { animation: none; } }
+@media (forced-colors: active) { .painting-guide-outline { stroke: CanvasText; } .painting-guide-tag { color: CanvasText; background: Canvas; border-color: CanvasText; } }
