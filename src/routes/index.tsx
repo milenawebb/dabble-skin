@@ -66,9 +66,9 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Dabble: paint the frame around your video" },
-      { name: "description", content: "A Video.js v10 skin where the video sits on a white canvas and every viewer paints the frame." },
+      { name: "description", content: "A Video.js v10 skin where you paint the frame around your video, then press play." },
       { property: "og:title", content: "Dabble: paint the frame around your video" },
-      { property: "og:description", content: "A Video.js v10 skin where the video sits on a white canvas and every viewer paints the frame." },
+      { property: "og:description", content: "A Video.js v10 skin where you paint the frame around your video, then press play." },
       { property: "og:image", content: POSTER },
       { name: "twitter:image", content: POSTER },
       { property: "og:type", content: "website" },
@@ -150,7 +150,7 @@ function Index() {
         <div className="landing-wall">
           <section className="landing-hero" aria-labelledby={heroTitleId}>
             <h1 id={heroTitleId} className="landing-title"><DabbleLogo size={windowWidth < 640 ? 64 : 110} tone="paper" animate /></h1>
-            <p className="landing-tagline">A video player on a canvas. Pick up a brush, paint the frame in your style, then press play.</p>
+            <p className="landing-tagline">Paint the frame around your video, then press play.</p>
             {sizes.length > 0 && <DeviceSwitch sizes={sizes} activeSize={activeSize} onChoose={setPreviewSize} />}
             <div ref={playerRef} className="preview-column" id="player" tabIndex={-1} style={{ maxWidth: columnWidth }}>
               <DabblePlayer defaultTrayOpen onPaletteChange={setPalette} onSoundPreferenceChange={setSoundOptIn} playbackId={PLAYBACK_ID} thumbnailSampleTimes={SAMPLE_TIMES} poster={POSTER} captions={CAPTIONS} />
@@ -166,7 +166,7 @@ function Index() {
           </aside>
           <article className="paper-piece artist-note">
             <h2><PaintedTitle>Artist's note</PaintedTitle></h2>
-            <p>Most player skins are finished before anyone presses play. Dabble starts unfinished on purpose. The video sits on a white stretched canvas, and the frame around it is yours to paint.</p>
+            <p>Most player skins are finished before anyone presses play. Dabble hands you the brush. The video sits on a white stretched canvas, and the frame around it is yours to paint, in any color, in your own style.</p>
             <p>Under the paint it is a plain Video.js v10 skin built from the standard components. Your painting is saved in your own browser, scales with the player, and steps aside completely in fullscreen. Every icon, button, brush and paint blob was drawn for Dabble. There is no icon set.</p>
             <p>The film is original too. Dab, the blank canvas who rolls through four colors and stays blank, was made for this page so the video and the player tell the same story.</p>
           </article>
