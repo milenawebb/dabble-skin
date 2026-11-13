@@ -1,5 +1,10 @@
 # Dabble
 
+## Sound opt-in and shared control visibility
+- [x] Default every sound off and persist explicit music-button consent without early AudioContext activation.
+- [x] Share library 2.5-second idle and locks across phone/desktop; hide during painting without resizing the phone band.
+- [x] Verify first/second touch taps, keyboard focus, menus, captions, bottom-band painting and sound persistence.
+
 ## iOS painted captions
 - [x] Remove Safari fallback, preserve library CC intent with hidden tracks, and hand over only in native iPhone fullscreen.
 - [x] Verified real Mux playback on iOS-sized Chromium views, cue events, mode resets, CC off, phone clearance and simulated fullscreen handover; WebKit crashes loading the page, so real iPhone/iPad handover remains unverified.

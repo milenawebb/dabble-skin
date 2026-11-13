@@ -153,7 +153,7 @@ export function PaintTray({ paint, src, playbackId, ownerTools = false, defaultT
         {iconTool('Undo', 'undo', paint.undo, !paint.canUndo)}
         {iconTool('Paint it for me', 'wand', () => { paint.automatic(); automaticSound(); })}
         {ownerTools && iconTool('Copy painting code', 'copy', copy)}
-        <Tool label={sounds ? 'Sounds on' : 'Sounds off'} className="tray-circle tray-reveal" hidden={!open} pressed={sounds} onClick={toggleSounds}><HandIcon kind={sounds ? 'sounds-on' : 'sounds-off'} /></Tool>
+        <Tool label={sounds ? 'Turn sounds off' : 'Turn sounds on'} className="tray-circle tray-reveal" hidden={!open} pressed={sounds} onClick={toggleSounds}><HandIcon kind={sounds ? 'sounds-on' : 'sounds-off'} /></Tool>
         <span className="tray-item tray-blank tray-reveal" inert={!open || undefined}><Tooltip><TooltipTrigger asChild><Button variant="ghost" aria-label="Blank canvas" aria-disabled={paint.count === 0} onClick={() => { if (!paint.count) return; paint.clear(); setClearMessage('Canvas cleared. Undo to bring it back.'); }}><svg className="tray-tag" viewBox="0 0 140 40" preserveAspectRatio="none" aria-hidden="true"><path d="M3 3L48 2L88 4L137 2L138 19L136 37L92 38L45 36L2 38L3 20Z" vectorEffect="non-scaling-stroke" /></svg><HandIcon kind="clear" /><span className="tray-blank-text">Blank canvas</span></Button></TooltipTrigger><TooltipContent className="tray-tooltip-label">Blank canvas</TooltipContent></Tooltip></span>
       </div>
       </div>

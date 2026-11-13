@@ -23,33 +23,34 @@ describe('contest controls visibility', () => {
     const s = setup(); s.container.dispatchEvent(new MouseEvent('mouseleave')); vi.advanceTimersByTime(10000);
     expect(s.state.controlsVisible).toBe(true); s.abort.abort();
   });
-  it('hides at exactly 1800 milliseconds of inactivity after play', () => {
-    const s = setup(); s.play(); s.move(); vi.advanceTimersByTime(1799);
+  it('hides at exactly 2500 milliseconds of inactivity after play', () => {
+    const s = setup(); s.play(); s.move(); vi.advanceTimersByTime(2499);
     expect(s.state.controlsVisible).toBe(true); vi.advanceTimersByTime(1);
     expect(s.state.controlsVisible).toBe(false); s.abort.abort();
   });
-  it('hides immediately on pointer leave after play', () => {
+  it('keeps the 2.5-second grace period on pointer leave', () => {
     const s = setup(); s.play(); s.container.dispatchEvent(new MouseEvent('mouseleave'));
+    expect(s.state.controlsVisible).toBe(true); vi.advanceTimersByTime(2500);
     expect(s.state.controlsVisible).toBe(false); s.abort.abort();
   });
-  it('does not hold controls on an ordinary pause', () => {
-    const s = setup(); s.play(); s.media.paused = true; s.media.dispatchEvent(new Event('pause')); vi.advanceTimersByTime(1800);
-    expect(s.state.controlsVisible).toBe(false); s.abort.abort();
+  it('holds controls throughout an ordinary pause', () => {
+    const s = setup(); s.play(); s.media.paused = true; s.media.dispatchEvent(new Event('pause')); vi.advanceTimersByTime(10000);
+    expect(s.state.controlsVisible).toBe(true); s.abort.abort();
   });
-  it('holds ended controls until the next interaction cycle', () => {
-    const s = setup(); s.play(); vi.advanceTimersByTime(1800); s.media.paused = true; s.media.ended = true; s.media.dispatchEvent(new Event('ended'));
+  it('holds ended controls even after interaction', () => {
+    const s = setup(); s.play(); vi.advanceTimersByTime(2500); s.media.paused = true; s.media.ended = true; s.media.dispatchEvent(new Event('ended'));
     vi.advanceTimersByTime(10000); expect(s.state.controlsVisible).toBe(true);
-    s.move(); vi.advanceTimersByTime(1800); expect(s.state.controlsVisible).toBe(false); s.abort.abort();
+    s.move(); vi.advanceTimersByTime(10000); expect(s.state.controlsVisible).toBe(true); s.abort.abort();
   });
-  it('preserves phone and popup locks until they are released', () => {
+  it('preserves popup locks until they are released', () => {
     const s = setup(); s.play(); const release = s.state.requestControlsLock(); s.container.dispatchEvent(new MouseEvent('mouseleave'));
     vi.advanceTimersByTime(10000); expect(s.state.controlsVisible).toBe(true);
-    release(); vi.advanceTimersByTime(1800); expect(s.state.controlsVisible).toBe(false); s.abort.abort();
+    release(); vi.advanceTimersByTime(2500); expect(s.state.controlsVisible).toBe(false); s.abort.abort();
   });
   it('restores controls on pointer movement, keyboard input and focus', () => {
     const s = setup(); s.play();
     for (const event of [new MouseEvent('pointermove'), new KeyboardEvent('keydown', {key: 'k'}), new FocusEvent('focusin')]) {
-      vi.advanceTimersByTime(1800); expect(s.state.controlsVisible).toBe(false);
+      vi.advanceTimersByTime(2500); expect(s.state.controlsVisible).toBe(false);
       s.container.dispatchEvent(event); expect(s.state.controlsVisible).toBe(true);
     }
     s.abort.abort();

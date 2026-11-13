@@ -43,8 +43,9 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
   const controlsVisible = usePlayer((state) => state.controlsVisible);
   const paused = usePlayer((state) => state.paused);
   const hasError = usePlayer((state) => Boolean(state.error));
+  const toggleControls = usePlayer((state) => state.toggleControls);
   const requestControlsLock = usePlayer((state) => state.requestControlsLock);
-  const centerVisible = showCenterPlay(started, ended) && !hasError;
+  const centerVisible = (showCenterPlay(started, ended) || (painting && paused)) && !hasError;
   const centerRef = useRef<HTMLButtonElement>(null);
   const playRef = useRef<HTMLButtonElement>(null);
   const centerHadFocus = useRef(false);
@@ -94,8 +95,24 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
   }, [requestControlsLock]);
 
   useEffect(() => {
-    return !started || docked || volumeOpen || keysOpen ? requestControlsLock() : undefined;
-  }, [started, docked, volumeOpen, keysOpen, requestControlsLock]);
+    return volumeOpen || keysOpen ? requestControlsLock() : undefined;
+  }, [volumeOpen, keysOpen, requestControlsLock]);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    const bar = root?.querySelector<HTMLElement>('.dabble-bar');
+    if (!root || !bar) return;
+    let releaseHover: (() => void) | undefined;
+    let releaseFocus: (() => void) | undefined;
+    const enter = (event: PointerEvent) => { if (event.pointerType !== 'touch') releaseHover ??= requestControlsLock(); };
+    const leave = () => { releaseHover?.(); releaseHover = undefined; };
+    const focus = () => { if (bar.querySelector(':focus-visible')) releaseFocus ??= requestControlsLock(); };
+    const blur = (event: FocusEvent) => { if (!(event.relatedTarget instanceof Node) || !bar.contains(event.relatedTarget)) { releaseFocus?.(); releaseFocus = undefined; } };
+    bar.addEventListener('pointerenter', enter); bar.addEventListener('pointerleave', leave);
+    bar.addEventListener('focusin', focus); bar.addEventListener('focusout', blur);
+    return () => { leave(); releaseFocus?.(); bar.removeEventListener('pointerenter', enter); bar.removeEventListener('pointerleave', leave); bar.removeEventListener('focusin', focus); bar.removeEventListener('focusout', blur); };
+  }, [requestControlsLock]);
+  useEffect(() => { if (!painting) toggleControls(true); }, [painting, toggleControls]);
 
   useEffect(() => {
     const query = window.matchMedia('(any-hover: hover) and (any-pointer: fine)');
@@ -159,16 +176,16 @@ export function DabbleSkin({ children, paintable = false, brushSize = 20, painti
   const colors = { '--dabble-seek':palette[0], '--dabble-b1':tintForInk(palette[4]), '--dabble-b2':tintForInk(palette[3]), '--dabble-b3':tintForInk(palette[2]), '--dabble-b4':tintForInk(palette[5]), '--dabble-b5':tintForInk(palette[1]), '--dabble-keys-tint':tintForInk(palette[0]), '--keys-left': `${keysBounds.left + Math.max(6, keysBounds.width - 306)}px`, '--keys-top': `${keysBounds.top + 6}px`, '--keys-width': `${Math.max(0, Math.min(300, keysBounds.width - 12))}px`, '--keys-height': `${keysBounds.height * .8}px` } as CSSProperties;
 
   return (
-    <Container ref={rootRef} tabIndex={-1} aria-label="Dabble video player" style={colors} className="dabble-skin" data-size={size} data-painting={painting || undefined} data-docked={docked || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined}>
+    <Container ref={rootRef} tabIndex={-1} aria-label="Dabble video player" style={colors} className="dabble-skin" data-size={size} data-painting={painting || undefined} data-docked={docked || undefined} data-caption-id={captionId} data-invitation={centerVisible || undefined} data-bar-visible={(!painting && controlsVisible) || undefined}>
       {children}
       {!hasError && <Poster.Root className="dabble-poster"><Poster.Image /></Poster.Root>}
-      <PaintedCaptions rootRef={rootRef} captionId={captionId} docked={docked} barEnabled={!(painting && !docked && !fullscreenActive)} />
-      <Gesture type="tap" action="togglePaused" />
+      <PaintedCaptions rootRef={rootRef} captionId={captionId} docked={docked} barEnabled={!painting} />
+      <Gesture type="tap" action={controlsVisible || painting ? "togglePaused" : "toggleControls"} />
       <PlayButton ref={centerRef} hidden={!centerVisible} label={ended ? 'Replay' : 'Play'} className="dabble-button dabble-play dabble-center-play" render={(props) => <button {...props} onFocus={(event) => { props.onFocus?.(event); centerHadFocus.current = event.currentTarget.matches(':focus-visible'); }} onBlur={(event) => { props.onBlur?.(event); if (event.relatedTarget) centerHadFocus.current = false; }}><Blob /><Icon kind={ended ? 'replay' : 'play'} /></button>} />
       <BufferingIndicator className="dabble-loading" render={(props, state) => <div {...props} role="status" aria-live="polite">{state.visible && <><span className="dabble-loading-disc" aria-hidden="true"><span /></span><span className="dabble-loading-label">Loading</span></>}</div>} />
       <Popover.Root side="top" align="end" boundary="container" open={keysOpen} onOpenChange={open => { if (open) setKeysOpen(true); else closeKeys(); }}>
       <Controls.Root>
-        <Controls.Content className="dabble-bar" inert={painting && !docked && !fullscreenActive}>
+        <Controls.Content className="dabble-bar">
           {size === 'small' ? <><Controls.Group className="dabble-row" aria-label="Timeline">{seek}{time}</Controls.Group><Controls.Group className="dabble-row dabble-buttons-row" aria-label="Playback controls">{play}{mute}{captions}{speed}{keys}{fullscreen}</Controls.Group></> : <Controls.Group className="dabble-row" aria-label="Playback controls">{play}{seek}{time}{mute}{captions}{speed}{keys}{fullscreen}</Controls.Group>}
         </Controls.Content>
       </Controls.Root>

@@ -381,8 +381,8 @@
 .dabble-canvas[data-painting] .dabble-paint { pointer-events: auto; cursor: crosshair; touch-action: none; }
 .dabble-canvas[data-painting] .dabble-stage,
 .dabble-canvas[data-painting] .dabble-skin:not(:fullscreen) { pointer-events: auto; cursor: auto; }
-.dabble-canvas[data-painting] .dabble-skin[data-docked]:not(:fullscreen) .dabble-bar,
-.dabble-canvas[data-painting] .dabble-skin[data-docked]:not(:fullscreen) .dabble-bar * { pointer-events: auto; }
+.dabble-canvas[data-painting] .dabble-bar,
+.dabble-canvas[data-painting] .dabble-bar * { pointer-events: none; }
 .dabble-canvas[data-painting] .dabble-skin:fullscreen,
 .dabble-canvas[data-painting] .dabble-skin:fullscreen * { pointer-events: auto; }
 

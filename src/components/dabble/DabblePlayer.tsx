@@ -12,6 +12,7 @@ import { PaintTray } from './PaintTray';
 import type { Painting, Palette } from './painting-data';
 import { useFeedback } from './use-feedback';
 import { useBrushCursor } from './use-brush-cursor';
+import { unlockSound } from './sounds';
 import { PaintingGuide } from './PaintingGuide';
 
 type DabblePlayerProps = {
@@ -30,7 +31,7 @@ type DabblePlayerProps = {
   onPaletteChange?: (palette: Palette) => void;
 };
 
-export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poster, broken = false, captions, paintable = true, ownerTools = false, painting, sounds = false, defaultTrayOpen = false, onSoundPreferenceChange, onPaletteChange }: DabblePlayerProps) {
+export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poster, broken = false, captions, paintable = true, ownerTools = false, painting, sounds: _sounds = false, defaultTrayOpen = false, onSoundPreferenceChange, onPaletteChange }: DabblePlayerProps) {
   const [ready, setReady] = useState(false);
   const source = getPlayerSource(playbackId ? `https://stream.mux.com/${playbackId}.m3u8` : src, broken && ready);
   const muxSource = useMemo(() => ({
@@ -47,16 +48,16 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   useBrushCursor(canvasRef, paintRef, paint.size, paint.palette[paint.color] ?? paint.palette[0], paint.brush);
   const [controlsState, setControlsState] = useState({ visible: true, paused: true });
   const trayActivity = useCallback((active: boolean) => { canvasRef.current?.dispatchEvent(new CustomEvent('dabble-tray-activity', { detail: active })); }, []);
-  const [soundChoice, setSoundChoice] = useState(sounds);
+  const [soundChoice, setSoundChoice] = useState(false);
   const [soundOptIn, setSoundOptIn] = useState(false);
   const automaticSound = useFeedback(canvasRef, soundChoice, paint.painting, paint.brush);
   useEffect(() => {
-    if (!sounds) return;
-    try { const saved = localStorage.getItem('dabble-sounds'); setSoundChoice(saved !== 'off'); setSoundOptIn(saved === 'on'); } catch { /* Storage is optional. */ }
-  }, [sounds]);
+    try { const saved = localStorage.getItem('dabble-sounds'); setSoundChoice(saved === 'on'); setSoundOptIn(saved === 'on'); } catch { /* Storage is optional. */ }
+  }, []);
   useEffect(() => { onSoundPreferenceChange?.(soundChoice && soundOptIn); }, [soundChoice, soundOptIn, onSoundPreferenceChange]);
   const toggleSounds = () => {
     const next = !soundChoice;
+    if (next) unlockSound();
     setSoundChoice(next);
     setSoundOptIn(next);
     try { localStorage.setItem('dabble-sounds', next ? 'on' : 'off'); } catch { /* Storage is optional. */ }
@@ -65,7 +66,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   const [canvasBox, setCanvasBox] = useState({ width: 0, left: 0, top: 0 });
   const [dockSpace, setDockSpace] = useState(0);
   const [metadata, setMetadata] = useState({ src: '', width: 0, height: 0 });
-  const stageInput = canvasBox.width > 0 ? { canvasWidth: canvasBox.width, canvasLeft: canvasBox.left, canvasTop: canvasBox.top, frame: paintFrameWidth(frameWidth, paint.painting) } : undefined;
+  const stageInput = canvasBox.width > 0 ? { canvasWidth: canvasBox.width, canvasLeft: canvasBox.left, canvasTop: canvasBox.top, frame: paintFrameWidth(frameWidth, paint.painting && dockSpace === 0) } : undefined;
   const layout = metadata.src === source
     ? getVideoLayout(metadata.width, metadata.height, stageInput)
     : getVideoLayout(0, 0, stageInput);
@@ -116,7 +117,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   }, []);
 
   const geometry = {
-    '--dabble-m': `${paintFrameWidth(frameWidth, paint.painting)}px`,
+    '--dabble-m': `${paintFrameWidth(frameWidth, paint.painting && dockSpace === 0)}px`,
     '--dabble-dock-space': `${dockSpace}px`,
     '--dabble-aspect': layout.aspectRatio,
     ...(layout.stage ? { '--dabble-stage-width': `${layout.stage.width}px`, '--dabble-stage-height': `${layout.stage.height}px`, '--dabble-stage-left': `${layout.stage.left}px`, '--dabble-stage-top': `${layout.stage.top}px` } : {}),
@@ -129,7 +130,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
       {paintable && <PaintingGuide root={canvasRef} open={trayOpen} />}
       <div className="dabble-stage">
         <VideoPlayer key={broken && ready ? 'broken' : 'normal'} poster={poster}>
-          <DabbleSkin paintable={paintable} brushSize={paint.size} painting={paint.painting} palette={paint.palette} onControlsState={setControlsState}>
+          <DabbleSkin paintable={paintable} brushSize={paint.size} painting={trayOpen} palette={paint.palette} onControlsState={setControlsState}>
             {playbackId && !(broken && ready) ? <MuxVideo ref={videoRef} source={muxSource} crossOrigin="anonymous" playsInline>
               {captions && <track kind="captions" src={captions.src} srcLang={captions.srcLang} label={captions.label} />}
             </MuxVideo> : <Video
