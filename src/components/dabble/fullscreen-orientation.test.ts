@@ -9,7 +9,7 @@ describe('optional fullscreen orientation', () => {
   });
   it('does not lock portrait, square or unloaded video', () => {
     const lock = vi.fn();
-    for (const [width, height] of [[1080, 1920], [1080, 1080], [0, 0]]) {
+    for (const [width, height] of [[1080, 1920], [1080, 1080], [0, 0]] as const) {
       updateFullscreenOrientation(true, width, height, { lock });
     }
     expect(lock).not.toHaveBeenCalled();
