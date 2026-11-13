@@ -32,9 +32,11 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
   const keysTitleId = useId();
   const closeKeys = () => {
     setKeysOpen(false);
-    const button = keysRef.current;
-    if (button && button.getClientRects().length && !button.closest('[inert]')) button.focus();
-    else rootRef.current?.focus();
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const button = keysRef.current;
+      if (button && button.getClientRects().length && !button.closest('[inert]')) button.focus();
+      else rootRef.current?.focus();
+    }));
   };
   const muteRef = useRef<HTMLButtonElement>(null);
   const volumeEscape = useRef(false);
@@ -220,7 +222,7 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
   const keys = <Popover.Trigger ref={keysRef} aria-label="Keyboard shortcuts" className="dabble-button dabble-keys-button" render={<Button variant="ghost" size="icon" />}><Blob /><Icon kind="keys" /></Popover.Trigger>;
   const seek = <TimeSlider.Root className="dabble-slider dabble-seek"><TimeSlider.Track className="dabble-track"><TimeSlider.Buffer className="dabble-buffer" /><TimeSlider.Fill className="dabble-fill" /></TimeSlider.Track><TimeSlider.Thumb className="dabble-thumb" /></TimeSlider.Root>;
   const time = <span className="dabble-time"><Time.Value type="current" /><span aria-hidden="true">/</span><Time.Value type="duration" /></span>;
-  const colors = { '--dabble-seek':palette[0], '--dabble-b1':tintForInk(palette[4]), '--dabble-b2':tintForInk(palette[3]), '--dabble-b3':tintForInk(palette[2]), '--dabble-b4':tintForInk(palette[5]), '--dabble-b5':tintForInk(palette[1]), '--dabble-keys-tint':tintForInk(palette[0]), '--keys-left': `${keysBounds.left + Math.max(6, keysBounds.width - 306)}px`, '--keys-top': `${keysBounds.top + 6}px`, '--keys-width': `${Math.max(0, Math.min(300, keysBounds.width - 12))}px`, '--keys-height': `${keysBounds.height * .8}px` } as CSSProperties;
+  const colors = { '--dabble-seek':palette[0], '--dabble-b1':tintForInk(palette[4]), '--dabble-b2':tintForInk(palette[3]), '--dabble-b3':tintForInk(palette[2]), '--dabble-b4':tintForInk(palette[5]), '--dabble-b5':tintForInk(palette[1]), '--dabble-keys-tint':tintForInk(palette[0]), '--keys-left': `${keysBounds.left + (playerWidth >= 560 ? keysBounds.width * .04 : Math.max(6, keysBounds.width - 306))}px`, '--keys-top': `${keysBounds.top + 6}px`, '--keys-width': `${Math.max(0, playerWidth >= 560 ? keysBounds.width * .92 : Math.min(300, keysBounds.width - 12))}px`, '--keys-height': `${Math.max(0, keysBounds.height - 12)}px` } as CSSProperties;
   const phonePlaque = Boolean(phoneHost) && !fullscreenActive;
   const bar = <Controls.Root><Controls.Content className={`dabble-bar${phonePlaque ? ' phone-control-plaque' : ''}`} style={phonePlaque ? colors : undefined} inert={phonePlaque && painting || undefined}>
     {phonePlaque ? <><div className="phone-seek-edge">{seek}</div><Controls.Group className="dabble-row" aria-label="Playback controls">{play}{time}{mute}{captions}{speed}{fullscreen}</Controls.Group></> : size === 'small' ? <><Controls.Group className="dabble-row" aria-label="Timeline">{seek}{time}</Controls.Group><Controls.Group className="dabble-row dabble-buttons-row" aria-label="Playback controls">{play}{mute}{captions}{speed}{keys}{fullscreen}</Controls.Group></> : <Controls.Group className="dabble-row" aria-label="Playback controls">{play}{seek}{time}{mute}{captions}{speed}{keys}{fullscreen}</Controls.Group>}
@@ -243,8 +245,8 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
       <BufferingIndicator className="dabble-loading" render={(props, state) => <div {...props} role="status" aria-live="polite">{state.visible && <><span className="dabble-loading-disc" aria-hidden="true"><span /></span><span className="dabble-loading-label">Loading</span></>}</div>} />
       <Popover.Root side="top" align="end" boundary="container" open={keysOpen} onOpenChange={open => { if (open) setKeysOpen(true); else closeKeys(); }}>
       {phonePlaque && phoneHost ? createPortal(bar, phoneHost) : bar}
-      <Popover.Popup ref={keysPopup} tabIndex={-1} role="dialog" aria-labelledby={keysTitleId} className="dabble-keys-panel" render={props => <div {...props} style={{ ...props.style, ...(size !== 'large' || painting ? { translate: 'none', left: `${keysBounds.left + Math.max(6, keysBounds.width - 306)}px`, top: `${keysBounds.top + 6}px`, positionAnchor: 'none' } : {}) }} />} onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeKeys(); } else if (event.key === '?') { event.preventDefault(); event.stopPropagation(); closeKeys(); } }}>
-        <KeysContent paintable={paintable} titleId={keysTitleId} popup={keysPopup} />
+      <Popover.Popup ref={keysPopup} tabIndex={-1} role="dialog" aria-labelledby={keysTitleId} className="dabble-keys-panel" data-wide={playerWidth >= 560 || undefined} data-compact={playerWidth >= 560 && playerWidth < 700 || undefined} data-short-actions={playerWidth >= 560 && keysBounds.width < 750 || undefined} render={props => <div {...props} style={{ ...props.style, translate: 'none', positionAnchor: 'none' }} />} onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closeKeys(); } else if (event.key === '?') { event.preventDefault(); event.stopPropagation(); closeKeys(); } }}>
+        <KeysContent paintable={paintable} titleId={keysTitleId} popup={keysPopup} onClose={closeKeys} open={keysOpen} />
       </Popover.Popup>
       </Popover.Root>
       {DABBLE_HOTKEYS.map((binding) => <Hotkey key={binding.keys} {...binding} />)}
