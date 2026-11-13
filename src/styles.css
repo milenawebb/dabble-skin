@@ -6,9 +6,16 @@
  *   src/routes/__root.tsx and name the family in a --font-* token in @theme inline below.
  */
 @import "tailwindcss" source(none);
-@source "../src";
 @import "tw-animate-css";
 @import "./dabble/canvas.css";
+@import "./dabble/dabble-skin.css";
+@import "./dabble/paint-tray.css";
+@import "./dabble/phone-panel.css";
+@import "./dabble/player-labels.css";
+@import "./dabble/painting-guide.css";
+@import "./dabble/MixPaintInput.css";
+@source "../src";
+@source "./dabble/**/*.{ts,tsx}";
 
 @custom-variant dark (&:is(.dark *));
 

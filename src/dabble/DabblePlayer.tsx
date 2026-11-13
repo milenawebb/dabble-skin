@@ -138,6 +138,9 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   }, []);
 
   const geometry = {
+    // Keep the paint surface out of normal flow even before CSS arrives.
+    // Preserve the frame's visible edges and overflowing controls.
+    position: 'relative',
     '--dabble-m': `${paintFrameWidth(frameWidth, paint.painting && canvasBox.width >= 420)}px`,
     '--dabble-aspect': layout.aspectRatio,
     ...(layout.stage ? { '--dabble-stage-width': `${layout.stage.width}px`, '--dabble-stage-height': `${layout.stage.height}px`, '--dabble-stage-left': `${layout.stage.left}px`, '--dabble-stage-top': `${layout.stage.top}px` } : {}),
@@ -146,7 +149,7 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   return (
     <PlayerLabels>
     <div ref={canvasRef} className="dabble-canvas" data-painting={paint.painting || undefined} data-phone={canvasBox.width > 0 && canvasBox.width < 420 || undefined} data-stroke-count={paint.count} data-portrait={layout.portrait} style={geometry}>
-      <canvas ref={paintRef} className="dabble-paint" aria-hidden="true" />
+      <canvas ref={paintRef} className="dabble-paint" aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', maxHeight: '100%', display: 'block', maxWidth: 'none' }} />
       <div className="dabble-stage">
         <VideoPlayer key={broken && ready ? 'broken' : 'normal'} poster={poster}>
           <DabbleSkin phoneHost={phone ? phoneHost : null} paintable={paintable} brushSize={paint.size} painting={phone ? paint.painting : trayOpen} palette={paint.palette} onControlsState={setControlsState}>

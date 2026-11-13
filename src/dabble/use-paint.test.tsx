@@ -4,8 +4,32 @@ import { usePaint } from './use-paint';
 import { newPainting, savePainting, loadPainting, type Painting } from './painting-data';
 
 const sampling = vi.hoisted(() => ({ live: vi.fn(), thumbnail: vi.fn() }));
+vi.mock('./paint-engine', () => ({ renderStroke: vi.fn() }));
 vi.mock('./video-palette', () => ({ sampleSource: () => () => {}, sampleVideo: sampling.live, sampleThumbnails: sampling.thumbnail }));
 beforeEach(() => localStorage.clear());
+
+it('sizes the paint backing store from the frame on repeated resizes, never from its previous bitmap', () => {
+  let resize = () => {};
+  vi.stubGlobal('ResizeObserver', class { constructor(callback: () => void) { resize = callback; } observe() {} disconnect() {} });
+  vi.useFakeTimers();
+  const context = { save: vi.fn(), restore: vi.fn(), setTransform: vi.fn(), clearRect: vi.fn(), drawImage: vi.fn() };
+  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context as unknown as CanvasRenderingContext2D);
+  const wrapper = document.createElement('div'), canvas = document.createElement('canvas'), video = document.createElement('video');
+  wrapper.append(canvas, video);
+  let height = 220;
+  vi.spyOn(wrapper, 'getBoundingClientRect').mockImplementation(() => ({ width: 340, height, left: 0, top: 0 } as DOMRect));
+  vi.spyOn(video, 'getBoundingClientRect').mockReturnValue({ width: 292, height: 164, left: 24, top: 24 } as DOMRect);
+  vi.stubGlobal('devicePixelRatio', 2);
+  const hook = renderHook(() => usePaint({ current: wrapper }, { current: canvas }, true, 'resize-frame'));
+  expect(canvas.height).toBe(440);
+  expect(canvas.width).toBe(680);
+  height = 180;
+  act(() => { resize(); vi.advanceTimersByTime(80); });
+  expect(canvas.height).toBe(360);
+  act(() => { resize(); vi.advanceTimersByTime(80); });
+  expect(canvas.height).toBe(360);
+  hook.unmount(); vi.restoreAllMocks(); vi.unstubAllGlobals(); vi.useRealTimers();
+});
 
 describe('paint hook lifecycle', () => {
   it('restores saved viewer strokes after a preview remount and keeps clear and undo usable', () => {

@@ -88,7 +88,6 @@ export function usePaint(wrapperRef: RefObject<HTMLDivElement | null>, paintRef:
       const rect = wrapper.getBoundingClientRect(), v = video.getBoundingClientRect();
       if (rect.width <= 0 || rect.height <= 0) return;
       const g = { W: rect.width, H: rect.height, vx: v.left - rect.left, vy: v.top - rect.top, vw: v.width, vh: v.height };
-      canvas.style.height = `${g.H}px`;
       geo.current = g;
       const ratio = backingRatio(window.devicePixelRatio);
       for (const surface of [canvas, cache]) {
