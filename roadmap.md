@@ -1,5 +1,10 @@
 # Dabble
 
+## Mobile labels and volume
+- [x] Restrict shared labels to open paint tools on every layout, preserving accessible names and excluding ledge buttons.
+- [x] Keep phone ledge buttons transparent and paper-colored in every state with two-tone keyboard focus; exclude coarse-pointer volume popovers.
+- [x] Chromium touch phone taps, captions clearance, mute/unmute, fullscreen, and ledge states pass; desktop hover/focus has no labels and volume slider adjusts volume. All 238 tests and automatic build pass. Physical iOS remains unverified.
+
 ## Repository organization
 - [x] Separate the self-contained skin and its tests into src/dabble, with one public entry and no landing imports.
 - [x] Replace README with real usage/defaults, add Apache 2.0 license, and activate all three supplied GitHub links.

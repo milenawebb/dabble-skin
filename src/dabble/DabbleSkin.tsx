@@ -23,6 +23,7 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
   const [size, setSize] = useState<'small' | 'medium' | 'large'>('large');
   const [playerWidth, setPlayerWidth] = useState(860);
   const [hoverCapable, setHoverCapable] = useState(false);
+  const [coarsePointer, setCoarsePointer] = useState(false);
   const [volumeOpen, setVolumeOpen] = useState(false);
   const [keysOpen, setKeysOpen] = useState(false);
   const [keysBounds, setKeysBounds] = useState({ left: 0, top: 0, width: 0, height: 0 });
@@ -147,11 +148,13 @@ export function DabbleSkin({ children, phoneHost, paintable = false, brushSize =
 
   useEffect(() => {
     const query = window.matchMedia('(any-hover: hover) and (any-pointer: fine)');
-    const update = () => setHoverCapable(query.matches);
+    const coarse = window.matchMedia('(pointer: coarse)');
+    const update = () => { setHoverCapable(query.matches); setCoarsePointer(coarse.matches); };
     update(); query.addEventListener('change', update);
-    return () => query.removeEventListener('change', update);
+    coarse.addEventListener('change', update);
+    return () => { query.removeEventListener('change', update); coarse.removeEventListener('change', update); };
   }, []);
-  const showVolume = shouldShowVolumePopover(playerWidth, hoverCapable);
+  const showVolume = shouldShowVolumePopover(playerWidth, hoverCapable, coarsePointer);
   useEffect(() => { if (!showVolume) setVolumeOpen(false); }, [showVolume]);
 
   useEffect(() => {

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { brushLabelPosition } from './brush-label';
+import { paintLabelButton } from './label-rules';
 import './player-labels.css';
 
 export function shortPlayerLabel(name: string) {
@@ -30,11 +31,8 @@ export function PlayerLabels({ children }: { children: ReactNode }) {
     const scope = root.current;
     return scope?.querySelector<HTMLButtonElement>('.paint-tray[data-state="open"] .tray-brush button[aria-pressed="true"], .phone-panel[data-painting] .phone-upright-brush[aria-pressed="true"]') ?? null;
   };
-  const restore = () => setTarget(hovered.current ?? focused.current ?? fallback());
-  const buttonFor = (element: EventTarget | null) => {
-    const button = element instanceof Element ? element.closest<HTMLButtonElement>('button[aria-label]') : null;
-    return button?.closest('.paint-tray, .phone-panel, .dabble-skin') ? button : null;
-  };
+  const restore = () => setTarget(paintLabelButton(hovered.current) ?? paintLabelButton(focused.current) ?? fallback());
+  const buttonFor = paintLabelButton;
   useEffect(() => {
     const scope = root.current;
     if (!scope) return;
@@ -78,7 +76,8 @@ export function PlayerLabels({ children }: { children: ReactNode }) {
   }, [target, host]);
   return <div ref={root} className="player-label-scope" onPointerOverCapture={event => {
     const button = buttonFor(event.target);
-    if (!button || button === hovered.current || (event.pointerType === 'touch' || !matchMedia('(any-hover: hover)').matches) && !button.querySelector('.tray-brush-drawing')) return;
+    if (!button) { clearTimeout(timer.current); hovered.current = null; restore(); return; }
+    if (button === hovered.current || (event.pointerType === 'touch' || !matchMedia('(any-hover: hover)').matches) && !button.querySelector('.tray-brush-drawing')) return;
     clearTimeout(timer.current);
     timer.current = setTimeout(() => { hovered.current = button; restore(); }, 300);
   }} onPointerOutCapture={event => {
@@ -87,7 +86,8 @@ export function PlayerLabels({ children }: { children: ReactNode }) {
     clearTimeout(timer.current); hovered.current = null; restore();
   }} onFocusCapture={event => {
     const button = buttonFor(event.target);
-    if (!button || !matchMedia('(any-hover: hover)').matches && !button.querySelector('.tray-brush-drawing')) return;
+    if (!button) { clearTimeout(timer.current); hovered.current = null; focused.current = null; restore(); return; }
+    if (!matchMedia('(any-hover: hover)').matches && !button.querySelector('.tray-brush-drawing')) return;
     clearTimeout(timer.current); hovered.current = null; focused.current = button; restore();
   }} onBlurCapture={() => { focused.current = null; restore(); }}>
     {children}
