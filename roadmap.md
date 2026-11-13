@@ -1,5 +1,9 @@
 # Dabble
 
+## Who it's for
+- [x] Add five distinct, lazily drawn engine-painted mini frames after Four brushes and before Open to all.
+- [x] Verify lazy thumbnails, deferred drawings, 3/2/1 columns and no 360px overflow; 17 owner/player tests pass. Omit the footer line: paintable=false preserves the canvas and painting sets the starting frame, but saved viewer paintings override it, so it is not necessarily the one painting every visitor sees.
+
 ## Explicit tray state and compact tablet rows
 - [x] Remove automatic tray opening/closing; start open on each visit with Done, Escape and P actions only; verify hover, leaving and idle playback never change state.
 - [x] Center fixed-gap rows at 480, 600, 756 and 900px; verify 44px targets, brush label clearance and unchanged phone layout in Chromium.

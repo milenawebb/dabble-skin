@@ -11,6 +11,7 @@ import { useKeycapFeedback } from '@/components/dabble/use-keycap-feedback';
 import { Button } from '@/components/ui/button';
 import { BrushSample } from '@/components/BrushSample';
 import { DEFAULT_PALETTE, type Palette } from '@/components/dabble/painting-data';
+import { WhoItsFor } from '@/components/WhoItsFor';
 
 const PLAYBACK_ID = 'AAprZsIykh7T29gtsNk02YhBrQRHXTj14ZxbWdc498wA';
 const POSTER = `https://image.mux.com/${PLAYBACK_ID}/thumbnail.jpg?time=9&width=1280`;
@@ -176,6 +177,7 @@ function Index() {
           </div>
           <p className="gallery-caption">Named after ways of painting, not after painters.</p>
         </section>
+        <WhoItsFor />
         <section className="gallery-section" id="open" aria-labelledby="open-title">
           <div className="paper-piece gallery-sign">
             <h2 id="open-title"><PaintedTitle>Open to all</PaintedTitle></h2>

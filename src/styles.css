@@ -291,6 +291,22 @@
 .brush-try:hover { background: none; }
 .brush-try:focus-visible { outline: 2px solid var(--dabble-ink); outline-offset: 5px; }
 .gallery-caption { margin: 24px 0 0; color: var(--landing-wall-dim); font: 500 22px/1.3 'Caveat', cursive; }
+.who-intro { color: var(--landing-wall-dim); font: 15px/1.6 var(--dabble-ui-font); margin: -12px 0 28px; }
+.who-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+.who-piece { min-width: 0; padding: 22px; }
+.who-piece-0 { --paper-tilt: -.5deg; }
+.who-piece-1 { --paper-tilt: .4deg; }
+.who-piece-2 { --paper-tilt: -.25deg; }
+.who-piece-3 { --paper-tilt: .3deg; }
+.who-piece-4 { --paper-tilt: -.4deg; }
+.who-piece h3 { font: 500 24px/1.2 'Caveat', cursive; margin: 22px 0 12px; }
+.who-piece p { font: 14px/1.6 var(--dabble-ui-font); }
+.use-mini-canvas { position: relative; width: calc(100% - 6px); aspect-ratio: 4 / 3; background-color: var(--canvas-surface); background-image: var(--canvas-weave); box-shadow: var(--gallery-paper-shadow); }
+.use-mini-canvas::after { content: ''; position: absolute; inset: 4px -6px -4px 100%; background: var(--canvas-edge-right); transform: skewY(35deg); }
+.use-mini-canvas canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.use-mini-canvas img { position: absolute; left: 14%; top: 20%; width: 72%; height: 60%; object-fit: cover; outline: 1px solid var(--dabble-video-pencil); }
+@media (max-width: 900px) { .who-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 639px) { .who-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; } }
 .gallery-sign { --paper-tilt: -.3deg; padding: 40px; }
 .gallery-sign h2 { font-size: 46px; }
 .open-checklist { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px 40px; }

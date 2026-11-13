@@ -7,3 +7,4 @@
 - Self-accept painting-hook development updates with a full page reload so hook-layout edits cannot reuse incompatible React state slots; saved strokes restore normally.
 - Keep discovery overlays pointer-transparent outside the player; observe tray openings and actual manual strokes separately from saved paintings, and leave Video.js tap actions untouched.
 - Use PlayerLabels for one portaled paper tag across the player and trays; preserve descriptive button names and selected-brush fallback so labels never compete or clip.
+- Render use-case mini frames through the existing paint engine with fixed seeded strokes after section intersection; thumbnail assets stay static and non-interactive.
