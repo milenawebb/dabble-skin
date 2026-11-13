@@ -38,7 +38,7 @@ const OPEN_ITEMS = [
   'Ink on paper (controls, captions, paint tray): 16.93:1. Page text on the wall: 16.50:1. Secondary text: 9.77:1. All above the 4.5:1 AA minimum, and the controls sit on an opaque label, so video and paint never reduce them.',
   'Captions have their own outlined label.',
   'Buttons are at least 44 pixels on touch screens.',
-  'On phones the controls dock under the video and stay visible.',
+  'On phones the controls sit inside the video, with 44 pixel touch targets, and appear with a tap.',
   'With reduced motion on, fades and slides switch off.',
   'Transparency is removed when reduced transparency is on.',
 ];
