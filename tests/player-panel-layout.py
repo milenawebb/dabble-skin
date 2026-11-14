@@ -7,7 +7,8 @@ from playwright.async_api import async_playwright
 async def contained(page, selector, text=False):
     panel = page.locator(selector)
     await panel.wait_for(state='visible')
-    await page.wait_for_timeout(150)
+    await page.evaluate('document.fonts.ready')
+    await page.wait_for_timeout(500)
     result = await panel.evaluate('''(e, text) => {
       const b=e.getBoundingClientRect(), v=document.querySelector('video').getBoundingClientRect();
       const inside=r=>r.left>=v.left-1 && r.top>=v.top-1 && r.right<=v.right+1 && r.bottom<=v.bottom+1;
@@ -35,13 +36,36 @@ async def check_panels(page, label, screenshots):
     result=await contained(page,'.dabble-keys-panel',True)
     assert await dialog.evaluate('e=>!e.closest("[popover]") && e.parentElement.classList.contains("dabble-keys-overlay") && e.parentElement.parentElement.classList.contains("dabble-skin")')
     assert abs(result['box']['x']+result['box']['width']/2-result['video']['x']-result['video']['width']/2)<1
-    assert abs(result['box']['y']+result['box']['height']/2-result['video']['y']-result['video']['height']/2)<1
+    tablet = await dialog.get_attribute('data-tablet')
+    if tablet:
+        bar = await page.locator('.dabble-bar').bounding_box()
+        assert bar and bar['y'] - result['box']['y'] - result['box']['height'] >= 11.9
+    else:
+        assert abs(result['box']['y']+result['box']['height']/2-result['video']['y']-result['video']['height']/2)<1
+        assert abs(result['box']['width']/result['video']['width']-.92)<.002
+        assert await dialog.locator('h2').evaluate('e=>getComputedStyle(e).fontSize') == '22px'
+    assert await trigger.get_attribute('aria-expanded') == 'true'
     await page.keyboard.press('Tab')
     assert await dialog.evaluate('e=>e.contains(document.activeElement)')
     await page.keyboard.press('Shift+Tab')
     assert await dialog.evaluate('e=>e.contains(document.activeElement)')
     await page.locator('.dabble-skin').screenshot(path=str(screenshots/f'{label}-keys.png'))
+    await trigger.click()
+    await dialog.wait_for(state='hidden')
+    assert await trigger.get_attribute('aria-expanded') == 'false'
+    await trigger.click()
+    await dialog.wait_for(state='visible')
+    await page.keyboard.press('?')
+    await dialog.wait_for(state='hidden')
+    await page.wait_for_timeout(100)
+    await page.keyboard.press('?')
+    await dialog.wait_for(state='visible')
     await page.keyboard.press('Escape')
+    await dialog.wait_for(state='hidden')
+    await page.wait_for_timeout(100)
+    assert await trigger.evaluate('e=>e===document.activeElement')
+    await trigger.click()
+    await page.mouse.click(1, 1)
     await dialog.wait_for(state='hidden')
     await page.wait_for_timeout(100)
     assert await trigger.evaluate('e=>e===document.activeElement')
@@ -58,13 +82,13 @@ async def check_panels(page, label, screenshots):
     await page.locator('.dabble-skin').screenshot(path=str(screenshots/f'{label}-volume.png'))
     await page.mouse.move(0,0)
     await page.keyboard.press('Escape')
-    print(f'{label}: Keys centered, all text visible, no scrolling; focus trap/return, close/Escape, speed and volume containment passed')
+    print(f'{label}: Keys clear of bar, all text visible, no scrolling; button/? toggles, outside/X/Escape closing, focus trap/return, speed and volume passed')
 
 async def main():
     screenshots=Path('/tmp/browser/player-panel-layout'); screenshots.mkdir(parents=True,exist_ok=True)
     async with async_playwright() as p:
         browser=await p.chromium.launch(headless=True)
-        for width in [600,756,1056]:
+        for width in [600,756,900,1056]:
             page=await browser.new_page(viewport={'width':1280,'height':1800})
             await page.goto(os.environ.get('DABBLE_TEST_URL','http://localhost:8080'),wait_until='networkidle')
             # Resize the real canvas; its ResizeObserver drives the production layout.
@@ -77,6 +101,12 @@ async def main():
             await page.wait_for_timeout(300)
             await check_panels(page,f'{width}-fullscreen',screenshots)
             await page.close()
+        page=await browser.new_page(viewport={'width':1280,'height':1800})
+        await page.goto(os.environ.get('DABBLE_TEST_URL','http://localhost:8080'),wait_until='networkidle')
+        await page.get_by_role('radio',name='Tablet',exact=True).click()
+        await page.wait_for_timeout(500)
+        await check_panels(page,'tablet-preview',screenshots)
+        await page.close()
         await browser.close()
 
 asyncio.run(main())

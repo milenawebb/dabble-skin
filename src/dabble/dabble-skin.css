@@ -154,6 +154,22 @@
 .dabble-keys-panel[data-compact] kbd { font-size: 13px; }
 .dabble-keys-panel[data-short-actions] .dabble-key-action-full { display: none; }
 .dabble-keys-panel[data-short-actions] .dabble-key-action-short { display: inline; }
+.dabble-keys-panel[data-tablet] { top: auto; bottom: var(--keys-bottom); transform: translateX(-50%); max-height: var(--keys-height); overflow: hidden; padding: 14px; font-size: 14px; }
+.dabble-keys-panel[data-tablet] .dabble-keys-title { font-size: 18px; line-height: 1; }
+.dabble-keys-panel[data-tablet] .dabble-keys-header { margin-bottom: 6px; }
+.dabble-keys-panel[data-tablet] .dabble-keys-group h3 { font-size: 14px; }
+.dabble-keys-panel[data-tablet] .dabble-keys-columns { gap: 24px; }
+.dabble-keys-panel[data-tablet] dl { gap: 4px 10px; }
+.dabble-keys-panel[data-tablet] .dabble-key-row { min-height: 26px; }
+.dabble-keys-panel[data-tablet] kbd { font-size: 13px; padding: 2px 6px; }
+.dabble-keys-panel[data-tablet][data-fit="1"] { padding: 12px; font-size: 13px; }
+.dabble-keys-panel[data-tablet][data-fit="1"] .dabble-key-row { min-height: 24px; }
+.dabble-keys-panel[data-tablet]:is([data-fit="2"], [data-fit="3"]) { padding: 10px; font-size: 12px; line-height: 1; }
+.dabble-keys-panel[data-tablet]:is([data-fit="2"], [data-fit="3"]) .dabble-key-row { min-height: 22px; }
+.dabble-keys-panel[data-tablet]:is([data-fit="1"], [data-fit="2"], [data-fit="3"]) kbd { font-size: 12px; }
+.dabble-keys-panel[data-tablet]:is([data-fit="2"], [data-fit="3"]) dl { row-gap: 2px; }
+.dabble-keys-panel[data-tablet][data-fit="3"] .dabble-keys-columns { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.5fr); }
+.dabble-keys-panel[data-tablet] dl { align-content: start; }
 .dabble-speed-item { --dabble-blob-color: var(--dabble-b4); position: relative; isolation: isolate; display: block; padding: 6px 14px; font: 400 14px var(--dabble-ui-font); cursor: pointer; }
 .dabble-speed-item .dabble-blob { inset: 3px 7px 3px 5px; }
 .dabble-speed-item[data-highlighted] .dabble-blob { opacity: 0.3; }
