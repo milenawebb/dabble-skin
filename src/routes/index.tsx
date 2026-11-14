@@ -156,7 +156,7 @@ function Index() {
         <div className="landing-wall">
           <section className="landing-hero" aria-labelledby={heroTitleId}>
             <h1 id={heroTitleId} className="landing-title"><DabbleLogo size={windowWidth < 640 ? 64 : 110} tone="paper" animate /></h1>
-            <p className="landing-tagline">Your video player is a canvas. Paint the frame around your video, then press play.</p>
+            <p className="landing-tagline">Your video player is a canvas. Paint the frame, then press play.</p>
             {sizes.length > 0 && <DeviceSwitch sizes={sizes} activeSize={activeSize} onChoose={setPreviewSize} />}
             <div ref={playerRef} className="preview-column" id="player" tabIndex={-1} style={{ maxWidth: columnWidth }}>
               <DabblePlayer sounds defaultTrayOpen onPaletteChange={setPalette} onSoundPreferenceChange={setSoundOptIn} playbackId={PLAYBACK_ID} thumbnailSampleTimes={SAMPLE_TIMES} poster={POSTER} captions={CAPTIONS} />
