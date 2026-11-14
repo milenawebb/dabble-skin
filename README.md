@@ -45,14 +45,14 @@ The import above assumes your example is at the repository root. Inside this dem
 | `paintable` | `true` | Shows viewer painting tools. |
 | `painting` | Not supplied | Starting `{ version: 1, palette, strokes }` painting. Stored viewer paintings take priority. Each stroke retains its own chosen colors. |
 | `ownerTools` | `false` | Adds Copy painting code to the desktop/tablet tray. |
-| `sounds` | `false` | Compatibility prop. It does not enable sound or hide the toggle; explicit viewer consent controls sound. |
+| `sounds` | `false` | Initial sound setting; the viewer's saved choice takes priority. Audio starts only after interaction. |
 | `defaultTrayOpen` | `false` | Starts the desktop/tablet tray open when true. Phones always start with watching controls and the tray closed. |
 | `thumbnailSampleTimes` | Not supplied | Mux thumbnail times in seconds. Otherwise uses 15%, 35%, 55% and 75% of duration. |
 | `onPaletteChange` | Not supplied | Receives the six current paint colors. |
 | `onSoundPreferenceChange` | Not supplied | Receives the viewer's sound opt-in state. |
 | `broken` | `false` | Deliberate broken-source test, not needed for normal use. |
 
-Paintings use normalized points, fixed seeds and per-stroke palettes, so they redraw at any size. The tray's scene colors button takes a new palette from the current video frame. Browser storage is optional. Fresh visitors start silent; explicit sound consent is remembered. No private Mux credentials or Mux analytics are used.
+Paintings use normalized points, fixed seeds and per-stroke palettes, so they redraw at any size. The tray's scene colors button takes a new palette from the current video frame. Browser storage is optional. The viewer's sound choice is remembered. No private Mux credentials or Mux analytics are used.
 
 ## Controls and painting
 
@@ -98,6 +98,7 @@ Override variables on the elements that use them. `--dabble-paper`, `--dabble-in
 - Reduced motion disables fades and slides. Forced colors use system colors.
 - Forced colors preserve painted artwork and paint swatch colors, with system-color outlines and a thicker selected-swatch outline.
 - Transparency is removed when reduced transparency is on.
+- The skin starts silent. This demo turns on soft brush sounds, which only play while you paint, and the music note button turns them off.
 
 ## Run it locally
 

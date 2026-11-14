@@ -64,10 +64,28 @@ describe('painting defaults', () => {
   });
 });
  describe('sound consent', () => {
-  it('defaults off without storage even when the old sounds prop is supplied', () => {
-    render(<DabblePlayer sounds />);
+  it('defaults off without storage when sounds is omitted', () => {
+    render(<DabblePlayer />);
     expect(trayProps.mock.lastCall?.[0].sounds).toBe(false);
     expect(feedback.mock.lastCall?.[1]).toBe(false);
+    expect(unlock).not.toHaveBeenCalled();
+  });
+  it('honors the demo sound default without unlocking audio or implying explicit opt-in', () => {
+    const changed = vi.fn();
+    render(<DabblePlayer sounds onSoundPreferenceChange={changed} />);
+    expect(trayProps.mock.lastCall?.[0].sounds).toBe(true);
+    expect(feedback.mock.lastCall?.[1]).toBe(true);
+    expect(changed).toHaveBeenLastCalledWith(false);
+    expect(unlock).not.toHaveBeenCalled();
+  });
+  it('lets saved off override the demo default after a one-press opt-out and remount', () => {
+    const { unmount } = render(<DabblePlayer sounds />);
+    act(() => trayProps.mock.lastCall?.[0].toggleSounds());
+    expect(trayProps.mock.lastCall?.[0].sounds).toBe(false);
+    expect(localStorage.getItem('dabble-sounds-v2')).toBe('off');
+    unmount();
+    render(<DabblePlayer sounds />);
+    expect(trayProps.mock.lastCall?.[0].sounds).toBe(false);
     expect(unlock).not.toHaveBeenCalled();
   });
   it('restores a stored off choice without activating audio', () => {

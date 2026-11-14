@@ -34,7 +34,7 @@ export type DabblePlayerProps = {
   onPaletteChange?: (palette: Palette) => void;
 };
 
-export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poster, broken = false, captions, paintable = true, ownerTools = false, painting, sounds: _sounds = false, defaultTrayOpen = false, onSoundPreferenceChange, onPaletteChange }: DabblePlayerProps) {
+export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poster, broken = false, captions, paintable = true, ownerTools = false, painting, sounds = false, defaultTrayOpen = false, onSoundPreferenceChange, onPaletteChange }: DabblePlayerProps) {
   const [ready, setReady] = useState(false);
   const source = getPlayerSource(playbackId ? `https://stream.mux.com/${playbackId}.m3u8` : src, broken && ready);
   const muxSource = useMemo(() => ({
@@ -51,18 +51,21 @@ export function DabblePlayer({ src = '', playbackId, thumbnailSampleTimes, poste
   useBrushCursor(canvasRef, paintRef, paint.size, paint.palette[paint.color] ?? paint.palette[0], paint.brush);
   const [controlsState, setControlsState] = useState({ visible: true, paused: true });
   const trayActivity = useCallback((active: boolean) => { canvasRef.current?.dispatchEvent(new CustomEvent('dabble-tray-activity', { detail: active })); }, []);
-  const [soundChoice, setSoundChoice] = useState(false);
+  const [soundChoice, setSoundChoice] = useState(sounds);
   const [soundOptIn, setSoundOptIn] = useState(false);
   const automaticSound = useFeedback(canvasRef, soundChoice, paint.painting, paint.brush);
   useEffect(() => {
-    setSoundsEnabled(false);
+    let enabled = sounds;
+    let optedIn = false;
     try {
       localStorage.removeItem('dabble-painted-once'); // Discard obsolete first-stroke discovery state.
       localStorage.removeItem('dabble-sounds');
-      const enabled = localStorage.getItem('dabble-sounds-v2') === 'on';
-      setSoundsEnabled(enabled); setSoundChoice(enabled); setSoundOptIn(enabled);
-    } catch { /* Storage is optional; failed reads leave sounds off. */ }
-  }, []);
+      const saved = localStorage.getItem('dabble-sounds-v2');
+      if (saved === 'on' || saved === 'off') enabled = saved === 'on';
+      optedIn = saved === 'on';
+    } catch { /* Storage is optional; use the supplied default when unavailable. */ }
+    setSoundsEnabled(enabled); setSoundChoice(enabled); setSoundOptIn(optedIn);
+  }, [sounds]);
   useEffect(() => { onSoundPreferenceChange?.(soundChoice && soundOptIn); }, [soundChoice, soundOptIn, onSoundPreferenceChange]);
   const toggleSounds = () => {
     const next = !soundChoice;

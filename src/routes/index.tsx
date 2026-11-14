@@ -42,6 +42,7 @@ const OPEN_ITEMS = [
   'On phones the controls sit inside the video, with 44 pixel touch targets, and appear with a tap.',
   'With reduced motion on, fades and slides switch off.',
   'Transparency is removed when reduced transparency is on.',
+  'The skin starts silent. This demo turns on soft brush sounds, which only play while you paint, and the music note button turns them off.',
 ];
 
 const PROPS: Array<[string, string]> = [
@@ -52,7 +53,7 @@ const PROPS: Array<[string, string]> = [
   ['paintable', 'Shows viewer painting tools. Default: true.'],
   ['painting', 'Starting { version: 1, palette, strokes } painting. Stored viewer paintings take priority. Each stroke retains its own chosen colors. Default: Not supplied.'],
   ['ownerTools', 'Adds Copy painting code to the desktop/tablet tray. Default: false.'],
-  ['sounds', 'Compatibility prop. It does not enable sound or hide the toggle; explicit viewer consent controls sound. Default: false.'],
+  ['sounds', 'Initial sound setting; the viewer\'s saved choice takes priority. Audio starts only after interaction. Default: false.'],
   ['defaultTrayOpen', 'Starts the desktop/tablet tray open when true. Phones always start with watching controls and the tray closed. Default: false.'],
   ['thumbnailSampleTimes', 'Mux thumbnail times in seconds. Otherwise uses 15%, 35%, 55% and 75% of duration. Default: Not supplied.'],
   ['onPaletteChange', 'Receives the six current paint colors. Default: Not supplied.'],
@@ -156,7 +157,7 @@ function Index() {
             <p className="landing-tagline">Paint the frame around your video, then press play.</p>
             {sizes.length > 0 && <DeviceSwitch sizes={sizes} activeSize={activeSize} onChoose={setPreviewSize} />}
             <div ref={playerRef} className="preview-column" id="player" tabIndex={-1} style={{ maxWidth: columnWidth }}>
-              <DabblePlayer defaultTrayOpen onPaletteChange={setPalette} onSoundPreferenceChange={setSoundOptIn} playbackId={PLAYBACK_ID} thumbnailSampleTimes={SAMPLE_TIMES} poster={POSTER} captions={CAPTIONS} />
+              <DabblePlayer sounds defaultTrayOpen onPaletteChange={setPalette} onSoundPreferenceChange={setSoundOptIn} playbackId={PLAYBACK_ID} thumbnailSampleTimes={SAMPLE_TIMES} poster={POSTER} captions={CAPTIONS} />
               <PaintInvitations player={playerRef} />
             </div>
             <p className="film-credit">Dab is an original short made for this demo. Video hosted on Mux.</p>
