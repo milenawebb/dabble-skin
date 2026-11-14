@@ -23,13 +23,12 @@
   --paint-orange: #FF5A1F;
   --paint-pink: #FF2E93;
   --paint-ink: oklch(0.2217300 0.0019108 106.55434);
-  --canvas-thread-horizontal: oklch(0.3544565 0.0084529 106.82315 / 0.028);
-  --canvas-thread-vertical: oklch(0.3544565 0.0084529 106.82315 / 0.02);
-  --canvas-clear: oklch(0 0 0 / 0);
   --canvas-edge-right: oklch(0.9126711 0.0083561 91.48819);
   --canvas-edge-bottom: oklch(0.8479266 0.0098272 93.58602);
   --canvas-shadow: 0 34px 60px -26px oklch(0.2131692 0.0212771 263.96435 / 0.45), 0 4px 10px oklch(0.2131692 0.0212771 263.96435 / 0.08);
-  --canvas-weave: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.25  0 0 0 0 0.24  0 0 0 0 0.22  0 0 0 0.05 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"), repeating-linear-gradient(0deg, var(--canvas-thread-horizontal) 0 1px, var(--canvas-clear) 1px 3px), repeating-linear-gradient(90deg, var(--canvas-thread-vertical) 0 1px, var(--canvas-clear) 1px 3px);
+  /* Frozen from WebKit's existing 240px stitched grain and 3px weave.
+     480px preserves both periods; the 2x image has the same CSS dimensions. */
+  --canvas-weave: image-set(url("/__l5e/assets-v1/69978a07-eff5-4241-bcc8-59e634400b22/canvas-paper-1x.png") 1x, url("/__l5e/assets-v1/1c671f2a-ee9b-42a9-8e06-80553cd04c7f/canvas-paper-2x.png") 2x);
   --dabble-ledge-text: #C9C5BD;
 }
 
