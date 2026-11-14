@@ -36,13 +36,15 @@ const OPEN_ITEMS = [
   'Every control works with the keyboard. Escape closes any menu.',
   'A two-tone focus ring shows where you are.',
   'Controls sit on an opaque paper label, so they stay readable over any video and any paint.',
-  'Ink on paper (controls, captions, paint tray): 16.93:1. Page text on the wall: 16.50:1. Secondary text: 9.77:1. Where a dab of paint sits behind a control, its color is adjusted so the ink stays at least 4.5:1, the AA minimum.',
+  'Ink on paper reaches 16.93:1, page text 16.50:1, secondary text 9.77:1.',
+  'Where a dab of paint sits behind a control, its color is adjusted to keep the ink at least 4.5:1.',
   'Captions have their own outlined label.',
-  'Buttons are at least 44 pixels on touch screens.',
-  'On phones the controls sit inside the video, with 44 pixel touch targets, and appear with a tap.',
+  'Buttons are at least 44 pixels on touch screens. On phones the controls sit inside the video and appear with a tap.',
   'With reduced motion on, fades and slides switch off.',
-  'Transparency is removed when reduced transparency is on.',
+  'With reduced transparency on, see-through layers become solid.',
+  'Windows High Contrast (forced colors) is supported.',
   'The skin starts silent. This demo turns on soft brush sounds, which only play while you paint, and the music note button turns them off.',
+  'The paint shelf starts closed, so the player is just a player until someone wants to paint. This demo opens it for you.',
 ];
 
 const PROPS: Array<[string, string]> = [
@@ -193,7 +195,7 @@ function Index() {
         <section className="gallery-section" id="open" aria-labelledby="open-title">
           <div className="paper-piece gallery-sign">
             <h2 id="open-title"><PaintedTitle>Open to all</PaintedTitle></h2>
-            <ul className="open-checklist">{OPEN_ITEMS.map((line, index) => <li key={line}><svg className={`check-dab paint-tone-${index}`} aria-hidden="true" viewBox="-17 -17 34 34"><path d={BLOB_PATH} /></svg><span>{line}</span></li>)}</ul>
+            <ul className="open-checklist">{OPEN_ITEMS.map((line, index) => <li key={line}><svg className={`check-dab paint-tone-${index % 9}`} aria-hidden="true" viewBox="-17 -17 34 34"><path d={BLOB_PATH} /></svg><span>{line}</span></li>)}</ul>
           </div>
         </section>
         <section className="gallery-section gallery-keys" id="keys" aria-labelledby="keys-title">

@@ -95,6 +95,8 @@
   --logo-blue: #2B5FC2;
   --logo-cyan: #5CE1E6;
   --logo-yellow: #F4CC04;
+  --open-dab-green: oklch(0.67 0.19 145);
+  --open-dab-red: oklch(0.62 0.23 25);
   --foreground: oklch(0.2 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
@@ -257,9 +259,11 @@
 @media (max-width: 639px) { .who-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; } }
 .gallery-sign { --paper-tilt: -.3deg; padding: 40px; }
 .gallery-sign h2 { font-size: 46px; }
-.open-checklist { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px 40px; }
-.open-checklist li { display: flex; align-items: start; gap: 14px; font-size: 15px; line-height: 1.6; }
+.open-checklist { list-style: none; padding: 0; margin: 0; columns: 2; column-gap: 40px; }
+.open-checklist li { display: flex; align-items: start; gap: 14px; font-size: 15px; line-height: 1.6; break-inside: avoid; padding-bottom: 16px; }
 .check-dab { width: 20px; height: 20px; flex: 0 0 20px; fill: var(--key-paint); margin-top: 3px; }
+.check-dab.paint-tone-7 { --key-paint: var(--open-dab-green); }
+.check-dab.paint-tone-8 { --key-paint: var(--open-dab-red); }
 .loose-keys { display: flex; flex-wrap: wrap; gap: 24px 36px; margin: 0; }
 .loose-keys .keys-row { margin: 0; }
 .keys-divider { display: block; width: 100%; height: 10px; margin: 30px 0; fill: none; stroke: var(--landing-wall-dim); stroke-width: 1; }
@@ -289,7 +293,8 @@
   .gallery-intro { grid-template-columns: 1fr; margin-top: 48px; gap: 56px; }
   .museum-label { max-width: 300px; }
   .gallery-section h2 { font-size: 34px; }
-  .brush-gallery, .developer-pieces, .open-checklist, .use-props { grid-template-columns: 1fr; }
+  .brush-gallery, .developer-pieces, .use-props { grid-template-columns: 1fr; }
+  .open-checklist { columns: 1; }
   .brush-gallery, .developer-pieces { row-gap: 56px; }
   .paper-piece { padding: 24px; }
   .artist-note .artist-margin-note { font-size: 24px; }
@@ -320,7 +325,8 @@
   .device-choice[aria-checked="true"] .device-word { text-decoration: underline; }
   .keys-row kbd, .use-code { background: Canvas; color: CanvasText; border: 1px solid CanvasText; }
   .keys-row .keycap, .brush-try { color: CanvasText; }
-  .check-dab, .footer-stroke { fill: CanvasText; }
+  .check-dab { forced-color-adjust: none; }
+  .footer-stroke { fill: CanvasText; }
   .keys-divider { stroke: CanvasText; }
 }
 
