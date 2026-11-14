@@ -224,6 +224,8 @@
 .museum-label p { font-size: 14px; line-height: 1.45; margin-bottom: 4px; }
 .museum-label .museum-name { font: 400 26px 'Instrument Serif', serif; margin-bottom: 8px; }
 .artist-note { --paper-tilt: .4deg; }
+.artist-note .artist-margin-note { font: 500 28px/1.3 Caveat, cursive; color: var(--dabble-ink); margin: 8px 0 22px 12px; padding-top: 8px; transform: rotate(-1.5deg); transform-origin: left center; }
+.artist-margin-doodle { display: inline-block; width: 32px; height: 28px; vertical-align: middle; fill: none; stroke: var(--landing-teal); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .brush-gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
 .brush-swatch { padding: 18px 20px 20px; }
 .brush-swatch-0 { --paper-tilt: -.4deg; }
@@ -290,6 +292,7 @@
   .brush-gallery, .developer-pieces, .open-checklist, .use-props { grid-template-columns: 1fr; }
   .brush-gallery, .developer-pieces { row-gap: 56px; }
   .paper-piece { padding: 24px; }
+  .artist-note .artist-margin-note { font-size: 24px; }
   .brush-swatch p { min-height: 0; }
   .brush-sample { height: 150px; }
   .loose-keys { gap: 20px; }
@@ -310,6 +313,8 @@
   .landing, .landing-wall, .landing-header { background: Canvas; color: CanvasText; }
   .landing-nav a, .device-choice, .landing-tagline, .gallery-section h2, .gallery-caption, .keys-row dd, .use-props, .use-props code, .film-credit, .landing-footer-note { color: CanvasText; }
   .paper-piece { transform: none; color: CanvasText; }
+  .artist-note .artist-margin-note { color: CanvasText; }
+  .artist-margin-doodle { stroke: CanvasText; }
   .paper-piece::before { background: Canvas; border-color: CanvasText; box-shadow: none; }
   .device-blob, .device-underline, .keycap-blob, .painted-title > svg { display: none; }
   .device-choice[aria-checked="true"] .device-word { text-decoration: underline; }

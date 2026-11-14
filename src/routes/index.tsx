@@ -171,7 +171,7 @@ function Index() {
           <article className="paper-piece artist-note">
             <h2><PaintedTitle>Artist's note</PaintedTitle></h2>
             <p>Most player skins are finished before anyone presses play. Dabble hands you the brush. The video sits on a white stretched canvas, and the frame around it is yours to paint, in any color, in your own style, or to leave blank for a cleaner look.</p>
-            <p>And it turned out to be calming, like doodling in the margins while the film plays on.</p>
+            <p className="artist-margin-note">And it turned out to be calming, like doodling in the margins while the film plays on.{' '}<svg className="artist-margin-doodle" aria-hidden="true" viewBox="0 0 32 28"><path d="M3 21C-1 8 10 1 22 5S33 23 20 24S7 13 16 10S28 16 21 19S14 15 18 14" /></svg></p>
             <p>Under the paint it is a plain Video.js v10 skin built from the standard components. Your painting is saved in your own browser, scales with the player, and steps aside completely in fullscreen. Every icon, button, brush and paint blob was drawn for Dabble. There is no icon set.</p>
             <p>The film is original too. Dab, the blank canvas who rolls through four colors and stays blank, was made for this page so the video and the player tell the same story.</p>
           </article>
